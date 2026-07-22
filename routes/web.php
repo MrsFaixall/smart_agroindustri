@@ -16,7 +16,8 @@ use App\Http\Controllers\{
     JenisKentangController,
     HargaController,
     UserController,
-    MidtransController
+    MidtransController,
+    DaftarTransaksiController
 };
 
 // ==========================================
@@ -69,6 +70,11 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // 7. CRUD Transaksi Pembayaran (Pengepul lakukan pembayaran)
     Route::resource('pembayaran', PembayaranController::class)->only(['index', 'create', 'store']);
+    Route::get('/pembayaran/{id}/invoice', [PembayaranController::class, 'invoice'])->name('pembayaran.invoice');
+    Route::get('/pembayaran/{id}/struk', [PembayaranController::class, 'cetakStruk'])->name('pembayaran.struk');
+
+    // 7.1 Daftar Transaksi (Halaman Khusus Riwayat Transaksi & Struk/Invoice)
+    Route::get('/daftar-transaksi', [DaftarTransaksiController::class, 'index'])->name('daftar-transaksi.index');
 
     // 8. Laporan (Hanya view, tidak perlu resource penuh)
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');

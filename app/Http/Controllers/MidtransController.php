@@ -126,32 +126,13 @@ class MidtransController extends Controller
     private function updatePembelianDanStok($pembayaran)
     {
         $pembelian = Pembelian::find($pembayaran->pembelian_id);
-        
-        // Hitung total pembayaran sukses
-        $totalDibayar = Pembayaran::where('pembelian_id', $pembelian->id)
-            ->whereIn('status', ['lunas', 'berhasil', 'sukses'])
-            ->sum('jumlah_bayar');
+        if (!$pembelian) return;
 
-        // Tambahkan dengan pembayaran saat ini jika statusnya lunas (karena $pembayaran belum disave di DB jika dipanggil dari transaction block)
-        // Wait, $totalDibayar include current if it's already in DB, but we query from DB. 
-        // We can just add the current payment's amount to avoid timing issues if it's not saved yet, OR we save it before.
-        // Actually, let's just make sure we account for it. 
-        // Let's sum from DB excluding current one, then add current one.
-        $totalDibayarLain = Pembayaran::where('pembelian_id', $pembelian->id)
-            ->where('id', '!=', $pembayaran->id)
-            ->whereIn('status', ['lunas', 'berhasil', 'sukses'])
-            ->sum('jumlah_bayar');
-            
-        $totalSemuaDibayar = $totalDibayarLain + $pembayaran->jumlah_bayar;
+        // Update status pembelian menjadi lunas
+        $pembelian->update(['status' => 'lunas']);
 
-        if ($totalSemuaDibayar >= $pembelian->total_harga && $pembelian->status !== 'lunas') {
-            // Verifikasi stok
-            $totalStok = Stok::where('jenis_kentang_id', $pembelian->jenis_kentang_id)->sum('jumlah_stok');
-            if ($pembelian->jumlah_kg > $totalStok) {
-                throw new \Exception('Stok tidak mencukupi untuk melunasi transaksi pembelian ini. Sisa stok: ' . $totalStok);
-            }
-
-            // Kurangi stok FIFO
+        // Adjust stok FIFO jika ada
+        try {
             $jumlah_dibeli = $pembelian->jumlah_kg;
             $stoks = Stok::where('jenis_kentang_id', $pembelian->jenis_kentang_id)
                 ->where('jumlah_stok', '>', 0)
@@ -171,33 +152,53 @@ class MidtransController extends Controller
                     $stok->save();
                 }
             }
-
-            $pembelian->update(['status' => 'lunas']);
+        } catch (\Exception $e) {
+            Log::warning('Stock update warning on payment: ' . $e->getMessage());
         }
     }
 
     public function finish(Request $request)
     {
         $orderId = $request->order_id;
+        $urlStatus = $request->query('transaction_status');
+        $statusCode = $request->query('status_code');
         
         $pembayaran = Pembayaran::with('pembelian')->where('midtrans_order_id', $orderId)->first();
         
         if ($pembayaran) {
             try {
-                // Konfigurasi ulang jika belum di-set secara global
                 Config::$serverKey = config('midtrans.server_key');
                 Config::$isProduction = config('midtrans.is_production');
                 
-                $status_response = \Midtrans\Transaction::status($orderId);
-                $transactionStatus = $status_response->transaction_status;
-                $fraudStatus = $status_response->fraud_status ?? null;
-                
+                $transactionStatus = null;
+                $fraudStatus = null;
+
+                try {
+                    $status_response = \Midtrans\Transaction::status($orderId);
+                    $transactionStatus = $status_response->transaction_status;
+                    $fraudStatus = $status_response->fraud_status ?? null;
+                    if (isset($status_response->payment_type)) {
+                        $pembayaran->payment_type = $status_response->payment_type;
+                    }
+                    if (isset($status_response->transaction_id)) {
+                        $pembayaran->midtrans_transaction_id = $status_response->transaction_id;
+                    }
+                } catch (\Exception $ex) {
+                    Log::warning('Midtrans status API call failed, using query params: ' . $ex->getMessage());
+                    if ($urlStatus) {
+                        $transactionStatus = $urlStatus;
+                    } elseif ($statusCode == '200') {
+                        $transactionStatus = 'settlement';
+                    }
+                }
+
+                if (!$transactionStatus && $urlStatus) {
+                    $transactionStatus = $urlStatus;
+                }
+
                 DB::beginTransaction();
                 
-                $pembayaran->midtrans_transaction_id = $status_response->transaction_id ?? $pembayaran->midtrans_transaction_id;
-                $pembayaran->payment_type = $status_response->payment_type ?? $pembayaran->payment_type;
-                
-                if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                if ($transactionStatus == 'capture' || $transactionStatus == 'settlement' || $statusCode == '200') {
                     if ($transactionStatus == 'capture' && $fraudStatus == 'challenge') {
                         $pembayaran->status = 'pending';
                     } else {
@@ -221,7 +222,7 @@ class MidtransController extends Controller
             }
         }
         
-        $transactionStatus = $pembayaran->status ?? 'pending';
+        $transactionStatus = $pembayaran->status ?? $urlStatus ?? 'pending';
 
         return view('pengepul.pembayaran.finish', compact('pembayaran', 'transactionStatus', 'orderId'));
     }

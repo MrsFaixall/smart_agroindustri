@@ -19,12 +19,13 @@ class PanenController extends Controller
         $hargaPasar = \App\Models\Harga::avg('harga') ?? 0;
         $menungguBayar = \App\Models\Pembelian::where('status', 'belum lunas')->sum('total_harga');
         
-        $primaryGudang = \App\Models\Gudang::with('stoks')->first();
+        $gudangs = Gudang::with('stoks')->get();
+        $primaryGudang = $gudangs->first();
         
         $activeBatches = \App\Models\Stok::with(['jenisKentang', 'gudang', 'panen'])
             ->where('jumlah_stok', '>', 0)
             ->latest()
-            ->take(3)
+            ->take(6)
             ->get();
 
         return view('petani.panen.index', compact(
@@ -32,6 +33,7 @@ class PanenController extends Controller
             'totalMusimIni', 
             'hargaPasar', 
             'menungguBayar', 
+            'gudangs',
             'primaryGudang',
             'activeBatches'
         ));
@@ -39,7 +41,7 @@ class PanenController extends Controller
 
     public function create()
     {
-        $gudangs = Gudang::all();
+        $gudangs = Gudang::with('stoks')->get();
         $jenisKentangs = JenisKentang::all();
         return view('petani.panen.create', compact('gudangs', 'jenisKentangs'));
     }
@@ -49,10 +51,21 @@ class PanenController extends Controller
         $data = $request->validate([
             'jenis_kentang_id' => 'required|exists:jenis_kentangs,id',
             'gudang_id' => 'required|exists:gudangs,id',
-            'jumlah_kg' => 'required|numeric',
+            'jumlah_kg' => 'required|numeric|gt:0',
             'tanggal_panen' => 'required|date',
             'grade' => 'required|string|in:A,B,C',
         ]);
+
+        $gudang = Gudang::with('stoks')->findOrFail($data['gudang_id']);
+        $terpakai = $gudang->kapasitas_terpakai;
+        $sisaKapasitas = $gudang->kapasitas_max - $terpakai;
+
+        if ($data['jumlah_kg'] > $sisaKapasitas) {
+            $sisaText = $sisaKapasitas > 0 ? number_format($sisaKapasitas, 0, ',', '.') . ' Kg' : '0 Kg (Gudang Penuh)';
+            return back()->withInput()->withErrors([
+                'jumlah_kg' => "Kapasitas gudang '{$gudang->nama_gudang}' tidak mencukupi! Sisa kapasitas yang tersedia hanya {$sisaText}."
+            ]);
+        }
 
         DB::transaction(function () use ($data) {
             $panen = Panen::create($data);
@@ -75,7 +88,7 @@ class PanenController extends Controller
     public function edit(string $id)
     {
         $panen = Panen::findOrFail($id);
-        $gudangs = Gudang::all();
+        $gudangs = Gudang::with('stoks')->get();
         $jenisKentangs = JenisKentang::all();
 
         return view('petani.panen.edit', compact('panen', 'gudangs', 'jenisKentangs'));
@@ -86,14 +99,28 @@ class PanenController extends Controller
         $data = $request->validate([
             'jenis_kentang_id' => 'required|exists:jenis_kentangs,id',
             'gudang_id' => 'required|exists:gudangs,id',
-            'jumlah_kg' => 'required|numeric',
+            'jumlah_kg' => 'required|numeric|gt:0',
             'tanggal_panen' => 'required|date',
             'grade' => 'required|string|in:A,B,C',
         ]);
 
-        DB::transaction(function () use ($data, $id) {
-            $panen = Panen::findOrFail($id);
-            
+        $panen = Panen::findOrFail($id);
+
+        $gudang = Gudang::with('stoks')->findOrFail($data['gudang_id']);
+        $terpakai = $gudang->kapasitas_terpakai;
+        if ($panen->gudang_id == $data['gudang_id']) {
+            $terpakai -= $panen->jumlah_kg;
+        }
+        $sisaKapasitas = $gudang->kapasitas_max - $terpakai;
+
+        if ($data['jumlah_kg'] > $sisaKapasitas) {
+            $sisaText = $sisaKapasitas > 0 ? number_format($sisaKapasitas, 0, ',', '.') . ' Kg' : '0 Kg (Gudang Penuh)';
+            return back()->withInput()->withErrors([
+                'jumlah_kg' => "Kapasitas gudang '{$gudang->nama_gudang}' tidak mencukupi! Sisa kapasitas yang tersedia hanya {$sisaText}."
+            ]);
+        }
+
+        DB::transaction(function () use ($data, $panen) {
             // Revert old stock
             $oldStok = Stok::where('gudang_id', $panen->gudang_id)->where('jenis_kentang_id', $panen->jenis_kentang_id)->where('grade', $panen->grade)->first();
             if ($oldStok) {

@@ -36,7 +36,7 @@ class MetodePembayaranController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'kategori' => 'required|string|in:Transfer Bank,E-Wallet,QRIS',
+            'kategori' => 'required|string|in:Transfer Bank,E-Wallet,QRIS,Virtual Account,Tunai / Cash,Kartu Kredit / Debit',
             'bank' => 'required|string|max:255', // Provider / Bank Name
             'atas_nama' => 'required|string|max:255',
             'no_rekening' => 'required|string|max:50',
@@ -69,7 +69,7 @@ class MetodePembayaranController extends Controller
         $method = MetodePembayaran::where('user_id', Auth::id())->findOrFail($id);
 
         $data = $request->validate([
-            'kategori' => 'required|string|in:Transfer Bank,E-Wallet,QRIS',
+            'kategori' => 'required|string|in:Transfer Bank,E-Wallet,QRIS,Virtual Account,Tunai / Cash,Kartu Kredit / Debit',
             'bank' => 'required|string|max:255',
             'atas_nama' => 'required|string|max:255',
             'no_rekening' => 'required|string|max:50',

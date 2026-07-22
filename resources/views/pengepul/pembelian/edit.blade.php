@@ -1,9 +1,68 @@
 @extends('layouts.app')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 48px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+        display: flex;
+        align-items: center;
+        padding-left: 0.5rem;
+        background-color: #ffffff !important;
+        transition: all 0.2s ease;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #001842 !important;
+        box-shadow: 0 0 0 1px #001842 !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px !important;
+        right: 10px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #1e293b !important;
+        font-size: 0.875rem !important;
+        line-height: normal !important;
+    }
+    .select2-dropdown {
+        border: 1px solid #001842 !important;
+        border-radius: 0.75rem !important;
+        overflow: hidden;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        z-index: 9999 !important;
+    }
+    .select2-search--dropdown {
+        padding: 8px !important;
+    }
+    .select2-search__field {
+        outline: none !important;
+        font-size: 0.875rem !important;
+        border-radius: 0.5rem !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 8px 12px !important;
+    }
+    .select2-search__field:focus {
+        border-color: #001842 !important;
+        box-shadow: 0 0 0 1px #001842 !important;
+    }
+    .select2-results__option {
+        font-size: 0.875rem !important;
+        padding: 10px 14px !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+        background-color: #001842 !important;
+        color: #ffffff !important;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <!-- jQuery & Select2 -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 @endpush
 @section('content')
@@ -29,7 +88,7 @@
                 <!-- Pengepul -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Pengepul</label>
-                    <select name="pengepul_id" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
+                    <select name="pengepul_id" id="pengepul_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2" required>
                         <option value="">Pilih Pengepul</option>
                         @foreach($pengepuls as $pengepul)
                             <option value="{{ $pengepul->id }}" {{ $pembelian->pengepul_id == $pengepul->id ? 'selected' : '' }}>{{ $pengepul->name }}</option>
@@ -43,7 +102,7 @@
                  <!-- Petani -->
                  <div>
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Petani</label>
-                     <select name="petani_id" id="petani_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
+                     <select name="petani_id" id="petani_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2" required>
                          <option value="">Pilih Petani</option>
                          @foreach($petanis as $petani)
                              <option value="{{ $petani->id }}" {{ $pembelian->petani_id == $petani->id ? 'selected' : '' }}>{{ $petani->name }}</option>
@@ -59,16 +118,18 @@
                  <!-- Jenis Kentang -->
                  <div>
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Jenis Kentang</label>
-                     <select name="jenis_kentang_id" id="jenis_kentang_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
-                         <option value="" data-stok="0" data-harga="0">Pilih Jenis</option>
+                     <select name="jenis_kentang_id" id="jenis_kentang_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2" required>
+                         <option value="" data-stok="0" data-gudang="" data-harga="0">Pilih Jenis</option>
                          @foreach($jenisKentangs as $jenis)
-                             <option value="{{ $jenis->id }}" data-stok="{{ $jenis->total_stok }}" data-harga="{{ $jenis->harga_per_kg }}" {{ old('jenis_kentang_id', $pembelian->jenis_kentang_id) == $jenis->id ? 'selected' : '' }}>
-                                 {{ $jenis->nama_jenis }}
+                             <option value="{{ $jenis->id }}" data-stok="{{ $jenis->total_stok }}" data-gudang="{{ $jenis->gudang_info }}" data-harga="{{ $jenis->harga_per_kg }}" {{ old('jenis_kentang_id', $pembelian->jenis_kentang_id) == $jenis->id ? 'selected' : '' }}>
+                                 {{ $jenis->nama_jenis }} (Stok Total: {{ $jenis->total_stok }} Kg)
                              </option>
                          @endforeach
                      </select>
-                     <p id="stok_info" class="mt-1.5 text-xs text-slate-500 font-medium hidden">
-                         Sisa Stok: <span id="stok_text" class="text-slate-800 font-bold">0</span> Kg | Harga: <span id="harga_text" class="text-emerald-600 font-bold">Rp 0</span> / Kg
+                     <p id="stok_info" class="mt-2 text-xs text-slate-600 font-medium hidden bg-blue-50 border border-blue-100 p-3 rounded-xl">
+                         📦 Total Stok: <span id="stok_text" class="text-slate-900 font-bold">0</span> Kg <br>
+                         🏢 Lokasi Stok: <span id="gudang_text" class="text-blue-800 font-semibold">-</span> <br>
+                         🏷️ Harga: <span id="harga_text" class="text-emerald-600 font-bold">Rp 0</span> / Kg
                      </p>
                      @error('jenis_kentang_id')
                          <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
@@ -89,7 +150,7 @@
                  <!-- Jumlah (Kg) -->
                  <div>
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Jumlah Beli (Kg)</label>
-                     <input type="number" step="0.01" name="jumlah_kg" id="jumlah_kg_input" value="{{ $pembelian->jumlah_kg }}" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
+                     <input type="number" step="0.01" name="jumlah_kg" id="jumlah_kg_input" value="{{ old('jumlah_kg', $pembelian->jumlah_kg) }}" placeholder="Contoh: 1500.5" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
                      @error('jumlah_kg')
                          <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
                      @enderror
@@ -98,8 +159,8 @@
                  <!-- Total Harga -->
                  <div>
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Total Harga (Rp)</label>
-                     <input type="number" name="total_harga" id="total_harga_input" value="{{ $pembelian->total_harga }}" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
-                     <p class="mt-1.5 text-xs text-slate-500">Ubah jumlah beli untuk meng-update total harga otomatis.</p>
+                     <input type="number" name="total_harga" id="total_harga_input" value="{{ old('total_harga', $pembelian->total_harga) }}" placeholder="Contoh: 15000000" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
+                     <p class="mt-1.5 text-xs text-slate-500">Harga akan terisi otomatis jika jenis kentang dan jumlah beli diisi.</p>
                      @error('total_harga')
                          <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
                      @enderror
@@ -110,8 +171,8 @@
                  <div>
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Status Pembayaran</label>
                      <select name="status" id="status_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
-                         <option value="belum lunas" {{ $pembelian->status === 'belum lunas' ? 'selected' : '' }}>Belum Lunas</option>
-                         <option value="lunas" {{ $pembelian->status === 'lunas' ? 'selected' : '' }}>Lunas</option>
+                         <option value="belum lunas" {{ old('status', $pembelian->status) == 'belum lunas' ? 'selected' : '' }}>Belum Lunas</option>
+                         <option value="lunas" {{ old('status', $pembelian->status) == 'lunas' ? 'selected' : '' }}>Lunas</option>
                      </select>
                      @error('status')
                          <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
@@ -121,7 +182,7 @@
                  <!-- Metode Pembayaran Rekening (Conditional) -->
                  <div id="metode_pembayaran_wrapper" class="hidden">
                      <label class="block text-sm font-semibold text-slate-700 mb-2">Metode Pembayaran (Rekening Petani)</label>
-                     <select name="metode_pembayaran_id" id="metode_pembayaran_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors">
+                     <select name="metode_pembayaran_id" id="metode_pembayaran_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2">
                          <option value="">Pilih Rekening Tujuan</option>
                          @foreach($metodePembayarans as $method)
                              <option value="{{ $method->id }}" data-user-id="{{ $method->user_id }}" {{ old('metode_pembayaran_id', $pembelian->pembayarans->first()->metode_pembayaran_id ?? '') == $method->id ? 'selected' : '' }}>
@@ -135,7 +196,7 @@
                  </div>
              </div>
  
-             <div class="pt-4 flex justify-end gap-3">
+             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
                  <a href="{{ route('pembelian.index') }}" class="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-colors">
                      Batal
                  </a>
@@ -149,6 +210,7 @@
  
  <script>
      document.addEventListener('DOMContentLoaded', function() {
+         const pengepulSelect = document.getElementById('pengepul_select');
          const petaniSelect = document.getElementById('petani_select');
          const statusSelect = document.getElementById('status_select');
          const paymentWrapper = document.getElementById('metode_pembayaran_wrapper');
@@ -159,17 +221,34 @@
          const totalHargaInput = document.getElementById('total_harga_input');
          const stokInfo = document.getElementById('stok_info');
          const stokText = document.getElementById('stok_text');
+         const gudangText = document.getElementById('gudang_text');
          const hargaText = document.getElementById('harga_text');
 
          // Initialize Select2
+         if (pengepulSelect) {
+             $(pengepulSelect).select2({
+                 placeholder: "Pilih Pengepul",
+                 allowClear: true,
+                 width: '100%'
+             });
+         }
+
          $(petaniSelect).select2({
              placeholder: "Pilih Petani",
-             allowClear: true
+             allowClear: true,
+             width: '100%'
          });
          
          $(jenisSelect).select2({
              placeholder: "Pilih Jenis",
-             allowClear: true
+             allowClear: true,
+             width: '100%'
+         });
+
+         $(paymentSelect).select2({
+             placeholder: "Pilih Rekening Tujuan",
+             allowClear: true,
+             width: '100%'
          });
 
          // Format currency
@@ -190,9 +269,11 @@
              const selectedOption = this.options[this.selectedIndex];
              if(selectedOption && selectedOption.value) {
                  const stok = selectedOption.dataset.stok;
+                 const gudang = selectedOption.dataset.gudang;
                  const harga = selectedOption.dataset.harga;
                  
                  stokText.textContent = stok;
+                 if(gudangText) gudangText.textContent = gudang || 'Belum Ada Stok';
                  hargaText.textContent = formatRp(harga);
                  stokInfo.classList.remove('hidden');
              } else {

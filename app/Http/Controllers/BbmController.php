@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bbm;
 use Illuminate\Http\Request;
 
-class Bbmcontroller extends Controller
+class BbmController extends Controller
 {
     /**
      * Display a listing of the resource.

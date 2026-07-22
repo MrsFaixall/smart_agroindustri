@@ -14,14 +14,39 @@ use Illuminate\Support\Facades\DB;
 
 class PembelianController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pembelians = Pembelian::with(['petani', 'pengepul', 'jenisKentang'])->latest()->get();
-        
-        // Calculate summary
-        $totalTransaksi = $pembelians->count();
-        $totalJumlah = $pembelians->sum('jumlah_kg');
-        $totalNilai = $pembelians->sum('total_harga');
+        // Calculate total summary before pagination
+        $totalTransaksi = Pembelian::count();
+        $totalJumlah = Pembelian::sum('jumlah_kg');
+        $totalNilai = Pembelian::sum('total_harga');
+
+        $query = Pembelian::with(['petani', 'pengepul', 'jenisKentang']);
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('pengepul', function($qp) use ($search) {
+                    $qp->where('name', 'like', "%{$search}%");
+                })->orWhereHas('petani', function($qp) use ($search) {
+                    $qp->where('name', 'like', "%{$search}%");
+                })->orWhereHas('jenisKentang', function($qj) use ($search) {
+                    $qj->where('nama_jenis', 'like', "%{$search}%");
+                });
+            });
+        if ($request->filled('period')) {
+            if ($request->period === 'today') {
+                $query->whereDate('tanggal_pembelian', now()->toDateString());
+            } elseif ($request->period === 'this_week') {
+                $query->whereBetween('tanggal_pembelian', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()]);
+            } elseif ($request->period === 'this_month') {
+                $query->whereYear('tanggal_pembelian', now()->year)->whereMonth('tanggal_pembelian', now()->month);
+            }
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_pembelian', [$request->start_date, $request->end_date]);
+        }
+
+        $pembelians = $query->latest()->paginate(5)->withQueryString();
 
         return view('pengepul.pembelian.index', compact('pembelians', 'totalTransaksi', 'totalJumlah', 'totalNilai'));
     }
@@ -30,9 +55,17 @@ class PembelianController extends Controller
     {
         $petanis = User::where('role', 'petani')->get();
         $pengepuls = User::where('role', 'pengepul')->get();
-        $jenisKentangs = JenisKentang::with(['harga', 'stoks'])->get()->map(function($jenis) {
+        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
             $jenis->total_stok = $jenis->stoks->sum('jumlah_stok');
             $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
+            
+            $gudangStoks = $jenis->stoks->filter(fn($s) => $s->jumlah_stok > 0)->groupBy('gudang_id')->map(function($stoks) {
+                $gudangName = $stoks->first()->gudang->nama_gudang ?? 'Gudang Utama';
+                $subtotal = $stoks->sum('jumlah_stok');
+                return "{$gudangName}: {$subtotal} Kg";
+            })->values()->implode(', ');
+
+            $jenis->gudang_info = $gudangStoks ? $gudangStoks : 'Stok Kosong';
             return $jenis;
         });
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();
@@ -107,9 +140,17 @@ class PembelianController extends Controller
         $pembelian = Pembelian::with('pembayarans')->findOrFail($id);
         $petanis = User::where('role', 'petani')->get();
         $pengepuls = User::where('role', 'pengepul')->get();
-        $jenisKentangs = JenisKentang::with(['harga', 'stoks'])->get()->map(function($jenis) {
+        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
             $jenis->total_stok = $jenis->stoks->sum('jumlah_stok');
             $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
+            
+            $gudangStoks = $jenis->stoks->filter(fn($s) => $s->jumlah_stok > 0)->groupBy('gudang_id')->map(function($stoks) {
+                $gudangName = $stoks->first()->gudang->nama_gudang ?? 'Gudang Utama';
+                $subtotal = $stoks->sum('jumlah_stok');
+                return "{$gudangName}: {$subtotal} Kg";
+            })->values()->implode(', ');
+
+            $jenis->gudang_info = $gudangStoks ? $gudangStoks : 'Stok Kosong';
             return $jenis;
         });
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();

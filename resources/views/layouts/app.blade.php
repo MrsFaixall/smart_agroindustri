@@ -118,8 +118,12 @@
                     <span class="font-semibold text-sm">Pembelian</span>
                 </a>
                 <a href="{{ route('pembayaran.index') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pembayaran.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Transaksi Pembayaran</span>
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pembayaran.index') || request()->routeIs('pembayaran.create') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pembayaran</span>
+                </a>
+                <a href="{{ route('daftar-transaksi.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('daftar-transaksi.*') || request()->routeIs('pembayaran.invoice') || request()->routeIs('pembayaran.struk') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Daftar Transaksi</span>
                 </a>
                 <a href="{{ route('laporan.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('laporan.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">

@@ -55,29 +55,74 @@
         </div>
 
         <!-- Card 4: Kapasitas Gudang -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between h-36">
-            <div>
-                <p class="text-slate-400 text-[10px] font-bold tracking-wider uppercase">Kapasitas Gudang</p>
-                @if($primaryGudang)
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="text-xs font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg border border-amber-100 uppercase max-w-[140px] truncate">
-                            {{ $primaryGudang->nama_gudang }}
-                        </span>
-                        <span class="text-xs font-bold text-slate-700">{{ $primaryGudang->persentase_kapasitas }}%</span>
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative flex flex-col justify-between h-36"
+             x-data="{ 
+                 selectedGudangId: {{ isset($gudangs) && $gudangs->isNotEmpty() ? $gudangs->first()->id : 'null' }},
+                 gudangs: {{ json_encode(($gudangs ?? collect())->map(function($g) {
+                     $terpakai = $g->kapasitas_terpakai;
+                     $max = $g->kapasitas_max;
+                     $sisa = $max - $terpakai;
+                     $persen = $max > 0 ? round(($terpakai / $max) * 100) : 0;
+                     return [
+                         'id' => $g->id,
+                         'nama' => $g->nama_gudang,
+                         'terpakai' => $terpakai,
+                         'max' => $max,
+                         'sisa' => $sisa,
+                         'persen' => $persen,
+                     ];
+                 })->values()) }}
+             }">
+            @if(isset($gudangs) && $gudangs->isNotEmpty())
+                <div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-slate-400 text-[10px] font-bold tracking-wider uppercase">Kapasitas Gudang</p>
+                        @if($gudangs->count() > 1)
+                            <select x-model="selectedGudangId" class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 focus:outline-none max-w-[130px] truncate">
+                                <template x-for="g in gudangs" :key="g.id">
+                                    <option :value="g.id" x-text="g.nama"></option>
+                                </template>
+                            </select>
+                        @endif
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2">
-                        <div class="bg-amber-500 h-1.5 rounded-full" style="width: {{ $primaryGudang->persentase_kapasitas }}%"></div>
+                    
+                    <template x-for="g in gudangs" :key="g.id">
+                        <div x-show="selectedGudangId == g.id" class="mt-2 space-y-1.5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg border border-amber-100 uppercase max-w-[140px] truncate" x-text="g.nama"></span>
+                                <span class="text-xs font-bold" :class="g.persen >= 100 ? 'text-rose-600 font-black' : 'text-slate-700'" x-text="g.persen + '%'"></span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="h-1.5 rounded-full transition-all duration-300"
+                                     :class="g.persen >= 100 ? 'bg-rose-500' : (g.persen >= 80 ? 'bg-amber-500' : 'bg-emerald-500')"
+                                     :style="'width: ' + Math.min(100, g.persen) + '%'"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <template x-for="g in gudangs" :key="'sisa-' + g.id">
+                    <div x-show="selectedGudangId == g.id">
+                        <p class="text-[10px]" :class="g.sisa <= 0 ? 'text-rose-600 font-bold' : 'text-slate-400'">
+                            <template x-if="g.sisa > 0">
+                                <span>Sisa kapasitas: <strong x-text="new Intl.NumberFormat('id-ID').format(g.sisa) + ' Kg'"></strong></span>
+                            </template>
+                            <template x-if="g.sisa <= 0">
+                                <span>⚠️ Gudang Penuh! (Over: <strong x-text="new Intl.NumberFormat('id-ID').format(Math.abs(g.sisa)) + ' Kg'"></strong>)</span>
+                            </template>
+                        </p>
                     </div>
-                @else
-                    <h3 class="text-sm font-semibold mt-2 text-slate-400">Belum ada gudang</h3>
-                @endif
-            </div>
-            @if($primaryGudang)
-                <p class="text-[10px] text-slate-400">
-                    Sisa kapasitas: {{ number_format($primaryGudang->kapasitas_max - $primaryGudang->kapasitas_terpakai, 0, ',', '.') }} Kg
-                </p>
+                </template>
             @else
-                <p class="text-xs text-slate-400">-</p>
+                <div class="flex flex-col justify-between h-full">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-bold tracking-wider uppercase">Kapasitas Gudang</p>
+                        <h3 class="text-xs font-semibold mt-2 text-slate-400">Belum ada gudang</h3>
+                    </div>
+                    <a href="{{ route('gudang.create') }}" class="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-1">
+                        <span>+</span> Tambah Gudang
+                    </a>
+                </div>
             @endif
         </div>
     </div>
@@ -111,9 +156,14 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-slate-800 text-sm">{{ $batch->jenisKentang->nama_jenis ?? 'Kentang' }}</h4>
-                            <p class="text-xs text-slate-500 mt-0.5">
-                                {{ number_format($batch->jumlah_stok, 0, ',', '.') }} Kg / Grade {{ $batch->grade }}
-                            </p>
+                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                <span class="text-xs text-slate-500 font-medium">
+                                    {{ number_format($batch->jumlah_stok, 0, ',', '.') }} Kg / Grade {{ $batch->grade }}
+                                </span>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    🏢 {{ $batch->gudang->nama_gudang ?? 'Gudang' }}
+                                </span>
+                            </div>
                         </div>
                         <p class="text-[10px] text-slate-400 pt-2 border-t border-slate-50">
                             {{ \Carbon\Carbon::parse($batch->created_at)->translatedFormat('d M Y') }}
@@ -144,7 +194,7 @@
                     <thead class="bg-slate-50/50">
                         <tr>
                             <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Tanggal</th>
-                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Komoditas</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Komoditas & Gudang</th>
                             <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Berat (Kg)</th>
                             <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Pendapatan</th>
                             <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
@@ -177,7 +227,12 @@
                                 <td class="px-6 py-4 text-slate-600 font-medium">{{ optional($panen->tanggal_panen)->format('d M Y') ?? '-' }}</td>
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-slate-800">{{ $panen->jenisKentang->nama_jenis ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400 mt-0.5">{{ $panen->gudang->nama_gudang ?? '-' }} (Grade {{ $panen->grade }})</div>
+                                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                                        <span class="inline-flex items-center text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                                            🏢 {{ $panen->gudang->nama_gudang ?? '-' }}
+                                        </span>
+                                        <span class="text-[10px] font-bold text-slate-500">Grade {{ $panen->grade }}</span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600 font-mono text-sm font-semibold">{{ number_format($panen->jumlah_kg, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 text-slate-700 font-semibold">Rp {{ number_format($pendapatan, 0, ',', '.') }}</td>

@@ -48,12 +48,14 @@
                     <label for="pembelian_id" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Transaksi</label>
                     <select name="pembelian_id" id="pembelian_id" 
                         class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none bg-white transition-all select2" required>
-                        <option value="" disabled selected>-- Pilih Transaksi Pembelian --</option>
-                        @foreach($pembelians as $pembelian)
-                            <option value="{{ $pembelian->id }}" data-petani="{{ $pembelian->petani->name ?? 'N/A' }}" data-total="{{ $pembelian->total_harga }}" {{ old('pembelian_id') == $pembelian->id ? 'selected' : '' }}>
-                                {{ $pembelian->petani->name ?? 'Petani' }} - Rp {{ number_format($pembelian->total_harga, 0, ',', '.') }} ({{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->format('d M') }})
+                        <option value="" disabled selected>-- Pilih Transaksi Pembelian (Tagihan Belum Lunas) --</option>
+                        @forelse($pembelians as $pembelian)
+                            <option value="{{ $pembelian->id }}" data-petani="{{ $pembelian->petani->name ?? 'N/A' }}" data-total="{{ $pembelian->total_harga }}" {{ old('pembelian_id', request('pembelian_id')) == $pembelian->id ? 'selected' : '' }}>
+                                {{ $pembelian->kode_trx }} — {{ $pembelian->petani->name ?? 'Petani' }} — Pengepul: {{ $pembelian->pengepul->name ?? '-' }} — Rp {{ number_format($pembelian->total_harga, 0, ',', '.') }} ({{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->format('d M Y') }})
                             </option>
-                        @endforeach
+                        @empty
+                            <option value="" disabled>-- Tidak ada tagihan transaksi yang belum lunas --</option>
+                        @endforelse
                     </select>
                 </div>
 
