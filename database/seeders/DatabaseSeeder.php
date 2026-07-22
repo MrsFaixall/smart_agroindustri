@@ -27,11 +27,11 @@ class DatabaseSeeder extends Seeder
             
             // Pengepul
             ['name' => 'Faisal Pengepul', 'email' => 'faisal@gmail.com', 'role' => 'pengepul', 'password' => 'faisalst'],
-            ['name' => 'Faisal Pengepul 1', 'email' => 'faisal1@gmail.com', 'role' => 'pengepul', 'password' => 'faisalst'],
+            ['name' => 'Pengepul', 'email' => 'pengepul@gmail.com', 'role' => 'pengepul', 'password' => 'pengepulst'],
             
             // Petani
             ['name' => 'Habibi Petani', 'email' => 'habibi@gmail.com', 'role' => 'petani', 'password' => 'habibist'],
-            ['name' => 'Habibi Petani 1', 'email' => 'habibi1@gmail.com', 'role' => 'petani', 'password' => 'habibist'],
+            ['name' => 'Petani', 'email' => 'petani@gmail.com', 'role' => 'petani', 'password' => 'petanist'],
         ];
 
         foreach ($users as $user) {

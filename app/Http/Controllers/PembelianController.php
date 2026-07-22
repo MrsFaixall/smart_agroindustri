@@ -16,14 +16,24 @@ class PembelianController extends Controller
 {
     public function index(Request $request)
     {
-        // Calculate total summary before pagination
+        $user = Auth::user();
+
+        // Calculate total summary
         $totalTransaksi = Pembelian::count();
         $totalJumlah = Pembelian::sum('jumlah_kg');
         $totalNilai = Pembelian::sum('total_harga');
 
         $query = Pembelian::with(['petani', 'pengepul', 'jenisKentang']);
 
-        if ($request->has('search') && $request->search != '') {
+        // Filter by role
+        if ($user->role === 'petani') {
+            $query->where('petani_id', $user->id);
+        } elseif ($user->role === 'pengepul') {
+            $query->where('pengepul_id', $user->id);
+        }
+
+        // Search filter
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->whereHas('pengepul', function($qp) use ($search) {
@@ -34,6 +44,9 @@ class PembelianController extends Controller
                     $qj->where('nama_jenis', 'like', "%{$search}%");
                 });
             });
+        }
+
+        // Period / date range filter
         if ($request->filled('period')) {
             if ($request->period === 'today') {
                 $query->whereDate('tanggal_pembelian', now()->toDateString());

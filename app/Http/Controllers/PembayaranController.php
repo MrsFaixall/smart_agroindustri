@@ -7,6 +7,7 @@ use App\Models\Pembelian;
 use App\Models\MetodePembayaran;
 use App\Models\Stok;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranController extends Controller
 {
@@ -18,9 +19,20 @@ class PembayaranController extends Controller
         $totalPending = Pembelian::where('status', 'belum lunas')->count();
         $totalNilai = Pembelian::sum('total_harga');
 
+        $user = Auth::user();
+
         // Query 1 & 2: Pembelian & Pembayaran
         $pembelianQuery = Pembelian::with(['petani', 'pengepul', 'jenisKentang', 'pembayarans']);
         $paymentQuery = Pembayaran::with(['pembelian.petani', 'pembelian.pengepul', 'metodePembayaran']);
+
+        // Filter by role
+        if ($user->role === 'petani') {
+            $pembelianQuery->where('petani_id', $user->id);
+            $paymentQuery->whereHas('pembelian', fn($q) => $q->where('petani_id', $user->id));
+        } elseif ($user->role === 'pengepul') {
+            $pembelianQuery->where('pengepul_id', $user->id);
+            $paymentQuery->whereHas('pembelian', fn($q) => $q->where('pengepul_id', $user->id));
+        }
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;

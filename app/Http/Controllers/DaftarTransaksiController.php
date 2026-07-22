@@ -4,20 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DaftarTransaksiController extends Controller
 {
     public function index(Request $request)
     {
-        // Total stats before pagination
-        $totalTransaksi = Pembayaran::count();
-        $totalLunas = Pembayaran::whereIn('status', ['lunas', 'berhasil', 'sukses'])->count();
-        $totalPending = Pembayaran::whereIn('status', ['belum lunas', 'pending'])->count();
-        $totalNilai = Pembayaran::sum('jumlah_bayar');
+        $user = Auth::user();
 
         $query = Pembayaran::with(['pembelian.petani', 'pembelian.pengepul', 'metodePembayaran']);
 
-        if ($request->has('search') && $request->search != '') {
+        // Filter by role
+        if ($user->role === 'petani') {
+            $query->whereHas('pembelian', fn($q) => $q->where('petani_id', $user->id));
+        } elseif ($user->role === 'pengepul') {
+            $query->whereHas('pembelian', fn($q) => $q->where('pengepul_id', $user->id));
+        }
+
+        // Total stats (after role filter)
+        $totalTransaksi = (clone $query)->count();
+        $totalLunas = (clone $query)->whereIn('status', ['lunas', 'berhasil', 'sukses'])->count();
+        $totalPending = (clone $query)->whereIn('status', ['belum lunas', 'pending'])->count();
+        $totalNilai = (clone $query)->sum('jumlah_bayar');
+
+        // Search filter
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->whereHas('pembelian.pengepul', function($qp) use ($search) {
@@ -28,6 +39,9 @@ class DaftarTransaksiController extends Controller
                     $qm->where('bank', 'like', "%{$search}%")->orWhere('kategori', 'like', "%{$search}%");
                 });
             });
+        }
+
+        // Period / date range filter
         if ($request->filled('period')) {
             if ($request->period === 'today') {
                 $query->whereDate('tanggal_pembayaran', now()->toDateString());

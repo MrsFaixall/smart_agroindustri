@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Agroindustri</title>
+    <!-- Logo Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%23001842'/%3E%3Cpath fill='%23ffffff' d='M55 42V12L18 58h30v30l37-46H55z'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
@@ -156,8 +158,15 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
         <header class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-            <input type="text" placeholder="🔍 Cari data..."
-                class="bg-slate-50 border rounded-lg px-4 py-2 w-80 text-sm focus:outline-none">
+            <div class="relative w-80">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" placeholder="Cari data di aplikasi..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-all">
+            </div>
             <div class="flex items-center gap-6">
                 <div class="flex items-center gap-3 pl-6 border-l">
                     <div class="text-right">
