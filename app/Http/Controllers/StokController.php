@@ -6,6 +6,7 @@ use App\Models\Gudang;
 use App\Models\JenisKentang;
 use App\Models\Stok;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StokController extends Controller
 {
@@ -159,7 +160,13 @@ class StokController extends Controller
 
     public function destroy(string $id)
     {
-        Stok::findOrFail($id)->delete();
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil dihapus.');
+        try {
+            DB::transaction(function () use ($id) {
+                Stok::findOrFail($id)->delete();
+            });
+            return redirect()->back()->with('success', 'Stok berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus stok: ' . $e->getMessage());
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -72,11 +73,26 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         if (auth()->id() == $user->id) {
-            return redirect()->route('pengguna.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        $user->delete();
+        try {
+            DB::transaction(function () use ($user) {
+                // Delete dependent child records
+                \App\Models\MetodePembayaran::where('user_id', $user->id)->delete();
+                
+                $pembelians = \App\Models\Pembelian::where('petani_id', $user->id)->orWhere('koperasi_id', $user->id)->get();
+                foreach ($pembelians as $pem) {
+                    \App\Models\Pembayaran::where('pembelian_id', $pem->id)->delete();
+                    $pem->delete();
+                }
 
-        return redirect()->route('pengguna.index')->with('success', 'Pengguna berhasil dihapus.');
+                $user->delete();
+            });
+
+            return redirect()->back()->with('success', 'Pengguna beserta data terkait berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus pengguna: ' . $e->getMessage());
+        }
     }
 }

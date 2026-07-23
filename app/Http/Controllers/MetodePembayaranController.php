@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MetodePembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MetodePembayaranController extends Controller
@@ -37,7 +38,7 @@ class MetodePembayaranController extends Controller
     {
         $data = $request->validate([
             'kategori' => 'required|string|in:Transfer Bank,E-Wallet,QRIS,Virtual Account,Tunai / Cash,Kartu Kredit / Debit',
-            'bank' => 'required|string|max:255', // Provider / Bank Name
+            'bank' => 'required|string|max:255',
             'atas_nama' => 'required|string|max:255',
             'no_rekening' => 'required|string|max:50',
             'qr_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -90,14 +91,22 @@ class MetodePembayaranController extends Controller
 
     public function destroy(string $id)
     {
-        $method = MetodePembayaran::where('user_id', Auth::id())->findOrFail($id);
-        
-        if ($method->qr_image) {
-            Storage::disk('public')->delete($method->qr_image);
-        }
-        
-        $method->delete();
+        try {
+            $method = MetodePembayaran::findOrFail($id);
+            
+            DB::transaction(function () use ($method) {
+                \App\Models\Pembayaran::where('metode_pembayaran_id', $method->id)->delete();
+                
+                if ($method->qr_image) {
+                    Storage::disk('public')->delete($method->qr_image);
+                }
+                
+                $method->delete();
+            });
 
-        return redirect()->route('metode-pembayaran.index')->with('success', 'Metode pembayaran berhasil dihapus.');
+            return redirect()->back()->with('success', 'Metode pembayaran berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus metode pembayaran: ' . $e->getMessage());
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JenisKentang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class JenisKentangController extends Controller
 {
@@ -48,7 +49,20 @@ class JenisKentangController extends Controller
     }
 
     public function destroy($id) {
-        JenisKentang::findOrFail($id)->delete();
-        return redirect()->route('admin.jenis_kentang.index')->with('success', 'Data dihapus!');
+        try {
+            DB::transaction(function () use ($id) {
+                $item = JenisKentang::findOrFail($id);
+                // Clean up dependent child records to prevent foreign key constraint violation (Error 1451)
+                \App\Models\Harga::where('jenis_kentang_id', $id)->delete();
+                \App\Models\Stok::where('jenis_kentang_id', $id)->delete();
+                \App\Models\Panen::where('jenis_kentang_id', $id)->delete();
+                \App\Models\Pembelian::where('jenis_kentang_id', $id)->delete();
+                $item->delete();
+            });
+
+            return redirect()->back()->with('success', 'Data jenis kentang beserta seluruh data terkait berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data jenis kentang: ' . $e->getMessage());
+        }
     }
 }
