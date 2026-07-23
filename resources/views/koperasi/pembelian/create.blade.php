@@ -84,16 +84,16 @@
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Pengepul -->
+                <!-- Koperasi -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Pengepul</label>
-                    <select name="pengepul_id" id="pengepul_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2" required>
-                        <option value="">Pilih Pengepul</option>
-                        @foreach($pengepuls as $pengepul)
-                            <option value="{{ $pengepul->id }}" {{ auth()->id() == $pengepul->id ? 'selected' : '' }}>{{ $pengepul->name }}</option>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Koperasi</label>
+                    <select name="koperasi_id" id="koperasi_select" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors select2" required>
+                        <option value="">Pilih Koperasi</option>
+                        @foreach($koperasis as $koperasi)
+                            <option value="{{ $koperasi->id }}" {{ auth()->id() == $koperasi->id ? 'selected' : '' }}>{{ $koperasi->name }}</option>
                         @endforeach
                     </select>
-                    @error('pengepul_id')
+                    @error('koperasi_id')
                         <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
                     @enderror
                 </div>
@@ -209,7 +209,7 @@
  
  <script>
      document.addEventListener('DOMContentLoaded', function() {
-         const pengepulSelect = document.getElementById('pengepul_select');
+         const koperasiSelect = document.getElementById('koperasi_select');
          const petaniSelect = document.getElementById('petani_select');
          const statusSelect = document.getElementById('status_select');
          const paymentWrapper = document.getElementById('metode_pembayaran_wrapper');
@@ -223,9 +223,9 @@
          const hargaText = document.getElementById('harga_text');
 
          // Initialize Select2 for all dropdowns
-         if (pengepulSelect) {
-             $(pengepulSelect).select2({
-                 placeholder: "Pilih Pengepul",
+         if (koperasiSelect) {
+             $(koperasiSelect).select2({
+                 placeholder: "Pilih Koperasi",
                  allowClear: true,
                  width: '100%'
              });

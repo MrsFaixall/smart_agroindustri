@@ -12,8 +12,8 @@ class Pembelian extends Model {
         return $this->belongsTo(User::class, 'petani_id');
     }
 
-    public function pengepul() {
-        return $this->belongsTo(User::class, 'pengepul_id');
+    public function koperasi() {
+        return $this->belongsTo(User::class, 'koperasi_id');
     }
 
     public function jenisKentang() {

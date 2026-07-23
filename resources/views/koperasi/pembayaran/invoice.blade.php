@@ -54,11 +54,11 @@
 
         <!-- Meta Grid Info -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8 border-b border-slate-100">
-            <!-- Pengepul (Pembeli) -->
+            <!-- Koperasi (Pembeli) -->
             <div class="space-y-1">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pengepul / Pembeli</p>
-                <h3 class="text-base font-bold text-slate-900">{{ $payment->pembelian->pengepul->name ?? 'Pengepul' }}</h3>
-                <p class="text-xs text-slate-500">{{ $payment->pembelian->pengepul->email ?? '-' }}</p>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Koperasi / Pembeli</p>
+                <h3 class="text-base font-bold text-slate-900">{{ $payment->pembelian->koperasi->name ?? 'Koperasi' }}</h3>
+                <p class="text-xs text-slate-500">{{ $payment->pembelian->koperasi->email ?? '-' }}</p>
             </div>
             <!-- Petani (Penjual) -->
             <div class="space-y-1">
@@ -164,8 +164,8 @@
                 <p class="font-bold text-slate-800 uppercase">( {{ $payment->pembelian->petani->name ?? 'Petani' }} )</p>
             </div>
             <div>
-                <p class="font-semibold mb-12">Pihak Pengepul / Pembeli</p>
-                <p class="font-bold text-slate-800 uppercase">( {{ $payment->pembelian->pengepul->name ?? 'Pengepul' }} )</p>
+                <p class="font-semibold mb-12">Pihak Koperasi / Pembeli</p>
+                <p class="font-bold text-slate-800 uppercase">( {{ $payment->pembelian->koperasi->name ?? 'Koperasi' }} )</p>
             </div>
         </div>
 

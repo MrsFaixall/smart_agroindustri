@@ -86,8 +86,8 @@
                 <span>{{ \Carbon\Carbon::parse($payment->tanggal_pembayaran)->format('d/m/Y H:i') }}</span>
             </div>
             <div class="row">
-                <span>Pengepul:</span>
-                <span class="bold">{{ substr($payment->pembelian->pengepul->name ?? 'Pengepul', 0, 15) }}</span>
+                <span>Koperasi:</span>
+                <span class="bold">{{ substr($payment->pembelian->koperasi->name ?? 'Koperasi', 0, 15) }}</span>
             </div>
             <div class="row">
                 <span>Petani:</span>

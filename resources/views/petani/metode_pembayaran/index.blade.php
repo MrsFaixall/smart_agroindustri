@@ -106,9 +106,10 @@
                         </td>
                     </tr>
                 @endforelse
-            </tbody>
         </table>
         </div>
     </div>
+
+    @include('partials.pagination', ['paginator' => $methods, 'label' => 'metode pembayaran'])
 </div>
 @endsection

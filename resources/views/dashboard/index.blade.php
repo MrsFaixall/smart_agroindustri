@@ -24,7 +24,7 @@
             $stats = [
                 ['label' => 'TOTAL GUDANG', 'value' => number_format($totalGudang ?? 0), 'sub' => '↗ +2 Gudang baru', 'icon' => 'home'],
                 ['label' => 'TOTAL PETANI', 'value' => number_format($totalPetani ?? 0), 'sub' => '↗ +12 bulan ini', 'icon' => 'user-group'],
-                ['label' => 'TOTAL PENGEPUL', 'value' => number_format($totalPengepul ?? 0), 'sub' => '— Stabil', 'icon' => 'truck'],
+                ['label' => 'TOTAL KOPERASI', 'value' => number_format($totalKoperasi ?? 0), 'sub' => '— Stabil', 'icon' => 'truck'],
                 ['label' => 'TOTAL PANEN', 'value' => number_format(($totalPanenKg ?? 0) / 1000, 2, ',', '.').' Ton', 'sub' => number_format($totalPanenKg ?? 0, 0, ',', '.').' Kg tercatat', 'icon' => 'archive-box'],
             ];
         @endphp

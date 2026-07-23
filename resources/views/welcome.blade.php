@@ -75,7 +75,7 @@
                         Pertanian Cerdas <br>Untuk <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500">Masa Depan</span>
                     </h1>
                     <p class="text-lg text-slate-600 mb-10 leading-relaxed max-w-xl">
-                        Hubungkan petani, pengepul, dan pasar dalam satu ekosistem digital terintegrasi. Tingkatkan efisiensi logistik, transparansi harga, dan kesejahteraan bersama.
+                        Hubungkan petani, koperasi, dan pasar dalam satu ekosistem digital terintegrasi. Tingkatkan efisiensi logistik, transparansi harga, dan kesejahteraan bersama.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="{{ route('register') }}" class="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-white transition-all bg-slate-900 rounded-full hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-200 hover:-translate-y-1">
@@ -177,7 +177,7 @@
         
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
             <h2 class="text-3xl lg:text-5xl font-bold outfit text-white mb-6">Siap Mentransformasi Bisnis Pertanian Anda?</h2>
-            <p class="text-xl text-slate-300 mb-10">Bergabunglah bersama ribuan petani dan pengepul yang telah beralih ke digital.</p>
+            <p class="text-xl text-slate-300 mb-10">Bergabunglah bersama ribuan petani dan koperasi yang telah beralih ke digital.</p>
             <a href="{{ route('register') }}" class="inline-flex justify-center items-center px-10 py-5 text-lg font-bold text-slate-900 transition-all bg-white rounded-full hover:bg-slate-100 hover:shadow-xl hover:shadow-white/20 hover:-translate-y-1">
                 Buat Akun Gratis
                 <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>

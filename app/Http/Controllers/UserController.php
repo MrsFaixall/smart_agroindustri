@@ -25,7 +25,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'role' => ['required', Rule::in(['admin', 'petani', 'pengepul', 'super admin'])],
+            'role' => ['required', Rule::in(['admin', 'petani', 'koperasi', 'super admin'])],
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -49,7 +49,7 @@ class UserController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', Rule::in(['admin', 'petani', 'pengepul', 'super admin'])],
+            'role' => ['required', Rule::in(['admin', 'petani', 'koperasi', 'super admin'])],
         ];
 
         if ($request->filled('password')) {

@@ -46,7 +46,7 @@ class DashboardController extends Controller
             'user' => Auth::user(),
             'totalGudang' => Gudang::count(),
             'totalPetani' => User::where('role', 'petani')->count(),
-            'totalPengepul' => User::where('role', 'pengepul')->count(),
+            'totalKoperasi' => User::where('role', 'koperasi')->count(),
             'totalJenisKentang' => $stokPerJenis->count(),
             'totalStokKg' => Stok::sum('jumlah_stok'),
             'totalPanenKg' => Panen::sum('jumlah_kg'),

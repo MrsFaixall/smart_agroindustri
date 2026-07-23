@@ -51,7 +51,7 @@
                         <option value="" disabled selected>-- Pilih Transaksi Pembelian (Tagihan Belum Lunas) --</option>
                         @forelse($pembelians as $pembelian)
                             <option value="{{ $pembelian->id }}" data-petani="{{ $pembelian->petani->name ?? 'N/A' }}" data-total="{{ $pembelian->total_harga }}" {{ old('pembelian_id', request('pembelian_id')) == $pembelian->id ? 'selected' : '' }}>
-                                {{ $pembelian->kode_trx }} — {{ $pembelian->petani->name ?? 'Petani' }} — Pengepul: {{ $pembelian->pengepul->name ?? '-' }} — Rp {{ number_format($pembelian->total_harga, 0, ',', '.') }} ({{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->format('d M Y') }})
+                                {{ $pembelian->kode_trx }} — {{ $pembelian->petani->name ?? 'Petani' }} — Koperasi: {{ $pembelian->koperasi->name ?? '-' }} — Rp {{ number_format($pembelian->total_harga, 0, ',', '.') }} ({{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->format('d M Y') }})
                             </option>
                         @empty
                             <option value="" disabled>-- Tidak ada tagihan transaksi yang belum lunas --</option>
@@ -200,7 +200,7 @@
                                 <div class="h-px bg-slate-100 my-2"></div>
                                 <!-- Group Manual -->
                                 <div>
-                                    <p class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transfer Manual (Pengepul ke Petani)</p>
+                                    <p class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transfer Manual (Koperasi ke Petani)</p>
                                     <template x-for="m in methods.filter(m => m.type === 'manual')" :key="m.id">
                                         <button type="button" @click="selectedMethod = m.id; open = false" 
                                             class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors"

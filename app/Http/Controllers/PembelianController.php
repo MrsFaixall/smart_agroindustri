@@ -23,20 +23,20 @@ class PembelianController extends Controller
         $totalJumlah = Pembelian::sum('jumlah_kg');
         $totalNilai = Pembelian::sum('total_harga');
 
-        $query = Pembelian::with(['petani', 'pengepul', 'jenisKentang']);
+        $query = Pembelian::with(['petani', 'koperasi', 'jenisKentang']);
 
         // Filter by role
         if ($user->role === 'petani') {
             $query->where('petani_id', $user->id);
-        } elseif ($user->role === 'pengepul') {
-            $query->where('pengepul_id', $user->id);
+        } elseif ($user->role === 'koperasi') {
+            $query->where('koperasi_id', $user->id);
         }
 
         // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('pengepul', function($qp) use ($search) {
+                $q->whereHas('koperasi', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
                 })->orWhereHas('petani', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
@@ -61,13 +61,13 @@ class PembelianController extends Controller
 
         $pembelians = $query->latest()->paginate(5)->withQueryString();
 
-        return view('pengepul.pembelian.index', compact('pembelians', 'totalTransaksi', 'totalJumlah', 'totalNilai'));
+        return view('koperasi.pembelian.index', compact('pembelians', 'totalTransaksi', 'totalJumlah', 'totalNilai'));
     }
 
     public function create()
     {
         $petanis = User::where('role', 'petani')->get();
-        $pengepuls = User::where('role', 'pengepul')->get();
+        $koperasis = User::where('role', 'koperasi')->get();
         $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
             $jenis->total_stok = $jenis->stoks->sum('jumlah_stok');
             $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
@@ -82,14 +82,14 @@ class PembelianController extends Controller
             return $jenis;
         });
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();
-        return view('pengepul.pembelian.create', compact('petanis', 'pengepuls', 'jenisKentangs', 'metodePembayarans'));
+        return view('koperasi.pembelian.create', compact('petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'petani_id' => 'required|exists:users,id',
-            'pengepul_id' => 'required|exists:users,id',
+            'koperasi_id' => 'required|exists:users,id',
             'jenis_kentang_id' => 'required|exists:jenis_kentangs,id',
             'jumlah_kg' => 'required|numeric|min:0.01',
             'total_harga' => 'required|numeric|min:0.01',
@@ -98,9 +98,12 @@ class PembelianController extends Controller
             'metode_pembayaran_id' => 'required_if:status,lunas|nullable|exists:metode_pembayarans,id',
         ]);
         if ($data['status'] === 'lunas') {
-            $totalStok = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('jumlah_stok');
-            if ($data['jumlah_kg'] > $totalStok) {
-                return back()->withErrors(['jumlah_kg' => 'Stok tidak mencukupi, sisa stok: ' . $totalStok])->withInput();
+            $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('stok_dijual');
+            if ($totalStokSiapDijual <= 0) {
+                $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('jumlah_stok');
+            }
+            if ($data['jumlah_kg'] > $totalStokSiapDijual) {
+                return back()->withErrors(['jumlah_kg' => 'Stok yang siap dijual tidak mencukupi! Sisa stok siap dijual: ' . number_format($totalStokSiapDijual, 0, ',', '.') . ' Kg'])->withInput();
             }
         }
 
@@ -120,22 +123,26 @@ class PembelianController extends Controller
                 
                 $jumlah_dibeli = $data['jumlah_kg'];
                 $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
-                    ->where('jumlah_stok', '>', 0)
+                    ->where('stok_dijual', '>', 0)
                     ->orderBy('id')
                     ->get();
                     
+                if ($stoks->sum('stok_dijual') < $jumlah_dibeli) {
+                    $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
+                        ->where('jumlah_stok', '>', 0)
+                        ->orderBy('id')
+                        ->get();
+                }
+
                 foreach ($stoks as $stok) {
                     if ($jumlah_dibeli <= 0) break;
                     
-                    if ($stok->jumlah_stok >= $jumlah_dibeli) {
-                        $stok->jumlah_stok -= $jumlah_dibeli;
-                        $stok->save();
-                        $jumlah_dibeli = 0;
-                    } else {
-                        $jumlah_dibeli -= $stok->jumlah_stok;
-                        $stok->jumlah_stok = 0;
-                        $stok->save();
-                    }
+                    $kurangi = min($jumlah_dibeli, max($stok->stok_dijual, $stok->jumlah_stok));
+                    $stok->jumlah_stok = max(0, $stok->jumlah_stok - $kurangi);
+                    $stok->stok_dijual = max(0, ($stok->stok_dijual ?? 0) - $kurangi);
+                    $stok->save();
+                    
+                    $jumlah_dibeli -= $kurangi;
                 }
             }
         });
@@ -152,14 +159,14 @@ class PembelianController extends Controller
     {
         $pembelian = Pembelian::with('pembayarans')->findOrFail($id);
         $petanis = User::where('role', 'petani')->get();
-        $pengepuls = User::where('role', 'pengepul')->get();
+        $koperasis = User::where('role', 'koperasi')->get();
         $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
-            $jenis->total_stok = $jenis->stoks->sum('jumlah_stok');
+            $jenis->total_stok = $jenis->stoks->sum('stok_dijual') > 0 ? $jenis->stoks->sum('stok_dijual') : $jenis->stoks->sum('jumlah_stok');
             $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
             
             $gudangStoks = $jenis->stoks->filter(fn($s) => $s->jumlah_stok > 0)->groupBy('gudang_id')->map(function($stoks) {
                 $gudangName = $stoks->first()->gudang->nama_gudang ?? 'Gudang Utama';
-                $subtotal = $stoks->sum('jumlah_stok');
+                $subtotal = $stoks->sum('stok_dijual') > 0 ? $stoks->sum('stok_dijual') : $stoks->sum('jumlah_stok');
                 return "{$gudangName}: {$subtotal} Kg";
             })->values()->implode(', ');
 
@@ -167,7 +174,7 @@ class PembelianController extends Controller
             return $jenis;
         });
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();
-        return view('pengepul.pembelian.edit', compact('pembelian', 'petanis', 'pengepuls', 'jenisKentangs', 'metodePembayarans'));
+        return view('koperasi.pembelian.edit', compact('pembelian', 'petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans'));
     }
 
     public function update(Request $request, string $id)
@@ -176,7 +183,7 @@ class PembelianController extends Controller
 
         $data = $request->validate([
             'petani_id' => 'required|exists:users,id',
-            'pengepul_id' => 'required|exists:users,id',
+            'koperasi_id' => 'required|exists:users,id',
             'jenis_kentang_id' => 'required|exists:jenis_kentangs,id',
             'jumlah_kg' => 'required|numeric|min:0.01',
             'total_harga' => 'required|numeric|min:0.01',
@@ -196,15 +203,19 @@ class PembelianController extends Controller
                     $stokToReturn = Stok::where('jenis_kentang_id', $old_jenis)->first();
                     if ($stokToReturn) {
                         $stokToReturn->jumlah_stok += $old_jumlah;
+                        $stokToReturn->stok_dijual = ($stokToReturn->stok_dijual ?? 0) + $old_jumlah;
                         $stokToReturn->save();
                     }
                 }
 
                 // Cek stok baru jika status baru lunas
                 if ($data['status'] === 'lunas') {
-                    $totalStok = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('jumlah_stok');
-                    if ($data['jumlah_kg'] > $totalStok) {
-                        throw new \Exception('Stok tidak mencukupi, sisa stok: ' . $totalStok);
+                    $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('stok_dijual');
+                    if ($totalStokSiapDijual <= 0) {
+                        $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('jumlah_stok');
+                    }
+                    if ($data['jumlah_kg'] > $totalStokSiapDijual) {
+                        throw new \Exception('Stok yang siap dijual tidak mencukupi! Sisa stok siap dijual: ' . number_format($totalStokSiapDijual, 0, ',', '.') . ' Kg');
                     }
                 }
 
@@ -226,22 +237,26 @@ class PembelianController extends Controller
                     // Kurangi stok baru
                     $jumlah_dibeli = $data['jumlah_kg'];
                     $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
-                        ->where('jumlah_stok', '>', 0)
+                        ->where('stok_dijual', '>', 0)
                         ->orderBy('id')
                         ->get();
                         
+                    if ($stoks->sum('stok_dijual') < $jumlah_dibeli) {
+                        $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
+                            ->where('jumlah_stok', '>', 0)
+                            ->orderBy('id')
+                            ->get();
+                    }
+
                     foreach ($stoks as $stok) {
                         if ($jumlah_dibeli <= 0) break;
                         
-                        if ($stok->jumlah_stok >= $jumlah_dibeli) {
-                            $stok->jumlah_stok -= $jumlah_dibeli;
-                            $stok->save();
-                            $jumlah_dibeli = 0;
-                        } else {
-                            $jumlah_dibeli -= $stok->jumlah_stok;
-                            $stok->jumlah_stok = 0;
-                            $stok->save();
-                        }
+                        $kurangi = min($jumlah_dibeli, max($stok->stok_dijual, $stok->jumlah_stok));
+                        $stok->jumlah_stok = max(0, $stok->jumlah_stok - $kurangi);
+                        $stok->stok_dijual = max(0, ($stok->stok_dijual ?? 0) - $kurangi);
+                        $stok->save();
+                        
+                        $jumlah_dibeli -= $kurangi;
                     }
                 } else if ($data['status'] === 'belum lunas') {
                     Pembayaran::where('pembelian_id', $pembelian->id)->delete();

@@ -174,19 +174,62 @@
                         Tidak ada batch aktif di gudang.
                     </div>
                 @endforelse
+
+                @include('partials.pagination', ['paginator' => $activeBatches, 'label' => 'batch aktif'])
             </div>
         </div>
 
         <!-- Right Side: Riwayat Panen (Harvest History Table) -->
         <div class="col-span-12 xl:col-span-8 space-y-4">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h2 class="font-bold text-lg text-slate-800">Riwayat Panen</h2>
-                <!-- Search input client side -->
-                <div class="relative w-64">
-                    <input type="text" x-model="searchQuery" placeholder="Cari data panen..." 
-                        class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-[#001842] transition-colors pl-8">
-                    <span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
-                </div>
+            </div>
+
+            <!-- Search & Filter Bar (Kalender & Periode) -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <form action="{{ route('panen.index') }}" method="GET" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full">
+                    <!-- Search Text -->
+                    <div class="relative flex-1 min-w-[180px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                            class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-colors" 
+                            placeholder="Cari kata kunci...">
+                    </div>
+
+                    <!-- Periode Select -->
+                    <div class="min-w-[140px]">
+                        <select name="period" onchange="this.form.submit()" class="block w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-colors font-medium">
+                            <option value="">📅 Semua Periode</option>
+                            <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hari Ini</option>
+                            <option value="this_week" {{ request('period') == 'this_week' ? 'selected' : '' }}>Minggu Ini</option>
+                            <option value="this_month" {{ request('period') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
+                        </select>
+                    </div>
+
+                    <!-- Kalender Rentang Tanggal -->
+                    <div class="flex items-center gap-1.5 min-w-[260px]">
+                        <input type="date" name="start_date" value="{{ request('start_date') }}" class="block w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-colors">
+                        <span class="text-xs text-slate-400 font-bold">s/d</span>
+                        <input type="date" name="end_date" value="{{ request('end_date') }}" class="block w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-colors">
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl text-white bg-[#001842] hover:bg-[#002a70] transition-colors shadow-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.707.293H10a1 1 0 01-.707-.293L2.879 7.293A1 1 0 012.586 6.586V4z"></path></svg>
+                            Filter
+                        </button>
+                        @if(request('search') || request('period') || request('start_date') || request('end_date'))
+                            <a href="{{ route('panen.index') }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
@@ -263,6 +306,82 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            @include('partials.pagination', ['paginator' => $panens, 'label' => 'data panen'])
+
+            <!-- Activity Flow & Status Explanation Section -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6 mt-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                            <span>🔄</span> Alur Aktivitas & Penjelasan Status Panen
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Memahami perjalanan hasil panen Anda dari input <code class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-mono text-[11px]">Catat Hasil Panen</code> hingga selesai disalurkan.</p>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Activity Flow -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+                    <!-- Step 1 -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 relative">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-6 h-6 rounded-full bg-[#001842] text-white font-bold text-xs flex items-center justify-center">1</span>
+                            <h4 class="font-bold text-xs text-slate-800">1. Catat Panen</h4>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Petani menginput data hasil panen via <span class="font-semibold text-slate-700">Form Tambah Panen</span>.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 relative">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+                            <h4 class="font-bold text-xs text-emerald-900">2. Di Gudang</h4>
+                        </div>
+                        <p class="text-[11px] text-emerald-700 leading-relaxed">
+                            Otomatis masuk gudang sebagai <span class="font-bold">Stok Aktif</span>. Status badge: <span class="font-bold text-emerald-800">Di Gudang</span>.
+                        </p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-100 relative">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center">3</span>
+                            <h4 class="font-bold text-xs text-amber-900">3. Transaksi Koperasi</h4>
+                        </div>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            Koperasi membeli stok. Status berubah jadi <span class="font-bold">Terjual Sebagian</span> jika stok tersisa.
+                        </p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-slate-100/80 p-4 rounded-2xl border border-slate-200 relative">
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-6 h-6 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center">4</span>
+                            <h4 class="font-bold text-xs text-slate-800">4. Selesai</h4>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Seluruh stok batch habis (0 Kg). Status panen berubah menjadi <span class="font-bold text-slate-800">Selesai</span>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Legend status table -->
+                <div class="bg-slate-50/60 p-4 rounded-2xl border border-slate-100 text-xs space-y-2">
+                    <p class="font-bold text-slate-700 mb-1">📌 Beda Status "Di Gudang" vs "Selesai":</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="flex items-start gap-2 bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0 mt-0.5">Di Gudang</span>
+                            <p class="text-slate-600 text-[11px]">Hasil panen baru dimasukkan dan stoknya <strong class="text-slate-800">masih utuh/tersedia di gudang</strong> untuk dijual atau diolah.</p>
+                        </div>
+                        <div class="flex items-start gap-2 bg-white p-2.5 rounded-xl border border-slate-100 shadow-2xs">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0 mt-0.5">Selesai</span>
+                            <p class="text-slate-600 text-[11px]">Seluruh stok dari batch panen ini <strong class="text-slate-800">sudah habis 0 Kg</strong> terdistribusi atau terjual ke pembeli/koperasi.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

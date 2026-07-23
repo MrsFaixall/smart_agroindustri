@@ -35,7 +35,7 @@
                     <option value="">Pilih Role</option>
                     <option value="super admin" {{ old('role') == 'super admin' ? 'selected' : '' }}>Super Admin</option>
                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="pengepul" {{ old('role') == 'pengepul' ? 'selected' : '' }}>Pengepul</option>
+                    <option value="koperasi" {{ old('role') == 'koperasi' ? 'selected' : '' }}>Koperasi</option>
                     <option value="petani" {{ old('role') == 'petani' ? 'selected' : '' }}>Petani</option>
                 </select>
                 @error('role')<p class="mt-1 text-sm text-rose-500">{{ $message }}</p>@enderror

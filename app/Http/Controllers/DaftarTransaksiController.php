@@ -12,13 +12,13 @@ class DaftarTransaksiController extends Controller
     {
         $user = Auth::user();
 
-        $query = Pembayaran::with(['pembelian.petani', 'pembelian.pengepul', 'metodePembayaran']);
+        $query = Pembayaran::with(['pembelian.petani', 'pembelian.koperasi', 'metodePembayaran']);
 
         // Filter by role
         if ($user->role === 'petani') {
             $query->whereHas('pembelian', fn($q) => $q->where('petani_id', $user->id));
-        } elseif ($user->role === 'pengepul') {
-            $query->whereHas('pembelian', fn($q) => $q->where('pengepul_id', $user->id));
+        } elseif ($user->role === 'koperasi') {
+            $query->whereHas('pembelian', fn($q) => $q->where('koperasi_id', $user->id));
         }
 
         // Total stats (after role filter)
@@ -31,7 +31,7 @@ class DaftarTransaksiController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('pembelian.pengepul', function($qp) use ($search) {
+                $q->whereHas('pembelian.koperasi', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
                 })->orWhereHas('pembelian.petani', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
@@ -56,10 +56,6 @@ class DaftarTransaksiController extends Controller
 
         $payments = $query->latest()->paginate(5)->withQueryString();
 
-        if (view()->exists('pengepul.daftar-transaksi.index')) {
-            return view('pengepul.daftar-transaksi.index', compact('payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
-        }
-
-        return view('pengepul.daftar-tranksaksi.index', compact('payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        return view('koperasi.daftar-transaksi.index', compact('payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
     }
 }

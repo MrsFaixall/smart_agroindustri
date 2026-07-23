@@ -35,7 +35,7 @@
                 <h1 class="text-sm font-bold text-slate-900 leading-tight">Smart<br>Agroindustri</h1>
                 <span
                     class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
-                    {{ auth()->user()->role ?? 'Admin, Petani, Pengepul, Superadmin' }}
+                    {{ auth()->user()->role ?? 'Admin, Petani, Koperasi, Superadmin' }}
                 </span>
             </div>
         </div>
@@ -175,7 +175,7 @@
                         </p>
                         <span
                             class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
-                            {{ auth()->user()->role ?? 'Admin, Petani, Pengepul, Superadmin' }}
+                            {{ auth()->user()->role ?? 'Admin, Petani, Koperasi, Superadmin' }}
                         </span>
                     </div>
                     <img src="https://i.pravatar.cc/40" class="w-10 h-10 rounded-full" alt="Admin">

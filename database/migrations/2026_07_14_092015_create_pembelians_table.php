@@ -13,7 +13,7 @@ return new class extends Migration
     Schema::create('pembelians', function (Blueprint $table) {
         $table->id();
         $table->foreignId('petani_id')->constrained('users');
-        $table->foreignId('pengepul_id')->constrained('users');
+        $table->foreignId('koperasi_id')->constrained('users');
         $table->decimal('total_harga', 15, 2);
         $table->string('status'); // Contoh: 'lunas', 'belum lunas'
         $table->timestamps();

@@ -50,8 +50,8 @@
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">Super Admin</span>
                             @elseif($user->role === 'admin')
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">Admin</span>
-                            @elseif($user->role === 'pengepul')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">Pengepul</span>
+                            @elseif($user->role === 'koperasi')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">Koperasi</span>
                             @else
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Petani</span>
                             @endif

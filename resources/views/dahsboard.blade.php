@@ -18,7 +18,7 @@
             <li><a href="/pembayaran">Metode Pembayaran</a></li>
         @endif
 
-        @if(Auth::user()->role == 'pengepul')
+        @if(Auth::user()->role == 'koperasi')
             <li><a href="/pembelian">Kelola Pembelian</a></li>
             <li><a href="/stok">Monitoring Stok</a></li>
         @endif

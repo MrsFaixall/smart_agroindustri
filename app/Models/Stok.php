@@ -22,4 +22,9 @@ class Stok extends Model
     {
         return $this->belongsTo(Panen::class, 'panen_id');
     }
+
+    public function getStokTersimpanAttribute()
+    {
+        return max(0, $this->jumlah_stok - ($this->stok_dijual ?? 0));
+    }
 }

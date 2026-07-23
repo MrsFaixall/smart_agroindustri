@@ -25,9 +25,9 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Super Admin', 'email' => 'superadmin@gmail.com', 'role' => 'admin', 'password' => 'superadminst'],
             ['name' => 'Super Admin 1', 'email' => 'superadmin1@gmail.com', 'role' => 'admin', 'password' => 'superadminst'],
             
-            // Pengepul
-            ['name' => 'Faisal Pengepul', 'email' => 'faisal@gmail.com', 'role' => 'pengepul', 'password' => 'faisalst'],
-            ['name' => 'Pengepul', 'email' => 'pengepul@gmail.com', 'role' => 'pengepul', 'password' => 'pengepulst'],
+            // Koperasi
+            ['name' => 'Faisal Koperasi', 'email' => 'faisal@gmail.com', 'role' => 'koperasi', 'password' => 'faisalst'],
+            ['name' => 'Koperasi', 'email' => 'koperasi@gmail.com', 'role' => 'koperasi', 'password' => 'koperasist'],
             
             // Petani
             ['name' => 'Habibi Petani', 'email' => 'habibi@gmail.com', 'role' => 'petani', 'password' => 'habibist'],

@@ -224,6 +224,6 @@ class MidtransController extends Controller
         
         $transactionStatus = $pembayaran->status ?? $urlStatus ?? 'pending';
 
-        return view('pengepul.pembayaran.finish', compact('pembayaran', 'transactionStatus', 'orderId'));
+        return view('koperasi.pembayaran.finish', compact('pembayaran', 'transactionStatus', 'orderId'));
     }
 }

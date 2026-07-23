@@ -35,7 +35,7 @@
                 <select name="role" class="w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-[#001842] focus:ring-[#001842] transition-colors" required>
                     <option value="super admin" {{ old('role', $user->role) == 'super admin' ? 'selected' : '' }}>Super Admin</option>
                     <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="pengepul" {{ old('role', $user->role) == 'pengepul' ? 'selected' : '' }}>Pengepul</option>
+                    <option value="koperasi" {{ old('role', $user->role) == 'koperasi' ? 'selected' : '' }}>Koperasi</option>
                     <option value="petani" {{ old('role', $user->role) == 'petani' ? 'selected' : '' }}>Petani</option>
                 </select>
                 @error('role')<p class="mt-1 text-sm text-rose-500">{{ $message }}</p>@enderror

@@ -68,7 +68,7 @@ Route::middleware(['auth.custom'])->group(function () {
     // 6. CRUD Metode Pembayaran (Petani menyimpan nomor bank)
     Route::resource('metode-pembayaran', MetodePembayaranController::class);
 
-    // 7. CRUD Transaksi Pembayaran (Pengepul lakukan pembayaran)
+    // 7. CRUD Transaksi Pembayaran (Koperasi lakukan pembayaran)
     Route::resource('pembayaran', PembayaranController::class)->only(['index', 'create', 'store']);
     Route::get('/pembayaran/{id}/invoice', [PembayaranController::class, 'invoice'])->name('pembayaran.invoice');
     Route::get('/pembayaran/{id}/struk', [PembayaranController::class, 'cetakStruk'])->name('pembayaran.struk');

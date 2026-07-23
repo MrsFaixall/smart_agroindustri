@@ -11,11 +11,38 @@ use Illuminate\Support\Facades\DB;
 
 class PanenController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $panens = Panen::with(['gudang', 'jenisKentang.harga', 'stok'])->latest()->get();
+        $query = Panen::with(['gudang', 'jenisKentang.harga', 'stok']);
+
+        // Search filter (jenis kentang, gudang, or grade)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('jenisKentang', function($qj) use ($search) {
+                    $qj->where('nama_jenis', 'like', "%{$search}%");
+                })->orWhereHas('gudang', function($qg) use ($search) {
+                    $qg->where('nama_gudang', 'like', "%{$search}%");
+                })->orWhere('grade', 'like', "%{$search}%");
+            });
+        }
+
+        // Period / date range filter
+        if ($request->filled('period')) {
+            if ($request->period === 'today') {
+                $query->whereDate('tanggal_panen', now()->toDateString());
+            } elseif ($request->period === 'this_week') {
+                $query->whereBetween('tanggal_panen', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()]);
+            } elseif ($request->period === 'this_month') {
+                $query->whereYear('tanggal_panen', now()->year)->whereMonth('tanggal_panen', now()->month);
+            }
+        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_panen', [$request->start_date, $request->end_date]);
+        }
+
+        $panens = $query->latest()->paginate(5, ['*'], 'panen_page')->withQueryString();
         
-        $totalMusimIni = $panens->sum('jumlah_kg');
+        $totalMusimIni = Panen::sum('jumlah_kg');
         $hargaPasar = \App\Models\Harga::avg('harga') ?? 0;
         $menungguBayar = \App\Models\Pembelian::where('status', 'belum lunas')->sum('total_harga');
         
@@ -25,8 +52,8 @@ class PanenController extends Controller
         $activeBatches = \App\Models\Stok::with(['jenisKentang', 'gudang', 'panen'])
             ->where('jumlah_stok', '>', 0)
             ->latest()
-            ->take(6)
-            ->get();
+            ->paginate(5, ['*'], 'batch_page')
+            ->withQueryString();
 
         return view('petani.panen.index', compact(
             'panens', 
@@ -69,15 +96,18 @@ class PanenController extends Controller
 
         DB::transaction(function () use ($data) {
             $panen = Panen::create($data);
-            $stok = Stok::firstOrCreate(
-                ['gudang_id' => $panen->gudang_id, 'jenis_kentang_id' => $panen->jenis_kentang_id, 'grade' => $panen->grade],
-                ['jumlah_stok' => 0, 'panen_id' => null]
+            Stok::updateOrCreate(
+                ['panen_id' => $panen->id],
+                [
+                    'gudang_id' => $panen->gudang_id,
+                    'jenis_kentang_id' => $panen->jenis_kentang_id,
+                    'grade' => $panen->grade,
+                    'jumlah_stok' => $panen->jumlah_kg,
+                ]
             );
-            $stok->jumlah_stok += $panen->jumlah_kg;
-            $stok->save();
         });
 
-        return redirect()->route('panen.index')->with('success', 'Data panen berhasil disimpan.');
+        return redirect()->route('panen.index')->with('success', 'Data panen berhasil disimpan dan otomatis masuk ke gudang sebagai Stok Aktif.');
     }
 
     public function show(string $id)
@@ -121,22 +151,17 @@ class PanenController extends Controller
         }
 
         DB::transaction(function () use ($data, $panen) {
-            // Revert old stock
-            $oldStok = Stok::where('gudang_id', $panen->gudang_id)->where('jenis_kentang_id', $panen->jenis_kentang_id)->where('grade', $panen->grade)->first();
-            if ($oldStok) {
-                $oldStok->jumlah_stok -= $panen->jumlah_kg;
-                $oldStok->save();
-            }
-
             $panen->update($data);
             
-            // Add new stock
-            $newStok = Stok::firstOrCreate(
-                ['gudang_id' => $panen->gudang_id, 'jenis_kentang_id' => $panen->jenis_kentang_id, 'grade' => $panen->grade],
-                ['jumlah_stok' => 0, 'panen_id' => null]
+            Stok::updateOrCreate(
+                ['panen_id' => $panen->id],
+                [
+                    'gudang_id' => $panen->gudang_id,
+                    'jenis_kentang_id' => $panen->jenis_kentang_id,
+                    'grade' => $panen->grade,
+                    'jumlah_stok' => $panen->jumlah_kg,
+                ]
             );
-            $newStok->jumlah_stok += $panen->jumlah_kg;
-            $newStok->save();
         });
 
         return redirect()->route('panen.index')->with('success', 'Data panen berhasil diperbarui.');
@@ -146,20 +171,7 @@ class PanenController extends Controller
     {
         DB::transaction(function () use ($id) {
             $panen = Panen::findOrFail($id);
-            
-            // Revert stock
-            $stok = Stok::where('gudang_id', $panen->gudang_id)->where('jenis_kentang_id', $panen->jenis_kentang_id)->where('grade', $panen->grade)->first();
-            if ($stok) {
-                $stok->jumlah_stok -= $panen->jumlah_kg;
-                $stok->save();
-            }
-            
-            // If stok panen_id matched this panen (old behavior), clear it just in case
-            if ($stok && $stok->panen_id == $panen->id) {
-                $stok->panen_id = null;
-                $stok->save();
-            }
-
+            Stok::where('panen_id', $panen->id)->delete();
             $panen->delete();
         });
         return redirect()->route('panen.index')->with('success', 'Data panen berhasil dihapus.');

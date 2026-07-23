@@ -23,7 +23,7 @@ class MetodePembayaranController extends Controller
             });
         }
 
-        $methods = $query->latest()->get();
+        $methods = $query->latest()->paginate(5);
         return view('petani.metode_pembayaran.index', compact('methods'));
     }
 

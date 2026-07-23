@@ -66,13 +66,13 @@
                         </div>
                     </button>
 
-                    <!-- Role: Pengepul -->
-                    <button @click="selectRole('pengepul', 'Pengepul')" class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all text-left group">
+                    <!-- Role: Koperasi -->
+                    <button @click="selectRole('koperasi', 'Koperasi')" class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:bg-blue-50 transition-all text-left group">
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-800 outfit">Pengepul</h3>
+                            <h3 class="font-bold text-slate-800 outfit">Koperasi</h3>
                             <p class="text-xs text-slate-500">Pembelian & Manajemen Gudang</p>
                         </div>
                     </button>

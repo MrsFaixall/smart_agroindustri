@@ -71,14 +71,14 @@
                             </div>
                         </label>
 
-                        <!-- Pengepul Card -->
+                        <!-- Koperasi Card -->
                         <label class="cursor-pointer relative">
-                            <input type="radio" name="role" value="pengepul" class="peer sr-only" x-model="role">
+                            <input type="radio" name="role" value="koperasi" class="peer sr-only" x-model="role">
                             <div class="p-4 rounded-xl border-2 border-slate-100 hover:bg-slate-50 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 text-center">
                                 <div class="w-10 h-10 mx-auto bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-2 peer-checked:bg-blue-600 peer-checked:text-white transition-all">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
-                                <h3 class="font-bold text-slate-800 text-sm outfit">Pengepul</h3>
+                                <h3 class="font-bold text-slate-800 text-sm outfit">Koperasi</h3>
                             </div>
                             <div class="absolute top-3 right-3 opacity-0 peer-checked:opacity-100 text-blue-600 transition-opacity">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>

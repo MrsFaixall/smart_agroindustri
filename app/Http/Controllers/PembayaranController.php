@@ -22,22 +22,22 @@ class PembayaranController extends Controller
         $user = Auth::user();
 
         // Query 1 & 2: Pembelian & Pembayaran
-        $pembelianQuery = Pembelian::with(['petani', 'pengepul', 'jenisKentang', 'pembayarans']);
-        $paymentQuery = Pembayaran::with(['pembelian.petani', 'pembelian.pengepul', 'metodePembayaran']);
+        $pembelianQuery = Pembelian::with(['petani', 'koperasi', 'jenisKentang', 'pembayarans']);
+        $paymentQuery = Pembayaran::with(['pembelian.petani', 'pembelian.koperasi', 'metodePembayaran']);
 
         // Filter by role
         if ($user->role === 'petani') {
             $pembelianQuery->where('petani_id', $user->id);
             $paymentQuery->whereHas('pembelian', fn($q) => $q->where('petani_id', $user->id));
-        } elseif ($user->role === 'pengepul') {
-            $pembelianQuery->where('pengepul_id', $user->id);
-            $paymentQuery->whereHas('pembelian', fn($q) => $q->where('pengepul_id', $user->id));
+        } elseif ($user->role === 'koperasi') {
+            $pembelianQuery->where('koperasi_id', $user->id);
+            $paymentQuery->whereHas('pembelian', fn($q) => $q->where('koperasi_id', $user->id));
         }
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $pembelianQuery->where(function($q) use ($search) {
-                $q->whereHas('pengepul', function($qp) use ($search) {
+                $q->whereHas('koperasi', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
                 })->orWhereHas('petani', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
@@ -47,7 +47,7 @@ class PembayaranController extends Controller
             });
 
             $paymentQuery->where(function($q) use ($search) {
-                $q->whereHas('pembelian.pengepul', function($qp) use ($search) {
+                $q->whereHas('pembelian.koperasi', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
                 })->orWhereHas('pembelian.petani', function($qp) use ($search) {
                     $qp->where('name', 'like', "%{$search}%");
@@ -76,18 +76,18 @@ class PembayaranController extends Controller
         $pembelians = $pembelianQuery->latest()->paginate(5, ['*'], 'pembelian_page')->withQueryString();
         $payments = $paymentQuery->latest()->paginate(5, ['*'], 'payment_page')->withQueryString();
 
-        return view('pengepul.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        return view('koperasi.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
     }
 
     public function create()
     {
         $pembelians = Pembelian::where('status', '!=', 'lunas')
-            ->with(['petani', 'pengepul'])
+            ->with(['petani', 'koperasi'])
             ->latest()
             ->get();
 
         if (request()->has('pembelian_id')) {
-            $selected = Pembelian::with(['petani', 'pengepul'])->find(request('pembelian_id'));
+            $selected = Pembelian::with(['petani', 'koperasi'])->find(request('pembelian_id'));
             if ($selected && !$pembelians->contains('id', $selected->id)) {
                 $pembelians->prepend($selected);
             }
@@ -95,7 +95,7 @@ class PembayaranController extends Controller
 
         $methods = MetodePembayaran::with('user')->latest()->get();
         $midtransClientKey = config('midtrans.client_key');
-        return view('pengepul.pembayaran.create', compact('pembelians', 'methods', 'midtransClientKey'));
+        return view('koperasi.pembayaran.create', compact('pembelians', 'methods', 'midtransClientKey'));
     }
 
     public function store(Request $request)
@@ -161,7 +161,7 @@ class PembayaranController extends Controller
     {
         $payment = Pembayaran::with([
             'pembelian.petani',
-            'pembelian.pengepul',
+            'pembelian.koperasi',
             'pembelian.jenisKentang',
             'metodePembayaran'
         ])->find($id);
@@ -169,14 +169,14 @@ class PembayaranController extends Controller
         if (!$payment) {
             $payment = Pembayaran::with([
                 'pembelian.petani',
-                'pembelian.pengepul',
+                'pembelian.koperasi',
                 'pembelian.jenisKentang',
                 'metodePembayaran'
             ])->where('pembelian_id', $id)->first();
         }
 
         if (!$payment) {
-            $pembelian = Pembelian::with(['petani', 'pengepul', 'jenisKentang'])->findOrFail($id);
+            $pembelian = Pembelian::with(['petani', 'koperasi', 'jenisKentang'])->findOrFail($id);
             $payment = new Pembayaran([
                 'id' => $pembelian->id,
                 'pembelian_id' => $pembelian->id,
@@ -187,14 +187,14 @@ class PembayaranController extends Controller
             $payment->setRelation('pembelian', $pembelian);
         }
 
-        return view('pengepul.pembayaran.invoice', compact('payment'));
+        return view('koperasi.pembayaran.invoice', compact('payment'));
     }
 
     public function cetakStruk(string $id)
     {
         $payment = Pembayaran::with([
             'pembelian.petani',
-            'pembelian.pengepul',
+            'pembelian.koperasi',
             'pembelian.jenisKentang',
             'metodePembayaran'
         ])->find($id);
@@ -202,14 +202,14 @@ class PembayaranController extends Controller
         if (!$payment) {
             $payment = Pembayaran::with([
                 'pembelian.petani',
-                'pembelian.pengepul',
+                'pembelian.koperasi',
                 'pembelian.jenisKentang',
                 'metodePembayaran'
             ])->where('pembelian_id', $id)->first();
         }
 
         if (!$payment) {
-            $pembelian = Pembelian::with(['petani', 'pengepul', 'jenisKentang'])->findOrFail($id);
+            $pembelian = Pembelian::with(['petani', 'koperasi', 'jenisKentang'])->findOrFail($id);
             $payment = new Pembayaran([
                 'id' => $pembelian->id,
                 'pembelian_id' => $pembelian->id,
@@ -220,6 +220,6 @@ class PembayaranController extends Controller
             $payment->setRelation('pembelian', $pembelian);
         }
 
-        return view('pengepul.pembayaran.struk', compact('payment'));
+        return view('koperasi.pembayaran.struk', compact('payment'));
     }
 }

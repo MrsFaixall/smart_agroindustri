@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pembelians', function (Blueprint $table) {
-            $table->foreignId('jenis_kentang_id')->nullable()->after('pengepul_id')->constrained('jenis_kentangs')->nullOnDelete();
+            $table->foreignId('jenis_kentang_id')->nullable()->after('koperasi_id')->constrained('jenis_kentangs')->nullOnDelete();
             $table->double('jumlah_kg')->default(0)->after('jenis_kentang_id');
             $table->date('tanggal_pembelian')->nullable()->after('jumlah_kg');
         });
