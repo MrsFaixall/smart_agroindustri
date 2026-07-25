@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class DistribusiBenihController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $query = DistribusiBenih::with(['petani', 'jenisKentang', 'koperasi']);
@@ -22,7 +22,27 @@ class DistribusiBenihController extends Controller
             $query->where('koperasi_id', $user->id);
         }
 
-        $transaksis = $query->latest()->paginate(10);
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->whereHas('jenisKentang', function($qk) use ($search) {
+                    $qk->where('nama_jenis', 'like', "%{$search}%");
+                })->orWhereHas('petani', function($qp) use ($search) {
+                    $qp->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Date range filter
+        if ($request->filled('start_date')) {
+            $query->whereDate('tanggal_transaksi', '>=', $request->input('start_date'));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('tanggal_transaksi', '<=', $request->input('end_date'));
+        }
+
+        $transaksis = $query->latest()->paginate(10)->withQueryString();
         $totalNilai = $query->sum('total_harga');
 
         return view('koperasi.distribusi-benih.index', compact('transaksis', 'totalNilai'));

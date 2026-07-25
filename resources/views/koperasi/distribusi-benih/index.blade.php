@@ -1,19 +1,29 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-6 max-w-6xl mx-auto">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800">Distribusi Benih (Koperasi -> Petani)</h1>
-            <p class="text-sm text-slate-500">Penyaluran/penjualan benih dari Koperasi ke Petani.</p>
+<div class="space-y-8">
+    <!-- Header Banner Gradient -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-1 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                <span>Penyaluran & Kemitraan Petani</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Distribusi Benih</h1>
+            <p class="text-purple-100/80 text-sm max-w-xl">Penyaluran/penjualan benih dari Koperasi ke Petani Mitra.</p>
         </div>
-        <a href="{{ route('distribusi-benih.create') }}" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-2xl font-bold transition-all shadow-lg shadow-purple-600/30">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span>Tambah Transaksi Baru</span>
-        </a>
+        <div class="relative z-10">
+            <a href="{{ route('distribusi-benih.create') }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-purple-600/30 transform hover:-translate-y-0.5">
+                <span class="text-lg leading-none">+</span> Tambah Distribusi
+            </a>
+        </div>
     </div>
 
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm">
+    <!-- Alert Info Alur Data -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-xs">
         <div class="flex items-start">
             <div class="flex-shrink-0">
                 <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
@@ -33,65 +43,100 @@
     </div>
     @endif
 
-    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50/50">
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider rounded-l-2xl">Tanggal</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Komoditas / Varietas</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Petani Penerima</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Volume (Kg)</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Total Nilai</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                        <th class="py-3 px-4 text-xs font-bold text-slate-500 uppercase tracking-wider rounded-r-2xl text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @forelse($transaksis as $t)
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
-                        <td class="py-4 px-4 text-sm font-semibold text-slate-700">{{ \Carbon\Carbon::parse($t->tanggal_transaksi)->format('d M Y') }}</td>
-                        <td class="py-4 px-4">
-                            <span class="text-sm font-bold text-slate-800">{{ $t->jenisKentang->nama_jenis ?? '-' }}</span><br>
-                            <span class="text-xs text-slate-400 capitalize">{{ $t->jenisKentang->kategori ?? '-' }}</span>
-                        </td>
-                        <td class="py-4 px-4 text-sm font-medium text-slate-600">{{ $t->petani->name ?? '-' }}</td>
-                        <td class="py-4 px-4 text-sm font-bold text-slate-800 text-right">{{ number_format($t->jumlah_kg, 2, ',', '.') }} Kg</td>
-                        <td class="py-4 px-4 text-sm font-bold text-purple-700 text-right">Rp {{ number_format($t->total_harga, 0, ',', '.') }}</td>
-                        <td class="py-4 px-4 text-center">
-                            @if($t->status === 'lunas')
-                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold uppercase tracking-wide">Lunas</span>
-                            @else
-                                <span class="px-2.5 py-1 bg-orange-100 text-orange-800 rounded-lg text-xs font-bold uppercase tracking-wide">Belum Lunas</span>
-                            @endif
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <div class="flex items-center justify-center gap-3">
-                                @if($t->status === 'belum lunas')
-                                    <form action="{{ route('distribusi-benih.bayar', $t->id) }}" method="POST" onsubmit="return confirm('Konfirmasi pelunasan transaksi ini?')">
-                                        @csrf
-                                        <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-bold transition-colors">Bayar / Lunasi</button>
-                                    </form>
-                                @endif
-                                <form action="{{ route('distribusi-benih.destroy', $t->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi ini? Stok akan dikembalikan.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-rose-500 hover:text-rose-700 font-semibold text-sm">Hapus</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="py-8 text-center text-slate-500">Belum ada catatan transaksi untuk kategori ini.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-4">
-            {{ $transaksis->links() }}
-        </div>
+    <!-- Search & Filter Bar -->
+    <div class="bg-white p-4 rounded-3xl shadow-xl shadow-slate-100/60 border border-slate-100">
+        <form action="{{ route('distribusi-benih.index') }}" method="GET" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full">
+            <div class="relative flex-1 min-w-[180px]">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" 
+                    class="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-2xl text-xs bg-slate-50/50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all" 
+                    placeholder="Cari varietas benih atau nama petani...">
+            </div>
+
+            <div class="flex items-center gap-1.5 min-w-[260px]">
+                <input type="date" name="start_date" value="{{ request('start_date') }}" class="block w-full px-2.5 py-2.5 border border-slate-200 rounded-2xl text-xs bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all">
+                <span class="text-xs text-slate-400 font-bold">s/d</span>
+                <input type="date" name="end_date" value="{{ request('end_date') }}" class="block w-full px-2.5 py-2.5 border border-slate-200 rounded-2xl text-xs bg-slate-50/50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="submit" class="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold rounded-2xl text-white bg-purple-600 hover:bg-purple-700 transition-all shadow-md shadow-purple-600/20">
+                    Filter
+                </button>
+                @if(request('search') || request('start_date') || request('end_date'))
+                    <a href="{{ route('distribusi-benih.index') }}" class="inline-flex items-center px-4 py-2.5 text-xs font-semibold rounded-2xl text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </form>
     </div>
+
+    <!-- Table Card -->
+    <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-100/60">
+        <table class="w-full border-collapse text-left text-sm">
+            <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-4">Tanggal</th>
+                    <th class="px-6 py-4">Komoditas / Varietas</th>
+                    <th class="px-6 py-4">Petani Penerima</th>
+                    <th class="px-6 py-4 text-right">Volume</th>
+                    <th class="px-6 py-4 text-right">Total Nilai</th>
+                    <th class="px-6 py-4 text-center">Status</th>
+                    <th class="px-6 py-4 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse($transaksis as $t)
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-6 py-4 text-xs font-semibold text-slate-500">{{ \Carbon\Carbon::parse($t->tanggal_transaksi)->translatedFormat('d M Y') }}</td>
+                    <td class="px-6 py-4">
+                        <span class="font-bold text-slate-800 text-sm">{{ $t->jenisKentang->nama_jenis ?? '-' }}</span><br>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{{ $t->jenisKentang->kategori ?? '-' }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-semibold text-slate-600">🌾 {{ $t->petani->name ?? '-' }}</td>
+                    <td class="px-6 py-4 text-sm font-extrabold text-slate-800 text-right font-mono">{{ number_format($t->jumlah_kg, 2, ',', '.') }} Kg</td>
+                    <td class="px-6 py-4 text-sm font-extrabold text-purple-700 text-right font-mono">Rp {{ number_format($t->total_harga, 0, ',', '.') }}</td>
+                    <td class="px-6 py-4 text-center">
+                        @if($t->status === 'lunas')
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider">Lunas</span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">Belum Lunas</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            @if($t->status === 'belum lunas')
+                                <form action="{{ route('distribusi-benih.bayar', $t->id) }}" method="POST" onsubmit="return confirm('Konfirmasi pelunasan transaksi ini?')">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">Bayar / Lunasi</button>
+                                </form>
+                            @endif
+                            <form action="{{ route('distribusi-benih.destroy', $t->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi ini? Stok akan dikembalikan.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs transition-all">Hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                        <p class="text-sm font-medium">Belum ada catatan transaksi distribusi benih.</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    @if($transaksis->isNotEmpty())
+        @include('partials.pagination', ['paginator' => $transaksis, 'label' => 'transaksi distribusi'])
+    @endif
 </div>
 @endsection
