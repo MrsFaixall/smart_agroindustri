@@ -25,6 +25,7 @@ class JenisKentangController extends Controller
             'deskripsi' => 'required|string',
             'satuan' => 'required|string|max:100',
             'kualitas' => 'required|string|max:100',
+            'kategori' => 'required|in:benih_hulu,kentang_konsumsi',
         ]);
 
         JenisKentang::create($request->all());
@@ -42,6 +43,7 @@ class JenisKentangController extends Controller
             'deskripsi' => 'required|string',
             'satuan' => 'required|string|max:100',
             'kualitas' => 'required|string|max:100',
+            'kategori' => 'required|in:benih_hulu,kentang_konsumsi',
         ]);
 
         JenisKentang::findOrFail($id)->update($request->all());

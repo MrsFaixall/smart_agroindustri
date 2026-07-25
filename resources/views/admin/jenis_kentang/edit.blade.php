@@ -21,7 +21,18 @@
         </div>
         <div>
             <label class="block text-sm font-medium mb-1">Kualitas</label>
-            <input type="text" name="kualitas" value="{{ old('kualitas', $item->kualitas) }}" class="w-full border rounded-lg px-3 py-2" required>
+            <select name="kualitas" class="w-full border rounded-lg px-3 py-2" required>
+                <option value="A" {{ (old('kualitas') ?? $item->kualitas) === 'A' ? 'selected' : '' }}>Grade A (Sangat Baik)</option>
+                <option value="B" {{ in_array(old('kualitas') ?? $item->kualitas, ['B', 'baik']) ? 'selected' : '' }}>Grade B (Baik)</option>
+                <option value="C" {{ in_array(old('kualitas') ?? $item->kualitas, ['C', 'buruk']) ? 'selected' : '' }}>Grade C (Kurang Baik)</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Kategori</label>
+            <select name="kategori" class="w-full border rounded-lg px-3 py-2" required>
+                <option value="benih_hulu" {{ (old('kategori') ?? $item->kategori) == 'benih_hulu' ? 'selected' : '' }}>Benih Hulu</option>
+                <option value="kentang_konsumsi" {{ (old('kategori') ?? $item->kategori) == 'kentang_konsumsi' ? 'selected' : '' }}>Kentang Konsumsi</option>
+            </select>
         </div>
         <button class="bg-blue-900 text-white px-4 py-2 rounded-lg">Update</button>
     </form>

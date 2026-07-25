@@ -71,7 +71,7 @@ class StokController extends Controller
     public function create()
     {
         $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'buah_konsumsi')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
         
         $existingStoks = Stok::query()
             ->whereHas('gudang', function($q) {
@@ -129,7 +129,7 @@ class StokController extends Controller
     {
         $stok = Stok::findOrFail($id);
         $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'buah_konsumsi')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
 
         return view('petani.stok.edit', compact('stok', 'gudangs', 'jenisKentangs'));
     }

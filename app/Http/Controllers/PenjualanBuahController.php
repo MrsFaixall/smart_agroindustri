@@ -31,7 +31,7 @@ class PenjualanBuahController extends Controller
     public function create()
     {
         $pembelis = User::whereIn('role', ['mitra', 'konsumen'])->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'buah_konsumsi')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
 
         // Ambil stok Koperasi yang tersedia
         $stokTersedia = [];

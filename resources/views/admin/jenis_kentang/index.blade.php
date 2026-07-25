@@ -22,6 +22,7 @@
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Deskripsi</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Satuan</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Kualitas</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Kategori</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-right">Aksi</th>
                 </tr>
             </thead>
@@ -34,6 +35,13 @@
                     <td class="px-6 py-4 text-slate-600">{{ Str::limit($item->deskripsi, 60) }}</td>
                     <td class="px-6 py-4 text-slate-600">{{ $item->satuan }}</td>
                     <td class="px-6 py-4 text-slate-600">{{ $item->kualitas }}</td>
+                    <td class="px-6 py-4">
+                        @if($item->kategori === 'benih_hulu')
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-bold uppercase">Benih Hulu</span>
+                        @else
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-xs font-bold uppercase">Kentang Konsumsi</span>
+                        @endif
+                    </td>
                     <td class="px-6 py-4 flex justify-end gap-2">
                         <a href="{{ route('admin.jenis_kentang.edit', $item->id) }}" class="inline-flex items-center justify-center rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors">Edit</a>
                         <form action="{{ route('admin.jenis_kentang.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus jenis kentang ini?');">

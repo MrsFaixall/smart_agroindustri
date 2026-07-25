@@ -31,7 +31,7 @@ class DistribusiBenihController extends Controller
     public function create()
     {
         $petanis = User::where('role', 'petani')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'benih')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'benih_hulu')->get();
 
         // Ambil stok Koperasi yang tersedia
         $stokTersedia = [];

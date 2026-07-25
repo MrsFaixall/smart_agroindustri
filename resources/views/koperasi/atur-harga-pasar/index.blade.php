@@ -112,7 +112,7 @@
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4 font-bold text-slate-800">{{ $p->jenisKentang->nama_jenis ?? '-' }}</td>
                             <td class="px-6 py-4">
-                                @if($p->jenisKentang && $p->jenisKentang->kategori === 'benih')
+                                @if($p->jenisKentang && $p->jenisKentang->kategori === 'benih_hulu')
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-md text-[10px] font-bold uppercase tracking-wider">Benih (Hulu)</span>
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-purple-100 text-purple-800 rounded-md text-[10px] font-bold uppercase tracking-wider">Kentang Konsumsi (Hilir)</span>

@@ -20,7 +20,18 @@
         </div>
         <div>
             <label class="block text-sm font-medium mb-1">Kualitas</label>
-            <input type="text" name="kualitas" value="{{ old('kualitas') }}" class="w-full border rounded-lg px-3 py-2" required>
+            <select name="kualitas" class="w-full border rounded-lg px-3 py-2" required>
+                <option value="A" {{ old('kualitas') == 'A' ? 'selected' : '' }}>Grade A (Sangat Baik)</option>
+                <option value="B" {{ old('kualitas') == 'B' ? 'selected' : '' }}>Grade B (Baik)</option>
+                <option value="C" {{ old('kualitas') == 'C' ? 'selected' : '' }}>Grade C (Kurang Baik)</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1">Kategori</label>
+            <select name="kategori" class="w-full border rounded-lg px-3 py-2" required>
+                <option value="benih_hulu" {{ old('kategori') == 'benih_hulu' ? 'selected' : '' }}>Benih Hulu</option>
+                <option value="kentang_konsumsi" {{ old('kategori') == 'kentang_konsumsi' ? 'selected' : '' }}>Kentang Konsumsi</option>
+            </select>
         </div>
         <button class="bg-blue-900 text-white px-4 py-2 rounded-lg">Simpan</button>
     </form>
