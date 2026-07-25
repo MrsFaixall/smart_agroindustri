@@ -18,6 +18,16 @@ class JenisKentang extends Model
         return $this->hasOne(Harga::class, 'jenis_kentang_id');
     }
 
+    public function hargaPasar()
+    {
+        return $this->hasOne(HargaPasar::class, 'jenis_kentang_id');
+    }
+
+    public function hargaPasars()
+    {
+        return $this->hasMany(HargaPasar::class, 'jenis_kentang_id');
+    }
+
     public function stoks()
     {
         return $this->hasMany(Stok::class, 'jenis_kentang_id');

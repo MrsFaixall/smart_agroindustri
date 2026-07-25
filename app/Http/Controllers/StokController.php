@@ -13,12 +13,15 @@ class StokController extends Controller
     public function index()
     {
         $stoks = Stok::query()
+            ->whereHas('gudang', function($q) {
+                $q->where('jenis_gudang', 'petani');
+            })
             ->selectRaw('gudang_id, jenis_kentang_id, grade, SUM(jumlah_stok) as jumlah_stok, SUM(stok_dijual) as stok_dijual, MAX(id) as id')
             ->groupBy('gudang_id', 'jenis_kentang_id', 'grade')
             ->with(['gudang', 'jenisKentang'])
             ->paginate(5, ['*'], 'stok_page');
 
-        $totalMax = Gudang::sum('kapasitas_max');
+        $totalMax = Gudang::where('jenis_gudang', 'petani')->sum('kapasitas_max');
         $totalStok = $stoks->sum('jumlah_stok');
         $utilitasGudang = $totalMax > 0 ? round(($totalStok / $totalMax) * 100) : 0;
 
@@ -67,10 +70,13 @@ class StokController extends Controller
 
     public function create()
     {
-        $gudangs = Gudang::all();
-        $jenisKentangs = JenisKentang::all();
+        $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'buah_konsumsi')->get();
         
         $existingStoks = Stok::query()
+            ->whereHas('gudang', function($q) {
+                $q->where('jenis_gudang', 'petani');
+            })
             ->selectRaw('gudang_id, jenis_kentang_id, grade, SUM(jumlah_stok) as total_gudang, SUM(stok_dijual) as total_dijual')
             ->groupBy('gudang_id', 'jenis_kentang_id', 'grade')
             ->get();
@@ -122,8 +128,8 @@ class StokController extends Controller
     public function edit(string $id)
     {
         $stok = Stok::findOrFail($id);
-        $gudangs = Gudang::all();
-        $jenisKentangs = JenisKentang::all();
+        $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'buah_konsumsi')->get();
 
         return view('petani.stok.edit', compact('stok', 'gudangs', 'jenisKentangs'));
     }

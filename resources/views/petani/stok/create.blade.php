@@ -2,14 +2,19 @@
 
 @section('content')
 <div class="max-w-3xl space-y-6">
-    <div>
-        <h1 class="text-2xl font-bold text-slate-900">Pengaturan Alokasi Stok Siap Dijual</h1>
-        <p class="text-slate-500 text-sm">Tentukan berapa Kg dari stok fisik hasil panen yang tersimpan di gudang untuk dialokasikan siap dijual ke Koperasi. <em>(Volume fisik gudang tidak akan bertambah)</em>.</p>
+    <div class="flex items-center gap-3">
+        <a href="{{ route('stok.index') }}" class="p-2.5 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+            <x-heroicon-o-arrow-left class="w-5 h-5"/>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Pengaturan Alokasi Stok Siap Dijual</h1>
+            <p class="text-xs text-slate-400">Tentukan alokasi stok fisik hasil panen yang ditawarkan untuk dijual ke Koperasi.</p>
+        </div>
     </div>
 
     @if($errors->any())
-        <div class="rounded-2xl bg-rose-50 border border-rose-200 px-5 py-4 text-rose-700">
-            <ul class="list-disc list-inside text-sm font-medium">
+        <div class="rounded-2xl border border-rose-200 bg-rose-50/90 px-5 py-4 text-rose-700 shadow-sm">
+            <ul class="list-disc list-inside text-sm space-y-1 font-medium">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -17,13 +22,14 @@
         </div>
     @endif
 
-    <form action="{{ route('stok.store') }}" method="POST" class="space-y-6 rounded-3xl bg-white p-8 shadow-sm border border-slate-200">
+    <form action="{{ route('stok.store') }}" method="POST" class="space-y-6 rounded-3xl bg-white p-8 shadow-xl shadow-slate-100/60 border border-slate-100 relative overflow-hidden">
+        <div class="h-2 w-full bg-gradient-to-r from-indigo-600 to-blue-600 absolute top-0 left-0"></div>
         @csrf
         <div class="space-y-6">
             <!-- Select Gudang -->
-            <label class="block space-y-2">
-                <span class="font-bold text-slate-800 text-sm">Gudang Penyimpanan</span>
-                <select name="gudang_id" id="gudang_id" class="w-full rounded-xl border px-4 py-3 select2" required>
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Gudang Penyimpanan</label>
+                <select name="gudang_id" id="gudang_id" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
                     <option value="">Pilih gudang</option>
                     @foreach($gudangs as $gudang)
                         <option value="{{ $gudang->id }}" {{ old('gudang_id') == $gudang->id ? 'selected' : '' }}>
@@ -31,12 +37,12 @@
                         </option>
                     @endforeach
                 </select>
-            </label>
+            </div>
 
             <!-- Select Jenis Kentang -->
-            <label class="block space-y-2">
-                <span class="font-bold text-slate-800 text-sm">Jenis Kentang</span>
-                <select name="jenis_kentang_id" id="jenis_kentang_id" class="w-full rounded-xl border px-4 py-3 select2" required>
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Jenis Kentang</label>
+                <select name="jenis_kentang_id" id="jenis_kentang_id" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
                     <option value="">Pilih jenis kentang</option>
                     @foreach($jenisKentangs as $jenis)
                         <option value="{{ $jenis->id }}" {{ old('jenis_kentang_id') == $jenis->id ? 'selected' : '' }}>
@@ -44,17 +50,17 @@
                         </option>
                     @endforeach
                 </select>
-            </label>
+            </div>
 
             <!-- Grade Kentang -->
-            <label class="block space-y-2">
-                <span class="font-bold text-slate-800 text-sm">Grade Kentang</span>
-                <select name="grade" id="grade" class="w-full rounded-xl border px-4 py-3 select2" required>
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Grade Kentang</label>
+                <select name="grade" id="grade" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
                     <option value="A" {{ old('grade', 'A') == 'A' ? 'selected' : '' }}>Grade A (Bagus)</option>
                     <option value="B" {{ old('grade') == 'B' ? 'selected' : '' }}>Grade B (Baik)</option>
                     <option value="C" {{ old('grade') == 'C' ? 'selected' : '' }}>Grade C (Busuk)</option>
                 </select>
-            </label>
+            </div>
 
             <!-- Live Stok Physical Warehouse Indicator Panel -->
             <div id="harvest_stock_panel" class="hidden p-5 rounded-2xl border bg-slate-50 border-slate-200 transition-all space-y-4">
@@ -66,7 +72,6 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                    <!-- Card 1: Total Stok Fisik di Gudang -->
                     <div class="bg-white p-4 rounded-xl border border-blue-100 shadow-2xs space-y-1">
                         <span class="text-blue-700 font-semibold block flex items-center gap-1">
                             🏢 Total Stok Fisik di Gudang
@@ -75,7 +80,6 @@
                         <p class="text-[10px] text-slate-500">Ketersediaan fisik murni dari pencatatan Panen.</p>
                     </div>
 
-                    <!-- Card 2: Alokasi Siap Dijual Saat Ini -->
                     <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-2xs space-y-1">
                         <span class="text-emerald-700 font-semibold block flex items-center gap-1">
                             🛒 Alokasi Siap Dijual (Koperasi)
@@ -90,33 +94,33 @@
                 </div>
             </div>
 
-            <!-- Input Jumlah Stok Dialokasikan Siap Dijual (Kg) + Quick Buttons -->
+            <!-- Input Jumlah Stok Dialokasikan -->
             <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="font-bold text-slate-800 text-sm">Jumlah Stok Dialokasikan Siap Dijual (Kg)</span>
+                    <label class="block text-sm font-semibold text-slate-700">Jumlah Stok Dialokasikan Siap Dijual (Kg)</label>
                     <button type="button" id="btn_fill_max_physical" class="hidden text-xs font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition-colors shadow-2xs">
                         ⚡ Alokasikan Seluruh Stok Gudang (<span id="btn_max_physical_label">0</span> Kg)
                     </button>
                 </div>
                 <input type="number" step="0.01" name="stok_dijual" id="stok_dijual" value="{{ old('stok_dijual') }}" 
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3 font-mono font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#001842] focus:border-[#001842] transition-colors" 
+                    class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-mono font-bold text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none" 
                     placeholder="Masukkan jumlah Kg yang mau dijual ke Koperasi..." required>
                 
                 <!-- Presets -->
                 <div class="flex items-center gap-2 pt-1 flex-wrap text-xs">
                     <span class="text-slate-400 font-medium text-[11px]">Quick Add:</span>
-                    <button type="button" onclick="addQty(100)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition-colors">+100 Kg</button>
-                    <button type="button" onclick="addQty(500)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition-colors">+500 Kg</button>
-                    <button type="button" onclick="addQty(1000)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition-colors">+1.000 Kg</button>
-                    <button type="button" onclick="addQty(2000)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg border border-slate-200 transition-colors">+2.000 Kg</button>
-                    <button type="button" onclick="resetQty()" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-lg border border-rose-200 transition-colors">Reset</button>
+                    <button type="button" onclick="addQty(100)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-colors">+100 Kg</button>
+                    <button type="button" onclick="addQty(500)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-colors">+500 Kg</button>
+                    <button type="button" onclick="addQty(1000)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-colors">+1.000 Kg</button>
+                    <button type="button" onclick="addQty(2000)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl border border-slate-200 transition-colors">+2.000 Kg</button>
+                    <button type="button" onclick="resetQty()" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl border border-rose-200 transition-colors">Reset</button>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
-            <a href="{{ route('stok.index') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Batal</a>
-            <button type="submit" class="rounded-xl bg-[#001842] hover:bg-[#002a70] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors">Simpan Alokasi Stok</button>
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <a href="{{ route('stok.index') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">Batal</a>
+            <button type="submit" class="rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 transition-all">Simpan Alokasi Stok</button>
         </div>
     </form>
 </div>
@@ -127,8 +131,8 @@
 <style>
     .select2-container--default .select2-selection--single {
         height: 48px !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
         display: flex;
         align-items: center;
         padding-left: 0.5rem;
@@ -137,8 +141,8 @@
     }
     .select2-container--default.select2-container--focus .select2-selection--single,
     .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #001842 !important;
-        box-shadow: 0 0 0 1px #001842 !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 46px !important;
@@ -147,11 +151,12 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         color: #1e293b !important;
         font-size: 0.875rem !important;
+        font-weight: 600 !important;
         line-height: normal !important;
     }
     .select2-dropdown {
-        border: 1px solid #001842 !important;
-        border-radius: 0.75rem !important;
+        border: 1px solid #6366f1 !important;
+        border-radius: 1rem !important;
         overflow: hidden;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         z-index: 9999 !important;
@@ -162,13 +167,13 @@
     .select2-search__field {
         outline: none !important;
         font-size: 0.875rem !important;
-        border-radius: 0.5rem !important;
+        border-radius: 0.75rem !important;
         border: 1px solid #cbd5e1 !important;
         padding: 8px 12px !important;
     }
     .select2-search__field:focus {
-        border-color: #001842 !important;
-        box-shadow: 0 0 0 1px #001842 !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
     }
     .select2-results__option {
         font-size: 0.875rem !important;
@@ -176,7 +181,7 @@
     }
     .select2-container--default .select2-results__option--highlighted[aria-selected],
     .select2-container--default .select2-results__option[aria-selected="true"] {
-        background-color: #001842 !important;
+        background-color: #6366f1 !important;
         color: #ffffff !important;
     }
 </style>

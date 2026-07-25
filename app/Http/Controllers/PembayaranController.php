@@ -76,6 +76,12 @@ class PembayaranController extends Controller
         $pembelians = $pembelianQuery->latest()->paginate(5, ['*'], 'pembelian_page')->withQueryString();
         $payments = $paymentQuery->latest()->paginate(5, ['*'], 'payment_page')->withQueryString();
 
+        if ($user->role === 'petani' || $request->get('view') === 'petani') {
+            return view('petani.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        } elseif ($user->role === 'mitra' || $request->get('view') === 'mitra') {
+            return view('mitra.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        }
+
         return view('koperasi.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
     }
 
@@ -94,18 +100,25 @@ class PembayaranController extends Controller
         }
 
         $methods = MetodePembayaran::with('user')->latest()->get();
+        $metodePembayarans = $methods;
         $midtransClientKey = config('midtrans.client_key');
-        return view('koperasi.pembayaran.create', compact('pembelians', 'methods', 'midtransClientKey'));
+        return view('koperasi.pembayaran.create', compact('pembelians', 'methods', 'metodePembayarans', 'midtransClientKey'));
     }
 
     public function store(Request $request)
     {
+        $request->merge([
+            'tanggal_pembayaran' => $request->input('tanggal_pembayaran', now()->toDateString()),
+            'status' => $request->input('status', 'lunas'),
+        ]);
+
         $data = $request->validate([
             'pembelian_id' => 'required|exists:pembelians,id',
-            'metode_pembayaran_id' => 'required|exists:metode_pembayarans,id',
+            'metode_pembayaran_id' => 'nullable|exists:metode_pembayarans,id',
             'jumlah_bayar' => 'required|numeric|min:0.01',
             'tanggal_pembayaran' => 'required|date',
             'status' => 'required|string|in:lunas,belum lunas,pending',
+            'catatan' => 'nullable|string',
         ]);
 
         try {

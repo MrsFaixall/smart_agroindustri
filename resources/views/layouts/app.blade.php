@@ -52,10 +52,9 @@
                 </a>
             </div>
 
-            <!-- Group Manajemen admin -->
+            <!-- Group Manajemen Logistik & Master -->
             <div x-data="{ open: false }">
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manajemen Logistik
-           </p>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manajemen Logistik</p>
                 <button @click="open = !open"
                     class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition">
                     <span class="font-semibold text-sm">Master Data</span>
@@ -76,52 +75,84 @@
                     </a>
                 </div>
             </div>
-            <!-- Group Manajemen PETANI -->
+
+            <!-- Group 1: MITRA (PT. CHAMP) -->
             <div>
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manajemen petani
-                </p>
-                <a href="{{ route('gudang.index') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('gudang.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Gudang</span>
-            </a>
-                <a href="{{ url('/atur-harga') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('atur-harga.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Atur Harga</span>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">1. Mitra (PT. Champ)</p>
+                <a href="{{ route('pengadaan-benih.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pengadaan-benih.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pengadaan Benih</span>
                 </a>
+                <a href="{{ route('pembayaran.index', ['view' => 'mitra']) }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->get('view') === 'mitra' ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pembayaran Mitra</span>
+                </a>
+            </div>
+ 
+            <!-- Group 2: MANAJEMEN KOPERASI -->
+            <div>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">2. Manajemen Koperasi</p>
+                <a href="{{ route('distribusi-benih.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('distribusi-benih.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Distribusi Benih</span>
+                </a>
+                <a href="{{ route('pembelian.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pembelian.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pembelian Panen</span>
+                </a>
+                <a href="{{ route('penjualan-buah.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('penjualan-buah.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Penjualan Panen</span>
+                </a>
+                <a href="{{ route('koperasi.gudang-stok.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.gudang-stok.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Gudang & Stok Koperasi</span>
+                </a>
+                <a href="{{ route('koperasi.atur-harga-pasar.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.atur-harga-pasar.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Atur Harga Pasar</span>
+                </a>
+                <a href="{{ route('pembayaran.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ (request()->routeIs('pembayaran.*') && !request()->has('view')) ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pembayaran Koperasi</span>
+                </a>
+            </div>
+
+            <!-- Group 3: MANAJEMEN PETANI -->
+            <div>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">3. Manajemen Petani</p>
                 <a href="{{ route('panen.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('panen.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Panen</span>
+                    <span class="font-semibold text-sm">Hasil Panen</span>
                 </a>
                 <a href="{{ route('stok.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('stok.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Stok</span>
+                    <span class="font-semibold text-sm">Stok Siap Jual</span>
+                </a>
+                <a href="{{ route('gudang.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('gudang.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Gudang Petani</span>
+                </a>
+                <a href="{{ url('/atur-harga') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('atur-harga.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Atur Harga Petani</span>
                 </a>
                 <a href="{{ route('metode-pembayaran.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('metode-pembayaran.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <span class="font-semibold text-sm">Metode Pembayaran</span>
                 </a>
-            </div>
-             <div>
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manajemen Akun
-                </p>
-                <a href="{{ route('pengguna.index') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pengguna.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Pengguna</span>
-            </a>
+                <a href="{{ route('pembayaran.index', ['view' => 'petani']) }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->get('view') === 'petani' ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pembayaran Petani</span>
+                </a>
             </div>
 
-            <!-- Group Transaksi & Pengaturan -->
+            <!-- Group 4: SISTEM & LAPORAN -->
             <div>
-                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Transaksi & Lainnya
-                </p>
-                
-                <a href="{{ route('pembelian.index') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pembelian.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Pembelian</span>
-                </a>
-                <a href="{{ route('pembayaran.index') }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pembayaran.index') || request()->routeIs('pembayaran.create') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
-                    <span class="font-semibold text-sm">Pembayaran</span>
+                <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Sistem & Laporan</p>
+                <a href="{{ route('pengguna.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pengguna.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <span class="font-semibold text-sm">Pengguna (Hak Akses)</span>
                 </a>
                 <a href="{{ route('daftar-transaksi.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('daftar-transaksi.*') || request()->routeIs('pembayaran.invoice') || request()->routeIs('pembayaran.struk') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">

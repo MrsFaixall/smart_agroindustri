@@ -13,7 +13,7 @@ class GudangController extends Controller
 {
     public function index()
     {
-        $gudangs = Gudang::with(['stoks', 'panens'])->get();
+        $gudangs = Gudang::where('jenis_gudang', 'petani')->with(['stoks', 'panens'])->get();
         $mapGudangs = $gudangs
             ->filter(fn (Gudang $gudang) => is_numeric($gudang->latitude) && is_numeric($gudang->longitude))
             ->map(fn (Gudang $gudang) => [
@@ -134,6 +134,7 @@ class GudangController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
+        $data['jenis_gudang'] = 'petani';
         Gudang::create($data);
 
         return redirect()->route('gudang.index')->with('success', 'Gudang berhasil ditambahkan.');

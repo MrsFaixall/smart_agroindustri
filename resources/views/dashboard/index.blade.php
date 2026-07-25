@@ -1,113 +1,211 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header Bagian Atas -->
-    <div class="flex justify-between items-center">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800">Dashboard Utama</h2>
-            <p class="text-gray-500">Selamat datang kembali. Berikut adalah ringkasan operasional logistik hari ini.</p>
+<div class="space-y-8">
+    <!-- Header Bagian Atas dengan Banner Gradient -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
+        <!-- Decorative Glow Elements -->
+        <div class="absolute -top-12 -right-12 w-56 h-56 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-1 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Sistem Operasional Logistik</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Dashboard Utama</h2>
+            <p class="text-slate-300 text-sm max-w-xl">Selamat datang kembali, <span class="font-bold text-white">{{ auth()->user()->name ?? 'Pengguna' }}</span>! Berikut ringkasan statistik operasional hari ini.</p>
         </div>
-        <div class="flex gap-3">
-            <button class="border px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition">
-                <x-heroicon-o-arrow-down-tray class="w-5 h-5"/> Ekspor Data
+        <div class="relative z-10 flex flex-wrap gap-3">
+            <button class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/15 px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-semibold hover:shadow-lg">
+                <x-heroicon-o-arrow-down-tray class="w-5 h-5 text-emerald-400"/> Ekspor Data
             </button>
-            <a href="{{ route('panen.create') }}" class="bg-[#0f172a] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-950 transition">
-                <span class="font-bold">+</span> Input Panen
+            <a href="{{ route('panen.create') }}" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-emerald-500/30 transform hover:-translate-y-0.5">
+                <span class="text-lg leading-none">+</span> Input Panen
             </a>
         </div>
     </div>
 
-    <!-- Statistik Utama -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <!-- Statistik Utama (Colorful & Modern Cards) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         @php
             $stats = [
-                ['label' => 'TOTAL GUDANG', 'value' => number_format($totalGudang ?? 0), 'sub' => '↗ +2 Gudang baru', 'icon' => 'home'],
-                ['label' => 'TOTAL PETANI', 'value' => number_format($totalPetani ?? 0), 'sub' => '↗ +12 bulan ini', 'icon' => 'user-group'],
-                ['label' => 'TOTAL KOPERASI', 'value' => number_format($totalKoperasi ?? 0), 'sub' => '— Stabil', 'icon' => 'truck'],
-                ['label' => 'TOTAL PANEN', 'value' => number_format(($totalPanenKg ?? 0) / 1000, 2, ',', '.').' Ton', 'sub' => number_format($totalPanenKg ?? 0, 0, ',', '.').' Kg tercatat', 'icon' => 'archive-box'],
+                [
+                    'label' => 'TOTAL GUDANG',
+                    'value' => number_format($totalGudang ?? 0),
+                    'sub' => '↗ +2 Gudang baru',
+                    'icon' => 'home',
+                    'gradient' => 'from-blue-600 to-indigo-600',
+                    'bg_card' => 'bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40',
+                    'border' => 'border-blue-100',
+                    'badge_bg' => 'bg-blue-100 text-blue-700 border-blue-200/60',
+                    'glow' => 'bg-blue-500/10'
+                ],
+                [
+                    'label' => 'TOTAL PETANI',
+                    'value' => number_format($totalPetani ?? 0),
+                    'sub' => '↗ +12 bulan ini',
+                    'icon' => 'user-group',
+                    'gradient' => 'from-emerald-500 to-teal-600',
+                    'bg_card' => 'bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40',
+                    'border' => 'border-emerald-100',
+                    'badge_bg' => 'bg-emerald-100 text-emerald-700 border-emerald-200/60',
+                    'glow' => 'bg-emerald-500/10'
+                ],
+                [
+                    'label' => 'TOTAL KOPERASI',
+                    'value' => number_format($totalKoperasi ?? 0),
+                    'sub' => '— Stabil',
+                    'icon' => 'truck',
+                    'gradient' => 'from-purple-600 to-indigo-600',
+                    'bg_card' => 'bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/40',
+                    'border' => 'border-purple-100',
+                    'badge_bg' => 'bg-purple-100 text-purple-700 border-purple-200/60',
+                    'glow' => 'bg-purple-500/10'
+                ],
+                [
+                    'label' => 'TOTAL PANEN',
+                    'value' => number_format(($totalPanenKg ?? 0) / 1000, 2, ',', '.').' Ton',
+                    'sub' => number_format($totalPanenKg ?? 0, 0, ',', '.').' Kg tercatat',
+                    'icon' => 'archive-box',
+                    'gradient' => 'from-amber-500 to-orange-600',
+                    'bg_card' => 'bg-gradient-to-br from-amber-50/80 via-white to-orange-50/40',
+                    'border' => 'border-amber-100',
+                    'badge_bg' => 'bg-amber-100 text-amber-800 border-amber-200/60',
+                    'glow' => 'bg-amber-500/10'
+                ],
             ];
         @endphp
 
         @foreach($stats as $s)
-        <div class="bg-white p-6 rounded-2xl border shadow-sm relative overflow-hidden">
-            <p class="text-gray-400 text-[10px] font-bold tracking-wider">{{ $s['label'] }}</p>
-            <h3 class="text-3xl font-bold mt-1">{{ $s['value'] }}</h3>
-            <p class="text-xs text-gray-400 mt-2">{{ $s['sub'] }}</p>
-            <div class="absolute top-6 right-6 text-blue-900 opacity-20">
-                <x-dynamic-component :component="'heroicon-o-'.$s['icon']" class="w-8 h-8"/>
+        <div class="{{ $s['bg_card'] }} {{ $s['border'] }} p-5 rounded-3xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="{{ $s['glow'] }} absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-slate-500 text-[11px] font-bold tracking-wider uppercase">{{ $s['label'] }}</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br {{ $s['gradient'] }} text-white shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <x-dynamic-component :component="'heroicon-o-'.$s['icon']" class="w-5 h-5"/>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">{{ $s['value'] }}</h3>
+            </div>
+
+            <div class="mt-4">
+                <span class="{{ $s['badge_bg'] }} border text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1">
+                    {{ $s['sub'] }}
+                </span>
             </div>
         </div>
         @endforeach
 
-        <!-- Stok Khusus -->
-        <div class="bg-orange-50 p-6 rounded-2xl border border-orange-100 shadow-sm">
-            <p class="text-orange-600 text-[10px] font-bold tracking-wider">TOTAL STOK (KG)</p>
-            <h3 class="text-3xl font-bold text-orange-600 mt-1">{{ number_format($totalStokKg ?? 0) }}</h3>
-            <p class="text-xs text-orange-400 mt-2">⚠ Kapasitas 85%</p>
+        <!-- Stok Khusus (Rose/Red Gradient Accent) -->
+        <div class="bg-gradient-to-br from-rose-50/90 via-white to-orange-50/50 border border-rose-200/80 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="bg-rose-500/10 absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-rose-600 text-[11px] font-bold tracking-wider uppercase">TOTAL STOK (KG)</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-rose-600 tracking-tight">{{ number_format($totalStokKg ?? 0) }}</h3>
+            </div>
+
+            <div class="mt-4">
+                <span class="bg-rose-100/90 text-rose-700 border border-rose-200 text-[11px] font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>⚠ Kapasitas 85%</span>
+                </span>
+            </div>
         </div>
     </div>
 
     <!-- Area Grafik & Persentase -->
-    <div class="grid grid-cols-3 gap-6">
-        <!-- Grafik -->
-        <div class="col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="font-bold text-lg text-slate-800">Grafik Stok (Kg)</h3>
-                    <p class="text-xs text-slate-400">Tren pergerakan panen bulanan {{ now()->year }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Grafik Stok -->
+        <div class="lg:col-span-2 bg-white p-6 md:p-7 rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-md shadow-indigo-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800">Grafik Stok (Kg)</h3>
+                        <p class="text-xs text-slate-400">Tren pergerakan panen bulanan tahun {{ now()->year }}</p>
+                    </div>
                 </div>
-                <span class="text-[10px] font-bold border border-slate-200 bg-slate-50 text-slate-500 px-3 py-1.5 rounded-lg uppercase tracking-wider">Tahun Ini</span>
+                <span class="text-[11px] font-bold border border-indigo-100 bg-indigo-50/80 text-indigo-700 px-3.5 py-1.5 rounded-xl uppercase tracking-wider shadow-sm">
+                    Tahun {{ now()->year }}
+                </span>
             </div>
-            <div class="h-64 w-full">
+            <div class="h-72 w-full">
                 <canvas id="stokChart"></canvas>
             </div>
         </div>
 
-        <!-- Donut Chart -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col">
+        <!-- Donut Chart & Breakdown -->
+        <div class="bg-white p-6 md:p-7 rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 flex flex-col justify-between">
             <div>
-                <h3 class="font-bold text-lg text-slate-800">Jenis Kentang Terdaftar</h3>
-                <p class="text-xs text-slate-400 mb-6">{{ $totalJenisKentang ?? 0 }} jenis kentang tersedia dalam master data.</p>
-            </div>
-            
-            <div class="flex-1 flex flex-col items-center justify-center relative">
-                <div class="h-48 w-full relative flex items-center justify-center">
-                    <canvas id="jenisChart"></canvas>
-                    <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-                        <span class="text-2xl font-bold text-slate-800">{{ $totalJenisKentang ?? 0 }}</span>
-                        <span class="text-[10px] text-slate-400 font-bold tracking-wider">JENIS</span>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800">Jenis Kentang Terdaftar</h3>
+                        <p class="text-xs text-slate-400">{{ $totalJenisKentang ?? 0 }} jenis kentang dalam master data.</p>
                     </div>
                 </div>
-                <div class="mt-6 w-full space-y-3">
-                    @php
-                        $colors = ['#1e3a8a', '#16a34a', '#eab308', '#dc2626', '#9333ea'];
-                    @endphp
-                    @foreach($stokPerJenis as $index => $jenis)
-                        <div class="flex justify-between items-center text-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full" style="background-color: {{ $colors[$index % count($colors)] }}"></span>
-                                <span class="text-slate-600 font-medium">{{ $jenis['nama'] }}</span>
-                            </div>
-                            <span class="font-bold text-slate-800">
-                                @if($totalStokKg > 0)
-                                    {{ round(($jenis['total'] / $totalStokKg) * 100) }}%
-                                @else
-                                    0%
-                                @endif
-                            </span>
+                
+                <div class="mt-4 flex flex-col items-center justify-center relative">
+                    <div class="h-44 w-full relative flex items-center justify-center">
+                        <canvas id="jenisChart"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+                            <span class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ $totalJenisKentang ?? 0 }}</span>
+                            <span class="text-[10px] text-slate-400 font-bold tracking-wider uppercase">JENIS</span>
                         </div>
-                    @endforeach
+                    </div>
+
+                    <div class="mt-5 w-full space-y-3.5">
+                        @php
+                            $colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
+                        @endphp
+                        @foreach($stokPerJenis as $index => $jenis)
+                            @php
+                                $color = $colors[$index % count($colors)];
+                                $pct = $totalStokKg > 0 ? round(($jenis['total'] / $totalStokKg) * 100) : 0;
+                            @endphp
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center text-sm">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-3 h-3 rounded-full shadow-sm" style="background-color: {{ $color }}"></span>
+                                        <span class="text-slate-700 font-semibold">{{ $jenis['nama'] }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-slate-400 font-medium">{{ number_format($jenis['total'], 0, ',', '.') }} Kg</span>
+                                        <span class="font-bold text-slate-800 text-xs px-2 py-0.5 rounded-lg bg-slate-100">
+                                            {{ $pct }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500" style="width: {{ max($pct, 2) }}%; background-color: {{ $color }}"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Footer Quote -->
-    <!-- <div class="bg-[#0f172a] text-white p-8 rounded-3xl flex items-center gap-8 shadow-lg shadow-slate-200">
-        <span class="text-5xl font-serif opacity-50">99</span>
-        <p class="text-lg italic text-slate-300">"Digitalisasi rantai pasok pertanian untuk meningkatkan efisiensi, transparansi, dan akurasi pengelolaan data logistik."</p>
-    </div> -->
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -116,10 +214,10 @@
         // Area Chart
         const ctxStok = document.getElementById('stokChart').getContext('2d');
         
-        // Create gradient
         let gradient = ctxStok.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(30, 58, 138, 0.2)'); // blue-900
-        gradient.addColorStop(1, 'rgba(30, 58, 138, 0)');
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
+        gradient.addColorStop(0.5, 'rgba(99, 102, 241, 0.15)');
+        gradient.addColorStop(1, 'rgba(238, 242, 255, 0.0)');
 
         new Chart(ctxStok, {
             type: 'line',
@@ -128,13 +226,17 @@
                 datasets: [{
                     label: 'Total Panen (Kg)',
                     data: {!! $grafikStokData !!},
-                    borderColor: '#1e3a8a',
+                    borderColor: '#2563eb',
+                    borderWidth: 3,
                     backgroundColor: gradient,
-                    borderWidth: 2,
                     pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#1e3a8a',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#2563eb',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 2,
                     fill: true,
                     tension: 0.4
                 }]
@@ -147,12 +249,13 @@
                     tooltip: {
                         backgroundColor: '#0f172a',
                         padding: 12,
-                        titleFont: { family: 'Plus Jakarta Sans', size: 13 },
-                        bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
+                        cornerRadius: 12,
+                        titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: 'bold' },
+                        bodyFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'extrabold' },
                         displayColors: false,
                         callbacks: {
                             label: function(context) {
-                                return context.parsed.y.toLocaleString('id-ID') + ' Kg';
+                                return '📦 ' + context.parsed.y.toLocaleString('id-ID') + ' Kg Panen';
                             }
                         }
                     }
@@ -160,12 +263,12 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { family: 'Plus Jakarta Sans' }, color: '#94a3b8' }
+                        ticks: { font: { family: 'Plus Jakarta Sans', weight: '600' }, color: '#64748b' }
                     },
                     y: {
-                        border: { display: false },
+                        border: { display: false, dash: [4, 4] },
                         grid: { color: '#f1f5f9' },
-                        ticks: { font: { family: 'Plus Jakarta Sans' }, color: '#94a3b8' }
+                        ticks: { font: { family: 'Plus Jakarta Sans', weight: '600' }, color: '#64748b' }
                     }
                 }
             }
@@ -182,20 +285,22 @@
                 labels: jenisLabels,
                 datasets: [{
                     data: jenisData,
-                    backgroundColor: ['#1e3a8a', '#16a34a', '#eab308', '#dc2626', '#9333ea'],
-                    borderWidth: 0,
-                    hoverOffset: 4
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '75%',
+                cutout: '72%',
                 plugins: {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
                         padding: 12,
+                        cornerRadius: 12,
                         titleFont: { family: 'Plus Jakarta Sans' },
                         bodyFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
                         callbacks: {

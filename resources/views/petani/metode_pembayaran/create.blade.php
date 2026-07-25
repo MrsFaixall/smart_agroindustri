@@ -1,23 +1,26 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6">
-    <!-- Header Section -->
-    <div class="space-y-1">
-        <h1 class="text-2xl font-bold text-slate-900">Tambah Metode Pembayaran</h1>
-        <p class="text-slate-500 text-sm">Tambahkan rekening baru, e-wallet, atau QRIS untuk menerima pembayaran transaksi.</p>
+<div class="max-w-3xl space-y-6">
+    <div class="flex items-center gap-3">
+        <a href="{{ route('metode-pembayaran.index') }}" class="p-2.5 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+            <x-heroicon-o-arrow-left class="w-5 h-5"/>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Tambah Metode Pembayaran</h1>
+            <p class="text-xs text-slate-400">Tambahkan rekening bank konvensional, bank digital, e-wallet, atau QRIS untuk penerimaan transaksi.</p>
+        </div>
     </div>
 
-    <!-- Error Alerts -->
     @if($errors->any())
-        <div class="rounded-lg bg-red-50 border border-red-200 p-4 text-red-800 shadow-sm">
-            <div class="flex items-center gap-2 mb-2 font-semibold text-sm">
-                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="rounded-2xl border border-rose-200 bg-rose-50/90 px-5 py-4 text-rose-700 shadow-sm">
+            <div class="flex items-center gap-2 mb-2 font-bold text-sm">
+                <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
-                Ada beberapa kesalahan pengisian form:
+                <span>Ada beberapa kesalahan pengisian form:</span>
             </div>
-            <ul class="list-disc list-inside text-xs space-y-1 pl-1">
+            <ul class="list-disc list-inside text-xs space-y-1 font-medium">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -25,15 +28,15 @@
         </div>
     @endif
 
-    <!-- Form Card -->
-    <form action="{{ route('metode-pembayaran.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-xl p-8 shadow-sm border border-slate-200 border-t-4 border-t-[#001842] space-y-6">
+    <form action="{{ route('metode-pembayaran.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 rounded-3xl bg-white p-8 shadow-xl shadow-slate-100/60 border border-slate-100 relative overflow-hidden">
+        <div class="h-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 absolute top-0 left-0"></div>
         @csrf
 
         <div class="grid gap-6 md:grid-cols-2">
-            <!-- Kategori -->
+            <!-- Kategori Pembayaran -->
             <div class="space-y-2 md:col-span-2">
-                <label for="kategori" class="text-sm font-bold text-slate-700">Kategori Pembayaran <span class="text-red-500">*</span></label>
-                <select name="kategori" id="kategori" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-[#001842] focus:ring-1 focus:ring-[#001842] focus:outline-none transition-all" required>
+                <label for="kategori" class="block text-sm font-semibold text-slate-700">Kategori Pembayaran <span class="text-rose-500">*</span></label>
+                <select name="kategori" id="kategori" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" required>
                     <option value="Transfer Bank" {{ old('kategori') == 'Transfer Bank' ? 'selected' : '' }}>Transfer Bank (BCA, BRI, Mandiri, BNI, BSI, dll)</option>
                     <option value="E-Wallet" {{ old('kategori') == 'E-Wallet' ? 'selected' : '' }}>E-Wallet (GoPay, OVO, DANA, ShopeePay, LinkAja)</option>
                     <option value="QRIS" {{ old('kategori') == 'QRIS' ? 'selected' : '' }}>QRIS (Kode QR Standar)</option>
@@ -43,10 +46,10 @@
                 </select>
             </div>
 
-            <!-- Provider/Bank Select2 -->
+            <!-- Provider / Nama Bank Select2 Searchable -->
             <div class="space-y-2">
-                <label for="bank" class="text-sm font-bold text-slate-700">Provider / Nama Bank <span class="text-red-500">*</span></label>
-                <select name="bank" id="bank" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-[#001842] focus:ring-1 focus:ring-[#001842] focus:outline-none transition-all select2-searchable" required>
+                <label for="bank" class="block text-sm font-semibold text-slate-700">Provider / Nama Bank <span class="text-rose-500">*</span></label>
+                <select name="bank" id="bank" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2-searchable" required>
                     <option value="">-- Cari / Pilih Bank / E-Wallet --</option>
                     <optgroup label="Bank Konvensional & Syariah">
                         <option value="BCA" data-max="10" {{ old('bank') == 'BCA' ? 'selected' : '' }}>BCA (Bank Central Asia) — 10 Digit</option>
@@ -100,13 +103,13 @@
                         <option value="Tunai Direct" data-max="18" {{ old('bank') == 'Tunai Direct' ? 'selected' : '' }}>Tunai / Cash Direct</option>
                     </optgroup>
                 </select>
-                <p class="text-xs text-slate-500">Cari dan pilih bank/provider dari daftar di atas.</p>
+                <p class="text-xs text-slate-400">Ketik untuk mencari bank konvensional, bank digital, atau e-wallet.</p>
             </div>
 
             <!-- Atas Nama Input -->
             <div class="space-y-2">
-                <label for="atas_nama" class="text-sm font-bold text-slate-700">Atas Nama (Pilih Petani) <span class="text-red-500">*</span></label>
-                <select name="atas_nama" id="atas_nama" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-[#001842] focus:ring-1 focus:ring-[#001842] focus:outline-none transition-all select2" required>
+                <label for="atas_nama" class="block text-sm font-semibold text-slate-700">Atas Nama (Pilih Petani) <span class="text-rose-500">*</span></label>
+                <select name="atas_nama" id="atas_nama" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
                     <option value="">-- Pilih Petani --</option>
                     @foreach($petanis as $petani)
                         <option value="{{ $petani->name }}" {{ old('atas_nama') == $petani->name ? 'selected' : '' }}>
@@ -116,45 +119,45 @@
                 </select>
             </div>
 
-            <!-- No. Rekening Input & Digit Helper -->
+            <!-- No. Rekening Input & Digit Counter -->
             <div class="space-y-2 md:col-span-2">
                 <div class="flex items-center justify-between">
-                    <label for="no_rekening" class="text-sm font-bold text-slate-700">Nomor Akun / Rekening <span class="text-red-500">*</span></label>
-                    <span id="digit_counter" class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700 font-mono border border-slate-200">0 / 10 Digit</span>
+                    <label for="no_rekening" class="block text-sm font-semibold text-slate-700">Nomor Akun / Rekening <span class="text-rose-500">*</span></label>
+                    <span id="digit_counter" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-mono border border-slate-200">0 / 10 Digit</span>
                 </div>
                 <input type="text" name="no_rekening" id="no_rekening" inputmode="numeric" maxlength="10" value="{{ old('no_rekening') }}" placeholder="Masukkan nomor rekening (Contoh: 1234567890)" 
-                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-[#001842] focus:ring-1 focus:ring-[#001842] focus:outline-none transition-all" required>
+                    class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-mono font-bold text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" required>
                 
                 <!-- Helper Guide Card -->
-                <div id="digit_guide_box" class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1.5 text-slate-600">
-                    <div class="font-semibold text-slate-800 flex items-center justify-between">
+                <div id="digit_guide_box" class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-1.5 text-slate-600">
+                    <div class="font-bold text-slate-800 flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-[#001842]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <span>Status Digit Rekening:</span>
                         </div>
-                        <span id="target_bank_badge" class="font-mono text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 font-bold">BCA (Max 10 Digit)</span>
+                        <span id="target_bank_badge" class="font-mono text-[11px] bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full border border-blue-200 font-bold">Pilih Bank</span>
                     </div>
-                    <p id="digit_status_text" class="text-[11px] text-slate-500 pt-0.5 font-medium italic">Silakan pilih bank dan masukkan angka nomor rekening.</p>
+                    <p id="digit_status_text" class="text-[11px] text-slate-500 pt-0.5 font-medium italic">Silakan pilih bank/provider dan masukkan nomor rekening.</p>
                 </div>
             </div>
 
             <!-- QRIS Upload -->
             <div class="space-y-2 md:col-span-2">
-                <label for="qr_image" class="text-sm font-bold text-slate-700">Upload QR Code (Khusus QRIS / Digital)</label>
+                <label for="qr_image" class="block text-sm font-semibold text-slate-700">Upload QR Code (Khusus QRIS / Digital)</label>
                 <input type="file" name="qr_image" id="qr_image" accept="image/*"
-                    class="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm focus:border-[#001842] focus:ring-1 focus:ring-[#001842] focus:outline-none transition-all file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                <p class="text-xs text-slate-500">Format gambar: JPG, JPEG, PNG (Maksimal 2MB)</p>
+                    class="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all outline-none file:mr-4 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <p class="text-xs text-slate-400">Format gambar: JPG, JPEG, PNG (Maksimal 2MB)</p>
             </div>
         </div>
 
         <!-- Actions -->
-        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
-            <a href="{{ route('metode-pembayaran.index') }}" class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <a href="{{ route('metode-pembayaran.index') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
                 Batal
             </a>
-            <button type="submit" class="rounded-lg bg-[#001842] px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#002a70] transition-colors">
+            <button type="submit" class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 transition-all">
                 Simpan Metode Pembayaran
             </button>
         </div>
@@ -165,46 +168,34 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    .select2-container .select2-selection--single {
-        height: 42px !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 0.5rem !important;
+    .select2-container--default .select2-selection--single {
+        height: 48px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
         display: flex;
         align-items: center;
         padding-left: 0.5rem;
+        background-color: #ffffff !important;
     }
     .select2-container--default.select2-container--focus .select2-selection--single,
     .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #001842 !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px !important;
-        right: 8px !important;
+        height: 46px !important;
+        right: 10px !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #334155 !important;
+        color: #1e293b !important;
         font-size: 0.875rem !important;
+        font-weight: 600 !important;
         line-height: normal !important;
     }
     .select2-dropdown {
-        border: 1px solid #001842 !important;
-        border-radius: 0.5rem !important;
+        border: 1px solid #3b82f6 !important;
+        border-radius: 1rem !important;
         overflow: hidden;
-    }
-    .select2-search__field {
-        outline: none !important;
-        font-size: 0.875rem !important;
-    }
-    .select2-search__field:focus {
-        border-color: #001842 !important;
-    }
-    .select2-results__option {
-        font-size: 0.875rem !important;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected],
-    .select2-container--default .select2-results__option[aria-selected="true"] {
-        background-color: #001842 !important;
-        color: #ffffff !important;
     }
 </style>
 @endpush
@@ -235,18 +226,22 @@
             const bankName = bankSelect.val() || 'Bank';
             let maxDigit = selectedOpt.data('max') || 18;
 
-            noRekeningInput.setAttribute('maxlength', maxDigit);
+            if (noRekeningInput) {
+                noRekeningInput.setAttribute('maxlength', maxDigit);
 
-            // Trim if currently exceeds new maxDigit
-            if (noRekeningInput.value.length > maxDigit) {
-                noRekeningInput.value = noRekeningInput.value.slice(0, maxDigit);
+                if (noRekeningInput.value.length > maxDigit) {
+                    noRekeningInput.value = noRekeningInput.value.slice(0, maxDigit);
+                }
             }
 
-            targetBankBadge.textContent = `${bankName} (Max ${maxDigit} Digit)`;
+            if (targetBankBadge) {
+                targetBankBadge.textContent = `${bankName} (Max ${maxDigit} Digit)`;
+            }
             validateDigits(maxDigit, bankName);
         }
 
         function validateDigits(maxDigitOverride, bankNameOverride) {
+            if (!noRekeningInput) return;
             noRekeningInput.value = noRekeningInput.value.replace(/[^0-9]/g, '');
             const selectedOpt = bankSelect.find(':selected');
             const bankName = bankNameOverride || bankSelect.val() || 'Bank';
@@ -254,23 +249,31 @@
 
             const len = noRekeningInput.value.length;
 
-            digitCounter.textContent = `${len} / ${maxDigit} Digit`;
+            if (digitCounter) {
+                digitCounter.textContent = `${len} / ${maxDigit} Digit`;
+            }
 
             if (len === 0) {
-                digitCounter.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700 font-mono border border-slate-200';
-                digitStatusText.textContent = `Silakan masukkan nomor rekening ${bankName} (Maksimal ${maxDigit} digit).`;
-                digitStatusText.className = 'text-[11px] text-slate-500 pt-0.5 font-medium italic';
+                if (digitCounter) digitCounter.className = 'text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-mono border border-slate-200';
+                if (digitStatusText) {
+                    digitStatusText.textContent = `Silakan masukkan nomor rekening ${bankName} (Maksimal ${maxDigit} digit).`;
+                    digitStatusText.className = 'text-[11px] text-slate-500 pt-0.5 font-medium italic';
+                }
                 return;
             }
 
             if (len === parseInt(maxDigit)) {
-                digitCounter.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 font-mono border border-emerald-300';
-                digitStatusText.textContent = `✓ Nomor rekening telah pas ${len} digit sesuai batas maksimal ${bankName}.`;
-                digitStatusText.className = 'text-[11px] text-emerald-600 font-semibold pt-0.5';
+                if (digitCounter) digitCounter.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-mono border border-emerald-300';
+                if (digitStatusText) {
+                    digitStatusText.textContent = `✓ Nomor rekening telah pas ${len} digit sesuai batas maksimal ${bankName}.`;
+                    digitStatusText.className = 'text-[11px] text-emerald-600 font-bold pt-0.5';
+                }
             } else {
-                digitCounter.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-amber-100 text-amber-800 font-mono border border-amber-300';
-                digitStatusText.textContent = `ℹ️ Nomor rekening ${bankName} saat ini ${len} dari ${maxDigit} digit.`;
-                digitStatusText.className = 'text-[11px] text-amber-700 font-medium pt-0.5';
+                if (digitCounter) digitCounter.className = 'text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-mono border border-amber-300';
+                if (digitStatusText) {
+                    digitStatusText.textContent = `ℹ️ Nomor rekening ${bankName} saat ini ${len} dari ${maxDigit} digit.`;
+                    digitStatusText.className = 'text-[11px] text-amber-700 font-semibold pt-0.5';
+                }
             }
         }
 

@@ -28,6 +28,8 @@ class MidtransController extends Controller
         $request->validate([
             'pembelian_id' => 'required|exists:pembelians,id',
             'jumlah_bayar' => 'required|numeric|min:0.01',
+            'catatan' => 'nullable|string',
+            'payment_type' => 'nullable|string',
         ]);
 
         $pembelian = Pembelian::with('petani')->find($request->pembelian_id);
@@ -62,6 +64,7 @@ class MidtransController extends Controller
                 'status' => 'pending',
                 'snap_token' => $snapToken,
                 'midtrans_order_id' => $orderId,
+                'catatan' => $request->catatan,
                 // metode_pembayaran_id dibiarkan null
             ]);
 

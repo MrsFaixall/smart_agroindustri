@@ -17,7 +17,12 @@ use App\Http\Controllers\{
     HargaController,
     UserController,
     MidtransController,
-    DaftarTransaksiController
+    DaftarTransaksiController,
+    KoperasiGudangStokController,
+    KoperasiHargaPasarController,
+    PengadaanBenihController,
+    DistribusiBenihController,
+    PenjualanBuahController
 };
 
 // ==========================================
@@ -58,6 +63,39 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // 3. CRUD Pembelian
     Route::resource('pembelian', PembelianController::class);
+
+    // 3.1. CRUD Transaksi Koperasi (Pengadaan Benih, Distribusi Benih, Penjualan Buah)
+    Route::get('pengadaan-benih', [PengadaanBenihController::class, 'index'])->name('pengadaan-benih.index');
+    Route::get('pengadaan-benih/create', [PengadaanBenihController::class, 'create'])->name('pengadaan-benih.create');
+    Route::post('pengadaan-benih', [PengadaanBenihController::class, 'store'])->name('pengadaan-benih.store');
+    Route::post('pengadaan-benih/{id}/bayar', [PengadaanBenihController::class, 'bayar'])->name('pengadaan-benih.bayar');
+    Route::delete('pengadaan-benih/{id}', [PengadaanBenihController::class, 'destroy'])->name('pengadaan-benih.destroy');
+
+    Route::get('distribusi-benih', [DistribusiBenihController::class, 'index'])->name('distribusi-benih.index');
+    Route::get('distribusi-benih/create', [DistribusiBenihController::class, 'create'])->name('distribusi-benih.create');
+    Route::post('distribusi-benih', [DistribusiBenihController::class, 'store'])->name('distribusi-benih.store');
+    Route::post('distribusi-benih/{id}/bayar', [DistribusiBenihController::class, 'bayar'])->name('distribusi-benih.bayar');
+    Route::delete('distribusi-benih/{id}', [DistribusiBenihController::class, 'destroy'])->name('distribusi-benih.destroy');
+
+    Route::get('penjualan-buah', [PenjualanBuahController::class, 'index'])->name('penjualan-buah.index');
+    Route::get('penjualan-buah/create', [PenjualanBuahController::class, 'create'])->name('penjualan-buah.create');
+    Route::post('penjualan-buah', [PenjualanBuahController::class, 'store'])->name('penjualan-buah.store');
+    Route::post('penjualan-buah/{id}/bayar', [PenjualanBuahController::class, 'bayar'])->name('penjualan-buah.bayar');
+    Route::delete('penjualan-buah/{id}', [PenjualanBuahController::class, 'destroy'])->name('penjualan-buah.destroy');
+
+    // 3.2. Koperasi Gudang & Stok
+    Route::get('koperasi/gudang-stok', [KoperasiGudangStokController::class, 'index'])->name('koperasi.gudang-stok.index');
+    Route::get('koperasi/gudang-stok/create-gudang', [KoperasiGudangStokController::class, 'createGudang'])->name('koperasi.gudang-stok.create-gudang');
+    Route::post('koperasi/gudang-stok/store-gudang', [KoperasiGudangStokController::class, 'storeGudang'])->name('koperasi.gudang-stok.store-gudang');
+    Route::get('koperasi/gudang-stok/edit-gudang/{id}', [KoperasiGudangStokController::class, 'editGudang'])->name('koperasi.gudang-stok.edit-gudang');
+    Route::put('koperasi/gudang-stok/update-gudang/{id}', [KoperasiGudangStokController::class, 'updateGudang'])->name('koperasi.gudang-stok.update-gudang');
+    Route::delete('koperasi/gudang-stok/destroy-gudang/{id}', [KoperasiGudangStokController::class, 'destroyGudang'])->name('koperasi.gudang-stok.destroy-gudang');
+    Route::get('koperasi/gudang-stok/edit-stok/{id}', [KoperasiGudangStokController::class, 'editStok'])->name('koperasi.gudang-stok.edit-stok');
+    Route::put('koperasi/gudang-stok/update-stok/{id}', [KoperasiGudangStokController::class, 'updateStok'])->name('koperasi.gudang-stok.update-stok');
+    Route::delete('koperasi/gudang-stok/destroy-stok/{id}', [KoperasiGudangStokController::class, 'destroyStok'])->name('koperasi.gudang-stok.destroy-stok');
+
+    // 3.3. Koperasi Harga Pasar
+    Route::resource('koperasi/atur-harga-pasar', KoperasiHargaPasarController::class, ['as' => 'koperasi']);
 
     // 4. CRUD Panen
     Route::resource('panen', PanenController::class);

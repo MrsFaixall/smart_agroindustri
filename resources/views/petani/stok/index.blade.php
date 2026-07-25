@@ -1,95 +1,110 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-8">
 
-    {{-- Header --}}
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-sm text-slate-400 mb-1">
-                Beranda / Stok
-            </p>
+    <!-- Header Banner Gradient -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-56 h-56 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <h1 class="text-3xl font-bold text-slate-900">
-                Manajemen Stok
-            </h1>
+        <div class="relative z-10 space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-1 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                <span>Inventaris & Stok Terkonsolidasi</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Manajemen Stok</h1>
+            <p class="text-indigo-100/80 text-sm max-w-xl">Monitor akumulasi stok komoditas dan alokasi siap jual ke Koperasi.</p>
         </div>
-
-        <a href="{{ route('stok.create') }}"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#0B1F5B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#091846] transition">
-            ⚙ Atur Penyesuaian Stok
-        </a>
+        <div class="relative z-10">
+            <a href="{{ route('stok.create') }}"
+               class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-indigo-600/30 transform hover:-translate-y-0.5">
+                ⚙ Atur Penyesuaian Stok
+            </a>
+        </div>
     </div>
 
-    {{-- Statistik --}}
+    <!-- Statistik Utama -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-
-        <div class="bg-white border rounded-xl p-5">
-            <p class="text-xs text-slate-500 font-medium">
-                Total Stok Tersedia
-            </p>
-
-            <h3 class="mt-3 text-3xl font-bold text-slate-900">
-                {{ number_format($stoks->sum('jumlah_stok'),0,',','.') }}
-                <span class="text-lg font-medium text-slate-400">Kg</span>
-            </h3>
+        <div class="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 border border-blue-100 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="bg-blue-500/10 absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-blue-800 text-[11px] font-bold tracking-wider uppercase">Total Stok Tersedia</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+                        <x-heroicon-o-cube class="w-5 h-5"/>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
+                    {{ number_format($stoks->sum('jumlah_stok'),0,',','.') }}
+                    <span class="text-sm font-semibold text-slate-400">Kg</span>
+                </h3>
+            </div>
+            <p class="mt-3 text-xs text-blue-700 font-medium">Akumulasi seluruh gudang</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-5">
-            <p class="text-xs text-red-500 font-semibold">
-                Butuh Tindakan
-            </p>
-
-            <h3 class="mt-3 text-3xl font-bold text-slate-900">
-                {{ $stoks->where('jumlah_stok','<',1000)->count() }}
-            </h3>
-
-            <span class="text-sm text-slate-500">
-                Stok Kritis
-            </span>
+        <div class="bg-gradient-to-br from-rose-50/80 via-white to-orange-50/40 border border-rose-200/80 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="bg-rose-500/10 absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-rose-600 text-[11px] font-bold tracking-wider uppercase">Butuh Tindakan</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20">
+                        <x-heroicon-o-exclamation-triangle class="w-5 h-5"/>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-rose-600 tracking-tight">
+                    {{ $stoks->where('jumlah_stok','<',1000)->count() }} <span class="text-sm font-semibold text-rose-400">Varian</span>
+                </h3>
+            </div>
+            <p class="mt-3 text-xs text-rose-700 font-semibold">Stok Kritis (&lt; 1.000 Kg)</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-5">
-            <p class="text-xs text-slate-500">
-                Utilitas Gudang
-            </p>
-
-            <h3 class="mt-3 text-3xl font-bold text-slate-900">
-                {{ $utilitasGudang }}%
-            </h3>
+        <div class="bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/40 border border-purple-100 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="bg-purple-500/10 absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-purple-800 text-[11px] font-bold tracking-wider uppercase">Utilitas Gudang</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-md shadow-purple-500/20">
+                        <x-heroicon-o-chart-pie class="w-5 h-5"/>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
+                    {{ $utilitasGudang }}%
+                </h3>
+            </div>
+            <p class="mt-3 text-xs text-purple-700 font-medium">Kapasitas terpakai</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-5">
-            <p class="text-xs text-green-600 font-semibold">
-                +12% bulan ini
-            </p>
-
-            <h3 class="mt-3 text-3xl font-bold text-slate-900">
-                1.4x
-            </h3>
-
-            <span class="text-sm text-slate-500">
-                Perputaran Stok
-            </span>
+        <div class="bg-gradient-to-br from-emerald-50/80 via-white to-teal-50/40 border border-emerald-100 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between">
+            <div class="bg-emerald-500/10 absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-emerald-800 text-[11px] font-bold tracking-wider uppercase">Perputaran Stok</p>
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+                        <x-heroicon-o-arrow-path class="w-5 h-5"/>
+                    </div>
+                </div>
+                <h3 class="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">
+                    1.4x
+                </h3>
+            </div>
+            <p class="mt-3 text-xs text-emerald-700 font-bold">+12% bulan ini</p>
         </div>
-
     </div>
 
-    {{-- Konten Inventaris --}}
-    <div class="w-full bg-white border rounded-xl overflow-hidden shadow-sm">
-
-        <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50/50">
+    <!-- Konten Inventaris -->
+    <div class="w-full bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-xl shadow-slate-100/60">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
             <div>
                 <h2 class="font-bold text-lg text-slate-800">
                     Daftar Inventaris (Stok Terkonsolidasi Per Gudang)
                 </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Total akumulasi ketersediaan komoditas dari tiap gudang penyimpanan.</p>
+                <p class="text-xs text-slate-400">Total akumulasi ketersediaan komoditas dari tiap gudang penyimpanan</p>
             </div>
         </div>
 
         <table class="w-full text-sm text-left">
-
-            <thead class="bg-slate-50/80 text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-6 py-4">Komoditas</th>
                     <th class="px-6 py-4">Gudang</th>
@@ -102,9 +117,7 @@
             </thead>
 
             <tbody class="divide-y divide-slate-100">
-
             @forelse($stoks as $stok)
-
                 @php
                     $dijual = $stok->stok_dijual ?? $stok->jumlah_stok;
                     $tersimpan = max(0, $stok->jumlah_stok - $dijual);
@@ -127,11 +140,10 @@
                     $persen = $maxGudang > 0 ? min(($stok->jumlah_stok / $maxGudang) * 100, 100) : 0;
                 @endphp
 
-                <tr class="hover:bg-slate-50/60 transition-colors">
-
+                <tr class="hover:bg-slate-50/80 transition-colors">
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-lg font-bold">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm flex items-center justify-center text-lg font-bold">
                                 🥔
                             </div>
                             <div>
@@ -143,20 +155,18 @@
                     </td>
 
                     <td class="px-6 py-4 font-medium text-slate-700">
-                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold">
+                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-3 py-1 rounded-xl border border-slate-200 text-xs font-semibold">
                             🏢 {{ $stok->gudang->nama_gudang ?? '-' }}
                         </span>
                     </td>
 
-                    <!-- Stok Siap Dijual -->
                     <td class="px-6 py-4">
-                        <div class="font-bold text-emerald-700 font-mono text-base flex items-center gap-1.5">
+                        <div class="font-extrabold text-emerald-700 font-mono text-base flex items-center gap-1.5">
                             <span>🛒</span> {{ number_format($dijual, 0, ',', '.') }} Kg
                         </div>
                         <span class="text-[10px] text-slate-400">Siap dibeli Koperasi</span>
                     </td>
 
-                    <!-- Stok Masih di Gudang -->
                     <td class="px-6 py-4">
                         <div class="font-bold text-slate-700 font-mono text-base flex items-center gap-1.5">
                             <span>📦</span> {{ number_format($tersimpan, 0, ',', '.') }} Kg
@@ -166,18 +176,18 @@
 
                     <td class="px-6 py-4">
                         @if($stok->grade === 'A')
-                            <span class="text-xs font-semibold text-slate-700">Grade A (Bagus)</span>
+                            <span class="text-xs font-bold text-emerald-700">Grade A (Bagus)</span>
                         @elseif($stok->grade === 'B')
-                            <span class="text-xs font-semibold text-slate-700">Grade B (Baik)</span>
+                            <span class="text-xs font-bold text-blue-700">Grade B (Baik)</span>
                         @elseif($stok->grade === 'C')
-                            <span class="text-xs font-semibold text-rose-600">Grade C (Busuk)</span>
+                            <span class="text-xs font-bold text-rose-600">Grade C (Busuk)</span>
                         @else
-                            <span class="text-xs font-semibold text-slate-700">Grade {{ $stok->grade ?? '-' }}</span>
+                            <span class="text-xs font-bold text-slate-700">Grade {{ $stok->grade ?? '-' }}</span>
                         @endif
                     </td>
 
                     <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs border font-bold {{ $badge }}">
+                        <span class="px-3 py-1 rounded-full text-[11px] border font-bold shadow-2xs {{ $badge }}">
                             {{ $status }}
                         </span>
                     </td>
@@ -185,7 +195,7 @@
                     <td class="px-6 py-4">
                         <div class="flex justify-end gap-2">
                             <a href="{{ route('stok.edit', $stok->id) }}"
-                               class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold text-xs transition">
+                               class="rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors">
                                 Edit
                             </a>
 
@@ -194,65 +204,59 @@
                                   onsubmit="return confirm('Hapus stok ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-bold text-xs transition">
+                                <button class="rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors">
                                     Hapus
                                 </button>
                             </form>
                         </div>
                     </td>
-
                 </tr>
-
             @empty
-
                 <tr>
-                    <td colspan="6" class="text-center py-12 text-slate-500">
+                    <td colspan="7" class="text-center py-12 text-slate-400 font-medium">
                         Tidak ada data inventaris di gudang.
                     </td>
                 </tr>
-
             @endforelse
-
             </tbody>
-
         </table>
     </div>
 
     @include('partials.pagination', ['paginator' => $stoks, 'label' => 'inventaris stok'])
 
-    <!-- Log Aktivitas Pergerakan Stok (Penambahan & Pengurangan) -->
-    <div class="w-full bg-white border rounded-xl overflow-hidden shadow-sm p-6 space-y-5">
-        <div class="flex items-center justify-between border-b pb-4">
+    <!-- Log Aktivitas -->
+    <div class="w-full bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-xl shadow-slate-100/60 p-6 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
                 <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
                     <span>⚡</span> Riwayat Aktivitas Pergerakan Stok
                 </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Catatan aktivitas riil ketika stok bertambah (Hasil Panen Baru) atau berkurang (Dibeli oleh Koperasi).</p>
+                <p class="text-xs text-slate-400">Catatan aktivitas stok masuk (Panen) & keluar (Transaksi Koperasi)</p>
             </div>
         </div>
 
         <div class="divide-y divide-slate-100">
             @forelse($aktivitasStoks as $log)
-                <div class="py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:bg-slate-50/50 px-2 rounded-xl transition-colors">
+                <div class="py-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 hover:bg-slate-50/60 px-3 rounded-2xl transition-colors">
                     <div class="flex items-center gap-3.5">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg {{ $log->type === 'masuk' ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100' }}">
+                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-lg {{ $log->type === 'masuk' ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100' }}">
                             {{ $log->icon }}
                         </div>
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h4 class="font-bold text-sm text-slate-800">{{ $log->title }}</h4>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $log->badge }}">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $log->badge }}">
                                     {{ $log->badge_label }}
                                 </span>
                             </div>
-                            <p class="text-xs text-slate-600 mt-0.5">{{ $log->description }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">{{ $log->description }}</p>
                         </div>
                     </div>
                     <div class="text-right self-end md:self-center shrink-0">
-                        <span class="font-mono font-bold text-base {{ $log->type === 'masuk' ? 'text-emerald-600' : 'text-rose-600' }}">
+                        <span class="font-mono font-extrabold text-base {{ $log->type === 'masuk' ? 'text-emerald-700' : 'text-rose-700' }}">
                             {{ $log->sign }} {{ number_format($log->jumlah_kg, 0, ',', '.') }} Kg
                         </span>
-                        <p class="text-[11px] text-slate-400 mt-0.5">
+                        <p class="text-[11px] text-slate-400 font-medium mt-0.5">
                             {{ \Carbon\Carbon::parse($log->tanggal)->translatedFormat('d M Y - H:i') }} WIB
                         </p>
                     </div>
