@@ -35,10 +35,18 @@
                 <h1 class="text-sm font-bold text-slate-900 leading-tight">Smart<br>Agroindustri</h1>
                 <span
                     class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded uppercase font-bold tracking-wider">
-                    {{ auth()->user()->role ?? 'Admin, Petani, Koperasi, Superadmin' }}
+                    {{ ucfirst(auth()->user()->role ?? session('role', 'Guest')) }}
                 </span>
             </div>
         </div>
+
+        @php
+            $currentRole = auth()->user()->role ?? session('role');
+            $isAdmin = in_array($currentRole, ['admin', 'super admin', 'superadmin']);
+            $isKoperasi = $currentRole === 'koperasi';
+            $isPetani = $currentRole === 'petani';
+            $isMitra = $currentRole === 'mitra';
+        @endphp
 
         <!-- Navigasi dengan Pengelompokan -->
         <nav class="flex-1 px-4 space-y-8 overflow-y-auto pb-8">
@@ -53,6 +61,7 @@
             </div>
 
             <!-- Group Manajemen Logistik & Master -->
+            @if($isAdmin || $isKoperasi)
             <div x-data="{ open: false }">
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Manajemen Logistik</p>
                 <button @click="open = !open"
@@ -75,8 +84,10 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             <!-- Group 1: MITRA (PT. CHAMP) -->
+            @if($isAdmin || $isKoperasi || $isMitra)
             <div>
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">1. Mitra (PT. Champ)</p>
                 <a href="{{ route('pengadaan-benih.index') }}"
@@ -88,8 +99,10 @@
                     <span class="font-semibold text-sm">Pembayaran Mitra</span>
                 </a>
             </div>
+            @endif
  
             <!-- Group 2: MANAJEMEN KOPERASI -->
+            @if($isAdmin || $isKoperasi)
             <div>
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">2. Manajemen Koperasi</p>
                 <a href="{{ route('distribusi-benih.index') }}"
@@ -117,8 +130,10 @@
                     <span class="font-semibold text-sm">Pembayaran Koperasi</span>
                 </a>
             </div>
+            @endif
 
             <!-- Group 3: MANAJEMEN PETANI -->
+            @if($isAdmin || $isPetani || $isKoperasi)
             <div>
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">3. Manajemen Petani</p>
                 <a href="{{ route('panen.index') }}"
@@ -146,14 +161,17 @@
                     <span class="font-semibold text-sm">Pembayaran Petani</span>
                 </a>
             </div>
+            @endif
 
             <!-- Group 4: SISTEM & LAPORAN -->
             <div>
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Sistem & Laporan</p>
+                @if($isAdmin)
                 <a href="{{ route('pengguna.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pengguna.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <span class="font-semibold text-sm">Pengguna (Hak Akses)</span>
                 </a>
+                @endif
                 <a href="{{ route('daftar-transaksi.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('daftar-transaksi.*') || request()->routeIs('pembayaran.invoice') || request()->routeIs('pembayaran.struk') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <span class="font-semibold text-sm">Daftar Transaksi</span>

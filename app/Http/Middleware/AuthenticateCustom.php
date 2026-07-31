@@ -14,6 +14,10 @@ class AuthenticateCustom
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
+        if (!session()->has('role') && Auth::user()) {
+            session()->put('role', Auth::user()->role);
+        }
+
         return $next($request);
     }
 }

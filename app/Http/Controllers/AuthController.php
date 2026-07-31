@@ -28,6 +28,7 @@ class AuthController extends Controller {
         ]);
 
         Auth::login($user);
+        $request->session()->put('role', $user->role);
 
         return redirect()->intended(route('dashboard'));
     }
@@ -40,6 +41,8 @@ class AuthController extends Controller {
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            $request->session()->put('role', $user->role);
             return redirect()->intended(route('dashboard'));
         }
 
