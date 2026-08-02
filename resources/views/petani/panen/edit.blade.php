@@ -62,7 +62,7 @@
                             $isFull = $sisa <= 0;
                         @endphp
                         <option value="{{ $gudang->id }}" {{ old('gudang_id', $panen->gudang_id) == $gudang->id ? 'selected' : '' }}>
-                            {{ $gudang->nama_gudang }} — {{ $isFull ? '⚠️ PENUH (Sisa 0 Kg)' : 'Sisa Kapasitas: ' . number_format($sisa, 0, ',', '.') . ' Kg / Max ' . number_format($gudang->kapasitas_max, 0, ',', '.') . ' Kg' }}
+                            {{ $gudang->nama_gudang }} (Petani: {{ $gudang->user->name ?? 'Belum Diketahui' }}) — {{ $isFull ? '⚠️ PENUH (Sisa 0 Kg)' : 'Sisa Kapasitas: ' . number_format($sisa, 0, ',', '.') . ' Kg / Max ' . number_format($gudang->kapasitas_max, 0, ',', '.') . ' Kg' }}
                         </option>
                     @endforeach
                 </select>

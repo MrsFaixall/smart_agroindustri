@@ -132,30 +132,6 @@ class PembayaranController extends Controller
 
                 if ($data['status'] === 'lunas' || $totalDibayar >= $pembelian->total_harga) {
                     $pembelian->update(['status' => 'lunas']);
-
-                    try {
-                        $jumlah_dibeli = $pembelian->jumlah_kg;
-                        $stoks = Stok::where('jenis_kentang_id', $pembelian->jenis_kentang_id)
-                            ->where('jumlah_stok', '>', 0)
-                            ->orderBy('id')
-                            ->get();
-                            
-                        foreach ($stoks as $stok) {
-                            if ($jumlah_dibeli <= 0) break;
-                            
-                            if ($stok->jumlah_stok >= $jumlah_dibeli) {
-                                $stok->jumlah_stok -= $jumlah_dibeli;
-                                $stok->save();
-                                $jumlah_dibeli = 0;
-                            } else {
-                                $jumlah_dibeli -= $stok->jumlah_stok;
-                                $stok->jumlah_stok = 0;
-                                $stok->save();
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        \Illuminate\Support\Facades\Log::warning('Stock update warning on store: ' . $e->getMessage());
-                    }
                 }
             });
         } catch (\Exception $e) {

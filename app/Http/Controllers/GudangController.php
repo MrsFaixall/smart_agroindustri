@@ -8,12 +8,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class GudangController extends Controller
 {
     public function index()
     {
-        $gudangs = Gudang::where('jenis_gudang', 'petani')->with(['stoks', 'panens'])->get();
+        $user = Auth::user();
+        $query = Gudang::where('jenis_gudang', 'petani')->with(['stoks', 'panens', 'user']);
+        
+        if ($user->role === 'petani') {
+            $query->where('user_id', $user->id);
+        }
+        
+        $gudangs = $query->get();
         $mapGudangs = $gudangs
             ->filter(fn (Gudang $gudang) => is_numeric($gudang->latitude) && is_numeric($gudang->longitude))
             ->map(fn (Gudang $gudang) => [
@@ -135,14 +143,15 @@ class GudangController extends Controller
         ]);
 
         $data['jenis_gudang'] = 'petani';
+        $data['user_id'] = \Illuminate\Support\Facades\Auth::id();
         Gudang::create($data);
 
-        return redirect()->route('gudang.index')->with('success', 'Gudang berhasil ditambahkan.');
+        return redirect()->route('petani-gudang.index')->with('success', 'Gudang berhasil ditambahkan.');
     }
 
     public function show(string $id)
     {
-        return redirect()->route('gudang.index');
+        return redirect()->route('petani-gudang.index');
     }
 
     public function edit(string $id)
@@ -166,7 +175,7 @@ class GudangController extends Controller
 
         Gudang::findOrFail($id)->update($data);
 
-        return redirect()->route('gudang.index')->with('success', 'Gudang berhasil diperbarui.');
+        return redirect()->route('petani-gudang.index')->with('success', 'Gudang berhasil diperbarui.');
     }
 
     public function destroy(string $id)
@@ -181,6 +190,6 @@ class GudangController extends Controller
             $gudang->delete();
         });
 
-        return redirect()->route('gudang.index')->with('success', 'Gudang beserta data stok dan panen terkait berhasil dihapus.');
+        return redirect()->route('petani-gudang.index')->with('success', 'Gudang beserta data stok dan panen terkait berhasil dihapus.');
     }
 }

@@ -1,0 +1,23 @@
+{
+    "name": "Smart Agroindustri",
+    "short_name": "Agroindustri",
+    "description": "Platform Manajemen Logistik & Kemitraan Koperasi Pertanian",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#001842",
+    "theme_color": "#001842",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "192x192"
+        }
+    ]
+}

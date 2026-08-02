@@ -26,17 +26,37 @@
         <div class="h-2 w-full bg-gradient-to-r from-emerald-500 to-teal-600 absolute top-0 left-0"></div>
         @csrf
 
+        @if($penanaman)
+            <div class="bg-blue-50 text-blue-800 p-4 rounded-2xl border border-blue-100 flex items-start gap-4 shadow-sm">
+                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xl shrink-0">
+                    🌱
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm">Panen dari Benih: {{ $penanaman->jenisKentang->nama_jenis }}</h3>
+                    <p class="text-xs text-blue-600/80 mt-1">Jumlah ditanam: {{ number_format($penanaman->jumlah_tanam_kg, 0, ',', '.') }} Kg pada {{ \Carbon\Carbon::parse($penanaman->tanggal_tanam)->translatedFormat('d M Y') }}</p>
+                </div>
+            </div>
+            <input type="hidden" name="penanaman_id" value="{{ $penanaman->id }}">
+            <input type="hidden" name="jenis_kentang_id" value="{{ $penanaman->jenis_kentang_id }}">
+        @endif
+
         <div class="grid gap-5 md:grid-cols-2">
             <div class="space-y-2">
                 <label class="block text-sm font-semibold text-slate-700">Tanggal Panen</label>
-                <input type="date" name="tanggal_panen" value="{{ old('tanggal_panen') }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none" required>
+                <input type="date" name="tanggal_panen" value="{{ old('tanggal_panen', date('Y-m-d')) }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none" required>
             </div>
 
             <div class="space-y-2">
-                <label class="block text-sm font-semibold text-slate-700">Jumlah (Kg)</label>
-                <input type="number" step="0.01" name="jumlah_kg" value="{{ old('jumlah_kg') }}" placeholder="0" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 font-bold focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none" required>
+                <label class="block text-sm font-semibold text-slate-700">Gudang Tujuan Simpan</label>
+                <select name="gudang_id" id="gudang_id" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
+                    <option value="">Pilih gudang</option>
+                    @foreach($gudangs as $gudang)
+                        <option value="{{ $gudang->id }}" {{ old('gudang_id', $penanaman ? $penanaman->gudang_id : '') == $gudang->id ? 'selected' : '' }}>{{ $gudang->nama_gudang }} (Petani: {{ $gudang->user->name ?? 'Belum Diketahui' }})</option>
+                    @endforeach
+                </select>
             </div>
 
+            @if(!$penanaman)
             <div class="space-y-2 md:col-span-2">
                 <label class="block text-sm font-semibold text-slate-700">Jenis Kentang</label>
                 <select name="jenis_kentang_id" id="jenis_kentang_id" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
@@ -46,24 +66,34 @@
                     @endforeach
                 </select>
             </div>
+            @endif
 
-            <div class="space-y-2 md:col-span-2">
-                <label class="block text-sm font-semibold text-slate-700">Gudang Tujuan</label>
-                <select name="gudang_id" id="gudang_id" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
-                    <option value="">Pilih gudang</option>
-                    @foreach($gudangs as $gudang)
-                        <option value="{{ $gudang->id }}" {{ old('gudang_id') == $gudang->id ? 'selected' : '' }}>{{ $gudang->nama_gudang }}</option>
-                    @endforeach
-                </select>
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Jumlah Panen Bagus (Kg)</label>
+                <input type="number" step="0.01" name="jumlah_kg" value="{{ old('jumlah_kg') }}" placeholder="0" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 font-bold focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none" required>
+                <p class="text-[10px] text-slate-400">Hasil panen yang sukses dan masuk gudang</p>
             </div>
 
-            <div class="space-y-2 md:col-span-2">
-                <label class="block text-sm font-semibold text-slate-700">Grade Kentang</label>
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-700">Grade Kentang Panen</label>
                 <select name="grade" id="grade" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
                     <option value="A" {{ old('grade') == 'A' ? 'selected' : '' }}>Grade A (Bagus)</option>
                     <option value="B" {{ old('grade') == 'B' ? 'selected' : '' }}>Grade B (Baik)</option>
-                    <option value="C" {{ old('grade') == 'C' ? 'selected' : '' }}>Grade C (Busuk)</option>
+                    <option value="C" {{ old('grade') == 'C' ? 'selected' : '' }}>Grade C (Kurang)</option>
                 </select>
+            </div>
+
+            <!-- Monitoring Metrics -->
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-rose-700">Jumlah Busuk (Kg)</label>
+                <input type="number" step="0.01" name="jumlah_busuk_kg" value="{{ old('jumlah_busuk_kg', 0) }}" placeholder="0" class="w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-800 font-bold focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all outline-none">
+                <p class="text-[10px] text-rose-400">Taksiran berat kentang yang busuk (opsional)</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-orange-700">Jumlah Gagal / Susut (Kg)</label>
+                <input type="number" step="0.01" name="jumlah_gagal_kg" value="{{ old('jumlah_gagal_kg', 0) }}" placeholder="0" class="w-full rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-orange-800 font-bold focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all outline-none">
+                <p class="text-[10px] text-orange-400">Taksiran berat bibit yang gagal panen (opsional)</p>
             </div>
         </div>
 

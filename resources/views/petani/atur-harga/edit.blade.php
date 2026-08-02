@@ -38,11 +38,18 @@
         </div>
 
         <div class="space-y-2">
-            <label class="block text-sm font-semibold text-slate-700">Harga (Rp / Kg)</label>
+            <label class="block text-sm font-semibold text-slate-700">Harga Anda (Rp / Kg)</label>
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-bold text-sm">Rp</span>
                 <input type="number" step="0.01" name="harga" value="{{ old('harga', $price->harga) }}" placeholder="0" class="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 text-slate-800 font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-none" required>
             </div>
+            <p class="text-xs text-slate-500 mt-2 font-medium" id="hargaPasarHint">
+                @if($hargaPasar)
+                    Harga Pasar Saat Ini: <strong class="text-amber-700">Rp {{ number_format($hargaPasar->harga, 0, ',', '.') }}</strong>
+                @else
+                    Belum ada patokan Harga Pasar dari Koperasi untuk jenis ini.
+                @endif
+            </p>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">

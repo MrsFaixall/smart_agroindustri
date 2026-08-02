@@ -20,6 +20,8 @@ class PenjualanBuahController extends Controller
 
         if ($user->role === 'koperasi') {
             $query->where('koperasi_id', $user->id);
+        } elseif ($user->role === 'mitra') {
+            $query->where('pembeli_id', $user->id);
         }
 
         // Search filter

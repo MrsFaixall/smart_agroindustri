@@ -20,6 +20,8 @@ class DistribusiBenihController extends Controller
 
         if ($user->role === 'koperasi') {
             $query->where('koperasi_id', $user->id);
+        } elseif ($user->role === 'petani') {
+            $query->where('petani_id', $user->id);
         }
 
         // Search filter
@@ -45,6 +47,9 @@ class DistribusiBenihController extends Controller
         $transaksis = $query->latest()->paginate(10)->withQueryString();
         $totalNilai = $query->sum('total_harga');
 
+        if ($user->role === 'petani') {
+            return view('petani.distribusi-benih.index', compact('transaksis', 'totalNilai'));
+        }
         return view('koperasi.distribusi-benih.index', compact('transaksis', 'totalNilai'));
     }
 
@@ -100,6 +105,24 @@ class DistribusiBenihController extends Controller
                 $stokKoperasi->jumlah_stok = max(0, $stokKoperasi->jumlah_stok - $data['jumlah_kg']);
                 $stokKoperasi->save();
 
+                // Tambah ke stok Petani (dapet benih)
+                $gudangPetani = \App\Models\Gudang::where('user_id', $data['petani_id'])
+                    ->where('jenis_gudang', 'petani')
+                    ->first();
+
+                if (!$gudangPetani) {
+                    throw new \Exception("GUDANG_KOSONG");
+                }
+
+                $stokPetani = \App\Models\Stok::firstOrNew([
+                    'gudang_id' => $gudangPetani->id,
+                    'jenis_kentang_id' => $data['jenis_kentang_id'],
+                    'grade' => 'A'
+                ]);
+
+                $stokPetani->jumlah_stok = ($stokPetani->jumlah_stok ?? 0) + $data['jumlah_kg'];
+                $stokPetani->save();
+
                 DistribusiBenih::create($data);
             });
 
@@ -107,6 +130,16 @@ class DistribusiBenihController extends Controller
                 ->with('success', 'Transaksi Distribusi Benih berhasil disimpan dan stok telah diperbarui.');
 
         } catch (\Exception $e) {
+            if ($e->getMessage() === 'GUDANG_KOSONG') {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $data['petani_id'],
+                    'pesan' => 'Koperasi ingin mendistribusikan benih kepada Anda, tetapi Anda belum memiliki gudang. Silakan buat gudang terlebih dahulu agar benih dapat disimpan.',
+                    'tipe_notifikasi' => 'gudang_kosong',
+                    'terkait_id' => null,
+                    'url' => route('petani-gudang.create')
+                ]);
+                return back()->with('error', 'Gagal menyimpan distribusi: Petani belum memiliki gudang. Notifikasi telah dikirim ke petani untuk membuat gudang.')->withInput();
+            }
             return back()->withErrors(['jumlah_kg' => $e->getMessage()])->withInput();
         }
     }
@@ -144,5 +177,20 @@ class DistribusiBenihController extends Controller
         $transaksi->update(['status' => 'lunas']);
 
         return back()->with('success', 'Transaksi berhasil dilunasi.');
+    }
+
+    public function requestHasil($id)
+    {
+        $transaksi = DistribusiBenih::findOrFail($id);
+        
+        \App\Models\Notifikasi::create([
+            'user_id' => $transaksi->petani_id,
+            'pesan' => 'Koperasi meminta hasil panen dari benih yang telah didistribusikan (' . $transaksi->jenisKentang->nama_jenis . ' - ' . $transaksi->jumlah_kg . ' kg).',
+            'tipe_notifikasi' => 'request_panen',
+            'terkait_id' => $transaksi->id,
+            'url' => route('panen.index')
+        ]);
+
+        return back()->with('success', 'Request hasil panen telah dikirim ke petani terkait.');
     }
 }

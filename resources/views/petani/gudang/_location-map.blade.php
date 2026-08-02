@@ -36,7 +36,7 @@
         const error = document.getElementById('location-map-error');
         const confirmation = document.getElementById('location-confirmation');
         const confirmationName = document.getElementById('location-confirmation-name');
-        const searchUrl = @json(route('gudang.cari-lokasi'));
+        const searchUrl = @json(route('petani-gudang.cari-lokasi'));
         let suggestedLocation = null;
         const initialLatitudeValue = @json($latitude);
         const initialLongitudeValue = @json($longitude);

@@ -16,7 +16,7 @@
             <p class="text-slate-300 text-sm max-w-xl">Pantau dan kelola lokasi serta kapasitas penyimpanan logistik di seluruh wilayah.</p>
         </div>
         <div class="relative z-10">
-            <a href="{{ route('gudang.create') }}" 
+            <a href="{{ route('petani-gudang.create') }}" 
                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-600/30 transform hover:-translate-y-0.5">
                 <span class="text-lg leading-none">+</span> Tambah Gudang Baru
             </a>
@@ -107,6 +107,7 @@
                                 <tr class="hover:bg-slate-50/80 transition-all group">
                                     <td class="px-6 py-5">
                                         <p class="font-bold text-slate-800">{{ $gudang->nama_gudang }}</p>
+                                        <p class="text-[11px] text-indigo-600 font-semibold mt-0.5">👤 Petani: {{ $gudang->user->name ?? 'Belum Diketahui' }}</p>
                                         <p class="text-xs text-slate-400 mt-0.5 max-w-[200px] truncate" title="{{ $gudang->alamat }}">{{ $gudang->alamat }}</p>
                                         <p class="text-[10px] font-mono text-slate-400 mt-0.5">{{ $gudang->latitude }}, {{ $gudang->longitude }}</p>
                                     </td>
@@ -138,10 +139,10 @@
                                     </td>
                                     <td class="px-6 py-5 text-center">
                                         <div class="flex justify-center items-center gap-1.5">
-                                            <a href="{{ route('gudang.edit', $gudang) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors" title="Edit">
+                                            <a href="{{ route('petani-gudang.edit', $gudang) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors" title="Edit">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </a>
-                                            <form action="{{ route('gudang.destroy', $gudang) }}" method="POST" class="inline-block" onsubmit="return confirm(@js($gudang->stoks->count() || $gudang->panens->count() ? 'Gudang ini memiliki '.$gudang->stoks->count().' stok dan '.$gudang->panens->count().' data panen. Semua data terkait akan ikut dihapus. Lanjutkan?' : 'Hapus gudang ini?'))">
+                                            <form action="{{ route('petani-gudang.destroy', $gudang) }}" method="POST" class="inline-block" onsubmit="return confirm(@js($gudang->stoks->count() || $gudang->panens->count() ? 'Gudang ini memiliki '.$gudang->stoks->count().' stok dan '.$gudang->panens->count().' data panen. Semua data terkait akan ikut dihapus. Lanjutkan?' : 'Hapus gudang ini?'))">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition-colors" title="Hapus">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>

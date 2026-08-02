@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $isPetani = auth()->user()->role === 'petani';
+@endphp
+
 <div class="space-y-8">
     <!-- Header Banner Gradient -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
@@ -10,19 +14,24 @@
         <div class="relative z-10 space-y-1">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-1 backdrop-blur-md">
                 <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                <span>Penyaluran & Kemitraan Petani</span>
+                <span>{{ $isPetani ? 'Penerimaan Benih Petani' : 'Penyaluran & Kemitraan Petani' }}</span>
             </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Distribusi Benih</h1>
-            <p class="text-purple-100/80 text-sm max-w-xl">Penyaluran/penjualan benih dari Koperasi ke Petani Mitra.</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">{{ $isPetani ? 'Riwayat Penerimaan Benih' : 'Distribusi Benih' }}</h1>
+            <p class="text-purple-100/80 text-sm max-w-xl">
+                {{ $isPetani ? 'Daftar benih yang Anda terima atau beli dari Koperasi.' : 'Penyaluran/penjualan benih dari Koperasi ke Petani Mitra.' }}
+            </p>
         </div>
+        @if(!$isPetani)
         <div class="relative z-10">
             <a href="{{ route('distribusi-benih.create') }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-purple-600/30 transform hover:-translate-y-0.5">
                 <span class="text-lg leading-none">+</span> Tambah Distribusi
             </a>
         </div>
+        @endif
     </div>
 
     <!-- Alert Info Alur Data -->
+    @if(!$isPetani)
     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-xs">
         <div class="flex items-start">
             <div class="flex-shrink-0">
@@ -36,6 +45,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     @if(session('success'))
     <div class="p-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
@@ -87,7 +97,9 @@
                     <th class="px-6 py-4 text-right">Volume</th>
                     <th class="px-6 py-4 text-right">Total Nilai</th>
                     <th class="px-6 py-4 text-center">Status</th>
+                    @if(!$isPetani)
                     <th class="px-6 py-4 text-right">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -108,6 +120,7 @@
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">Belum Lunas</span>
                         @endif
                     </td>
+                    @if(!$isPetani)
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
                             @if($t->status === 'belum lunas')
@@ -123,10 +136,11 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                    <td colspan="{{ $isPetani ? 6 : 7 }}" class="px-6 py-12 text-center text-slate-400">
                         <p class="text-sm font-medium">Belum ada catatan transaksi distribusi benih.</p>
                     </td>
                 </tr>

@@ -47,7 +47,7 @@
             </div>
             <div>
                 <p class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">Total Akumulasi Stok</p>
-                <p class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ number_format($stoks->sum('jumlah_stok'), 0, ',', '.') }} <span class="text-sm font-semibold text-slate-400">Kg</span></p>
+                <p class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ number_format($totalStok, 0, ',', '.') }} <span class="text-sm font-semibold text-slate-400">Kg</span></p>
             </div>
         </div>
 
@@ -123,64 +123,7 @@
                 </div>
             </div>
 
-            <!-- Stok Card -->
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h2 class="font-bold text-lg text-slate-800">Daftar Stok Koperasi</h2>
-                        <p class="text-xs text-slate-400">Akumulasi stok komoditas (Benih vs Buah Kentang) di Gudang Koperasi</p>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                            <tr>
-                                <th class="px-6 py-4">Komoditas / Kategori</th>
-                                <th class="px-6 py-4">Gudang</th>
-                                <th class="px-6 py-4 text-right">Stok Fisik (Kg)</th>
-                                <th class="px-6 py-4 text-right">Siap Jual/Distribusi (Kg)</th>
-                                <th class="px-6 py-4 text-center">Grade</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                            @forelse($stoks as $s)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <span class="font-bold text-slate-800">{{ $s->jenisKentang->nama_jenis ?? '-' }}</span><br>
-                                        @if($s->jenisKentang && $s->jenisKentang->kategori === 'benih_hulu')
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-bold uppercase tracking-wider">Benih (Hulu)</span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-[10px] font-bold uppercase tracking-wider">Kentang Konsumsi</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-slate-500 font-semibold">{{ $s->gudang->nama_gudang ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-right font-mono font-bold text-slate-700">{{ number_format($s->jumlah_stok, 2, ',', '.') }} Kg</td>
-                                    <td class="px-6 py-4 text-right font-mono font-bold text-indigo-700">{{ number_format($s->stok_dijual, 2, ',', '.') }} Kg</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded">Grade {{ $s->grade }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('koperasi.gudang-stok.edit-stok', $s->id) }}" class="p-1 text-indigo-600 hover:text-indigo-800 transition-colors">⚙️ Sesuaikan</a>
-                                            <form action="{{ route('koperasi.gudang-stok.destroy-stok', $s->id) }}" method="POST" onsubmit="return confirm('Hapus data stok ini?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="p-1 text-rose-500 hover:text-rose-700 transition-colors">🗑 Hapus</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="py-8 text-center text-slate-400">Belum ada catatan stok di Gudang Koperasi.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-        </div>
 
         <!-- Right Column: Leaflet Map -->
         <div class="lg:col-span-4 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 overflow-hidden flex flex-col min-h-[450px]">

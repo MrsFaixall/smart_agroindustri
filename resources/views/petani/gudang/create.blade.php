@@ -3,7 +3,7 @@
 @section('content')
 <div class="max-w-4xl space-y-6">
     <div class="flex items-center gap-3">
-        <a href="{{ route('gudang.index') }}" class="p-2.5 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+        <a href="{{ route('petani-gudang.index') }}" class="p-2.5 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
             <x-heroicon-o-arrow-left class="w-5 h-5"/>
         </a>
         <div>
@@ -22,7 +22,7 @@
         </div>
     @endif
 
-    <form action="{{ route('gudang.store') }}" method="POST" class="space-y-6 rounded-3xl bg-white p-8 shadow-xl shadow-slate-100/60 border border-slate-100 relative overflow-hidden">
+    <form action="{{ route('petani-gudang.store') }}" method="POST" class="space-y-6 rounded-3xl bg-white p-8 shadow-xl shadow-slate-100/60 border border-slate-100 relative overflow-hidden">
         <div class="h-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 absolute top-0 left-0"></div>
         @csrf
 
@@ -56,7 +56,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-            <a href="{{ route('gudang.index') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">Batal</a>
+            <a href="{{ route('petani-gudang.index') }}" class="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">Batal</a>
             <button type="submit" class="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/30 transition-all">Simpan Gudang</button>
         </div>
     </form>

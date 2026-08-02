@@ -7,26 +7,41 @@ use App\Models\JenisKentang;
 use App\Models\Stok;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StokController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
         $stoks = Stok::query()
-            ->whereHas('gudang', function($q) {
+            ->whereHas('gudang', function($q) use ($user) {
                 $q->where('jenis_gudang', 'petani');
+                if ($user->role === 'petani') {
+                    $q->where('user_id', $user->id);
+                }
             })
             ->selectRaw('gudang_id, jenis_kentang_id, grade, SUM(jumlah_stok) as jumlah_stok, SUM(stok_dijual) as stok_dijual, MAX(id) as id')
             ->groupBy('gudang_id', 'jenis_kentang_id', 'grade')
             ->with(['gudang', 'jenisKentang'])
             ->paginate(5, ['*'], 'stok_page');
 
-        $totalMax = Gudang::where('jenis_gudang', 'petani')->sum('kapasitas_max');
+        $totalMaxQuery = Gudang::where('jenis_gudang', 'petani');
+        if ($user->role === 'petani') {
+            $totalMaxQuery->where('user_id', $user->id);
+        }
+        $totalMax = $totalMaxQuery->sum('kapasitas_max');
         $totalStok = $stoks->sum('jumlah_stok');
         $utilitasGudang = $totalMax > 0 ? round(($totalStok / $totalMax) * 100) : 0;
 
         // Riwayat Aktivitas Pergerakan Stok (Penambahan Panen & Pengurangan Pembelian Koperasi)
-        $panenLogs = \App\Models\Panen::with(['jenisKentang', 'gudang'])->latest()->get()->map(function ($p) {
+        $panenQuery = \App\Models\Panen::with(['jenisKentang', 'gudang']);
+        if ($user->role === 'petani') {
+            $panenQuery->whereHas('gudang', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        }
+        $panenLogs = $panenQuery->latest()->get()->map(function ($p) {
             return (object)[
                 'type' => 'masuk',
                 'title' => 'Stok Masuk (Hasil Panen Baru)',
@@ -40,7 +55,11 @@ class StokController extends Controller
             ];
         });
 
-        $pembelianLogs = \App\Models\Pembelian::with(['jenisKentang', 'koperasi'])->latest()->get()->map(function ($b) {
+        $pembelianQuery = \App\Models\Pembelian::with(['jenisKentang', 'koperasi']);
+        if ($user->role === 'petani') {
+            $pembelianQuery->where('petani_id', $user->id);
+        }
+        $pembelianLogs = $pembelianQuery->latest()->get()->map(function ($b) {
             return (object)[
                 'type' => 'keluar',
                 'title' => 'Stok Dibeli / Keluar (Koperasi)',
@@ -70,13 +89,23 @@ class StokController extends Controller
 
     public function create()
     {
-        $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
+        $user = Auth::user();
+        $gudangQuery = Gudang::where('jenis_gudang', 'petani');
+        if ($user->role === 'petani') {
+            $gudangQuery->where('user_id', $user->id);
+        }
+        $gudangs = $gudangQuery->get();
         $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
         
-        $existingStoks = Stok::query()
-            ->whereHas('gudang', function($q) {
+        $existingStokQuery = Stok::query()
+            ->whereHas('gudang', function($q) use ($user) {
                 $q->where('jenis_gudang', 'petani');
-            })
+                if ($user->role === 'petani') {
+                    $q->where('user_id', $user->id);
+                }
+            });
+            
+        $existingStoks = $existingStokQuery
             ->selectRaw('gudang_id, jenis_kentang_id, grade, SUM(jumlah_stok) as total_gudang, SUM(stok_dijual) as total_dijual')
             ->groupBy('gudang_id', 'jenis_kentang_id', 'grade')
             ->get();
@@ -92,6 +121,14 @@ class StokController extends Controller
             'grade' => 'required|string|in:A,B,C',
             'stok_dijual' => 'required|numeric|min:0',
         ]);
+
+        $user = Auth::user();
+        if ($user->role === 'petani') {
+            $gudang = Gudang::where('id', $data['gudang_id'])->where('user_id', $user->id)->first();
+            if (!$gudang) {
+                return back()->withInput()->withErrors(['gudang_id' => 'Gudang tidak ditemukan atau bukan milik Anda.']);
+            }
+        }
 
         $stoks = Stok::where('gudang_id', $data['gudang_id'])
             ->where('jenis_kentang_id', $data['jenis_kentang_id'])
@@ -127,11 +164,22 @@ class StokController extends Controller
 
     public function edit(string $id)
     {
-        $stok = Stok::findOrFail($id);
-        $gudangs = Gudang::where('jenis_gudang', 'petani')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
+        $stok = Stok::with('gudang')->findOrFail($id);
+        $user = Auth::user();
+        if ($user->role === 'petani' && $stok->gudang->user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        return view('petani.stok.edit', compact('stok', 'gudangs', 'jenisKentangs'));
+        $gudangQuery = Gudang::where('jenis_gudang', 'petani');
+        if ($user->role === 'petani') {
+            $gudangQuery->where('user_id', $user->id);
+        }
+        $gudangs = $gudangQuery->get();
+        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
+        
+        $totalFisikGudang = $stok->jumlah_stok;
+
+        return view('petani.stok.edit', compact('stok', 'gudangs', 'jenisKentangs', 'totalFisikGudang'));
     }
 
     public function update(Request $request, string $id)
@@ -143,7 +191,18 @@ class StokController extends Controller
             'stok_dijual' => 'required|numeric|min:0',
         ]);
 
-        $stok = Stok::findOrFail($id);
+        $stok = Stok::with('gudang')->findOrFail($id);
+        $user = Auth::user();
+        if ($user->role === 'petani' && $stok->gudang->user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($user->role === 'petani') {
+            $gudang = Gudang::where('id', $data['gudang_id'])->where('user_id', $user->id)->first();
+            if (!$gudang) {
+                return back()->withInput()->withErrors(['gudang_id' => 'Gudang tidak ditemukan atau bukan milik Anda.']);
+            }
+        }
 
         $totalFisikGudang = $stok->jumlah_stok;
 
@@ -166,9 +225,15 @@ class StokController extends Controller
 
     public function destroy(string $id)
     {
+        $stok = Stok::with('gudang')->findOrFail($id);
+        $user = Auth::user();
+        if ($user->role === 'petani' && $stok->gudang->user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         try {
-            DB::transaction(function () use ($id) {
-                Stok::findOrFail($id)->delete();
+            DB::transaction(function () use ($stok) {
+                $stok->delete();
             });
             return redirect()->back()->with('success', 'Stok berhasil dihapus.');
         } catch (\Exception $e) {

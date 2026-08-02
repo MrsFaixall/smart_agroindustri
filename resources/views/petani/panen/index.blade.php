@@ -22,6 +22,30 @@
         </div>
     </div>
 
+    @if(session('success'))
+        <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-5 py-4 text-sm font-semibold text-emerald-800 shadow-sm">
+            <x-heroicon-o-check-circle class="h-5 w-5 text-emerald-600" /> {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50/90 px-5 py-4 text-sm font-semibold text-rose-800 shadow-sm">
+            <x-heroicon-o-x-circle class="h-5 w-5 text-rose-600" /> {{ session('error') }}
+        </div>
+    @endif
+
+    @if($hasNoGudang)
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-amber-600 to-orange-600 p-6 rounded-3xl text-white shadow-xl shadow-amber-200/50">
+            <div>
+                <h4 class="font-extrabold text-base">⚠️ Anda Belum Memiliki Gudang</h4>
+                <p class="text-xs text-amber-50 mt-1">Silakan buat gudang penyimpanan terlebih dahulu agar hasil panen Anda dapat disimpan dan tercatat di sistem.</p>
+            </div>
+            <a href="{{ route('petani-gudang.create') }}" class="bg-white hover:bg-slate-50 text-amber-700 px-4 py-2 rounded-xl text-xs font-bold shadow transition-all">
+                Buat Gudang Sekarang
+            </a>
+        </div>
+    @endif
+
     <!-- KPI Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         <!-- Card 1: Total Musim Ini -->
@@ -144,7 +168,7 @@
                         <p class="text-purple-800 text-[11px] font-bold tracking-wider uppercase">Kapasitas Gudang</p>
                         <h3 class="text-xs font-semibold mt-2 text-slate-400">Belum ada gudang</h3>
                     </div>
-                    <a href="{{ route('gudang.create') }}" class="text-xs font-bold text-purple-700 hover:underline flex items-center gap-1">
+                    <a href="{{ route('petani-gudang.create') }}" class="text-xs font-bold text-purple-700 hover:underline flex items-center gap-1">
                         <span>+</span> Tambah Gudang
                     </a>
                 </div>
@@ -187,6 +211,9 @@
                                 </span>
                                 <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md flex items-center gap-1">
                                     🏢 {{ $batch->gudang->nama_gudang ?? 'Gudang' }}
+                                </span>
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    👤 Petani: {{ $batch->gudang->user->name ?? 'Belum Diketahui' }}
                                 </span>
                             </div>
                         </div>
@@ -291,10 +318,25 @@
                                         <span class="inline-flex items-center text-[10px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
                                             🏢 {{ $panen->gudang->nama_gudang ?? '-' }}
                                         </span>
+                                        <span class="inline-flex items-center text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                            👤 Petani: {{ $panen->gudang->user->name ?? 'Belum Diketahui' }}
+                                        </span>
                                         <span class="text-[10px] font-bold text-slate-500">Grade {{ $panen->grade }}</span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-slate-700 font-mono text-sm font-bold">{{ number_format($panen->jumlah_kg, 0, ',', '.') }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="text-slate-700 font-mono text-sm font-bold">{{ number_format($panen->jumlah_kg, 0, ',', '.') }} Kg</div>
+                                    @if($panen->jumlah_busuk_kg > 0 || $panen->jumlah_gagal_kg > 0)
+                                        <div class="flex flex-col gap-1 mt-1">
+                                            @if($panen->jumlah_busuk_kg > 0)
+                                                <span class="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md inline-block">Busuk: {{ number_format($panen->jumlah_busuk_kg, 0, ',', '.') }} Kg</span>
+                                            @endif
+                                            @if($panen->jumlah_gagal_kg > 0)
+                                                <span class="text-[10px] text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded-md inline-block">Gagal: {{ number_format($panen->jumlah_gagal_kg, 0, ',', '.') }} Kg</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 text-emerald-800 font-bold">Rp {{ number_format($pendapatan, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border shadow-2xs {{ $statusPanenBg }}">

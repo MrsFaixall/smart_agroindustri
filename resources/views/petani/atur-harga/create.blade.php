@@ -37,11 +37,14 @@
         </div>
 
         <div class="space-y-2">
-            <label class="block text-sm font-semibold text-slate-700">Harga (Rp / Kg)</label>
+            <label class="block text-sm font-semibold text-slate-700">Harga Anda (Rp / Kg)</label>
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-bold text-sm">Rp</span>
                 <input type="number" step="0.01" name="harga" value="{{ old('harga') }}" placeholder="0" class="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 text-slate-800 font-bold focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all outline-none" required>
             </div>
+            <p class="text-xs text-slate-500 mt-2 font-medium" id="hargaPasarHint">
+                Pilih jenis kentang untuk melihat harga acuan pasar.
+            </p>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
@@ -121,6 +124,20 @@
         $('.select2').select2({
             width: '100%'
         });
+    });
+</script>
+<script>
+    const hargaPasarData = @json($hargaPasars);
+    const hintElement = document.getElementById('hargaPasarHint');
+
+    $('#jenis_kentang_id').on('change', function() {
+        const id = $(this).val();
+        if(id && hargaPasarData[id]) {
+            const hargaVal = hargaPasarData[id].harga;
+            hintElement.innerHTML = `Harga Pasar Saat Ini: <strong class="text-amber-700">Rp ${new Intl.NumberFormat('id-ID').format(hargaVal)}</strong>`;
+        } else {
+            hintElement.innerHTML = `Pilih jenis kentang untuk melihat harga acuan pasar (Belum ada patokan Koperasi untuk jenis ini).`;
+        }
     });
 </script>
 @endpush

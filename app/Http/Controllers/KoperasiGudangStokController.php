@@ -12,20 +12,7 @@ class KoperasiGudangStokController extends Controller
 {
     public function index()
     {
-        $gudangs = Gudang::where('jenis_gudang', 'koperasi')->with(['stoks'])->get();
-
-        $stoks = Stok::query()
-            ->whereHas('gudang', function ($q) {
-                $q->where('jenis_gudang', 'koperasi');
-            })
-            ->selectRaw('gudang_id, jenis_kentang_id, grade, SUM(jumlah_stok) as jumlah_stok, SUM(stok_dijual) as stok_dijual, MAX(id) as id')
-            ->groupBy('gudang_id', 'jenis_kentang_id', 'grade')
-            ->with(['gudang', 'jenisKentang'])
-            ->get();
-
-        $totalMax = $gudangs->sum('kapasitas_max');
-        $totalStok = $stoks->sum('jumlah_stok');
-        $utilitasGudang = $totalMax > 0 ? round(($totalStok / $totalMax) * 100) : 0;
+        $gudangs = Gudang::where('jenis_gudang', 'koperasi')->with('stoks')->get();
 
         // Map data for map visualization
         $mapGudangs = $gudangs
@@ -42,13 +29,19 @@ class KoperasiGudangStokController extends Controller
                 'kapasitas_max' => $gudang->kapasitas_max,
             ])
             ->values();
+        $totalMax = $gudangs->sum('kapasitas_max');
+        $totalStok = Stok::whereHas('gudang', function ($q) {
+            $q->where('jenis_gudang', 'koperasi');
+        })->sum('jumlah_stok');
+        
+        $utilitasGudang = $totalMax > 0 ? round(($totalStok / $totalMax) * 100) : 0;
 
-        return view('koperasi.gudang&stok.index', compact('gudangs', 'stoks', 'utilitasGudang', 'mapGudangs'));
+        return view('koperasi.gudang.index', compact('gudangs', 'mapGudangs', 'totalStok', 'utilitasGudang'));
     }
 
     public function createGudang()
     {
-        return view('koperasi.gudang&stok.create_gudang');
+        return view('koperasi.gudang.create_gudang');
     }
 
     public function storeGudang(Request $request)
@@ -76,7 +69,7 @@ class KoperasiGudangStokController extends Controller
     public function editGudang($id)
     {
         $gudang = Gudang::where('jenis_gudang', 'koperasi')->findOrFail($id);
-        return view('koperasi.gudang&stok.edit_gudang', compact('gudang'));
+        return view('koperasi.gudang.edit_gudang', compact('gudang'));
     }
 
     public function updateGudang(Request $request, $id)
@@ -118,7 +111,7 @@ class KoperasiGudangStokController extends Controller
         $gudangs = Gudang::where('jenis_gudang', 'koperasi')->get();
         $jenisKentangs = JenisKentang::all(); // can edit benih or buah
 
-        return view('koperasi.gudang&stok.edit_stok', compact('stok', 'gudangs', 'jenisKentangs'));
+        return view('koperasi.gudang.edit_stok', compact('stok', 'gudangs', 'jenisKentangs'));
     }
 
     public function updateStok(Request $request, $id)

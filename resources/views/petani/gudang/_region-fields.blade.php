@@ -33,7 +33,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const baseUrl = @json(url('gudang/wilayah'));
+        const baseUrl = @json(url('petani-gudang/wilayah'));
         const values = @json($regionValues);
         const levels = ['provinsi', 'kota', 'kecamatan', 'kelurahan'];
         const placeholders = {

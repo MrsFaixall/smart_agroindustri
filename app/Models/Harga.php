@@ -12,4 +12,9 @@ class Harga extends Model
     {
         return $this->belongsTo(JenisKentang::class, 'jenis_kentang_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

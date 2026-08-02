@@ -20,6 +20,8 @@ class PengadaanBenihController extends Controller
 
         if ($user->role === 'koperasi') {
             $query->where('koperasi_id', $user->id);
+        } elseif ($user->role === 'mitra') {
+            $query->where('mitra_id', $user->id);
         }
 
         // Search filter

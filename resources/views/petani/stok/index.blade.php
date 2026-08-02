@@ -119,7 +119,8 @@
             <tbody class="divide-y divide-slate-100">
             @forelse($stoks as $stok)
                 @php
-                    $dijual = $stok->stok_dijual ?? $stok->jumlah_stok;
+                    $isBenih = isset($stok->jenisKentang) && $stok->jenisKentang->kategori === 'benih_hulu';
+                    $dijual = $isBenih ? 0 : ($stok->stok_dijual ?? $stok->jumlah_stok);
                     $tersimpan = max(0, $stok->jumlah_stok - $dijual);
 
                     if ($stok->grade === 'C') {
@@ -128,12 +129,15 @@
                     } elseif ($stok->jumlah_stok <= 0) {
                         $status = 'HABIS';
                         $badge = 'bg-slate-100 text-slate-600 border-slate-200';
+                    } elseif ($isBenih) {
+                        $status = 'BENIH SIAP TANAM';
+                        $badge = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
                     } elseif ($dijual > 0) {
                         $status = 'SIAP DIJUAL';
-                        $badge = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
+                        $badge = 'bg-blue-50 text-blue-700 border-blue-200 font-bold';
                     } else {
                         $status = 'CADANGAN GUDANG';
-                        $badge = 'bg-blue-50 text-blue-700 border-blue-200 font-bold';
+                        $badge = 'bg-amber-50 text-amber-700 border-amber-200 font-bold';
                     }
 
                     $maxGudang = $stok->gudang->kapasitas_max ?? 15000;
@@ -194,8 +198,18 @@
 
                     <td class="px-6 py-4">
                         <div class="flex justify-end gap-2">
+                            @if($isBenih && $stok->jumlah_stok > 0)
+                                <a href="{{ route('penanaman.create') }}" class="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-colors">
+                                    🌱 Tanam
+                                </a>
+                            @elseif(!$isBenih && $stok->jumlah_stok > 0)
+                                <a href="{{ route('petani.penawaran-panen.create', ['stok_id' => $stok->id]) }}" class="rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors">
+                                    Tawarkan
+                                </a>
+                            @endif
+
                             <a href="{{ route('stok.edit', $stok->id) }}"
-                               class="rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors">
+                               class="rounded-xl bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors">
                                 Edit
                             </a>
 
