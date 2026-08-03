@@ -109,7 +109,6 @@
                 <div class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-shrink-0 justify-center">
                     <!-- Button Install for Android / Chrome / Windows -->
                     <button @click="installPwa()" 
-                            x-show="deferredPrompt"
                             class="inline-flex items-center justify-center px-6 py-3 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-2xl text-xs transition-all shadow-md gap-2">
                         <span>🤖</span> Pasang untuk Android
                     </button>
@@ -154,6 +153,43 @@
                 </ol>
 
                 <button @click="showIosModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
+                    Mengerti, Siap!
+                </button>
+            </div>
+        </div>
+
+        <!-- Android Installation Instructions Modal -->
+        <div x-show="showAndroidModal" 
+             x-transition.opacity 
+             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
+             style="display: none;">
+            <div @click.away="showAndroidModal = false" class="bg-white rounded-3xl p-8 max-w-sm w-full text-slate-800 relative shadow-2xl border border-slate-100">
+                <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
+                
+                <div class="text-center space-y-4">
+                    <span class="text-4xl">🤖</span>
+                    <h3 class="text-xl font-bold outfit text-slate-900">Cara Pasang di Android</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Jika tombol pasang otomatis tidak merespons, ikuti langkah mudah berikut di browser Google Chrome ponsel Anda:
+                    </p>
+                </div>
+
+                <ol class="mt-6 space-y-4 text-xs font-semibold text-slate-600 border-t border-slate-100 pt-6">
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">1</span>
+                        <span>Ketuk tombol <strong>Menu (Tiga Titik)</strong> <span class="text-sm">⋮</span> di pojok kanan atas browser Chrome Anda.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">2</span>
+                        <span>Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> atau <strong>"Instal Aplikasi" (Install App)</strong>.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">3</span>
+                        <span>Ketuk <strong>"Instal" (Install)</strong> untuk mengonfirmasi pemasangan aplikasi.</span>
+                    </li>
+                </ol>
+
+                <button @click="showAndroidModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
                     Mengerti, Siap!
                 </button>
             </div>
@@ -246,6 +282,7 @@
             return {
                 deferredPrompt: null,
                 showIosModal: false,
+                showAndroidModal: false,
                 init() {
                     window.addEventListener('beforeinstallprompt', (e) => {
                         e.preventDefault();
@@ -269,7 +306,8 @@
                             this.deferredPrompt = null;
                         });
                     } else {
-                        alert('PWA sudah terpasang atau browser Anda tidak mendukung instalasi otomatis secara langsung. Silakan ikuti metode pemasangan manual.');
+                        // Open the manual installation guide modal for Android
+                        this.showAndroidModal = true;
                     }
                 }
             }
