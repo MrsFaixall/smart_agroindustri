@@ -1,11 +1,13 @@
-const CACHE_NAME = 'smart-agro-v2';
+const CACHE_NAME = 'smart-agro-v4';
 const urlsToCache = [
     '/',
-    '/icon.svg',
+    '/icon-192x192.png',
+    '/icon-512x512.png',
     '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -14,17 +16,26 @@ self.addEventListener('install', event => {
     );
 });
 
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(() => self.clients.claim())
+    );
+});
+
 self.addEventListener('fetch', event => {
+    // Network first, fallback to cache
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request).catch(() => {
-                    // Fallback or offline page logic can go here
-                });
-            })
+        fetch(event.request).catch(() => {
+            return caches.match(event.request);
+        })
     );
 });
 

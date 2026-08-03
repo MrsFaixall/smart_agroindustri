@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Agroindustri</title>
     <!-- Logo Favicon & PWA Tags -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('icon.svg') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icon-192x192.png') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#001842">
-    <link rel="apple-touch-icon" href="{{ asset('icon.svg') }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="{{ asset('icon-192x192.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
@@ -32,10 +35,8 @@
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="w-64 bg-white h-screen border-r border-slate-100 flex flex-col fixed lg:sticky top-0 shadow-sm z-50 transition-transform duration-300 lg:translate-x-0">
         <!-- Header Sidebar -->
         <div class="px-6 py-8 flex items-center gap-3">
-            <div class="bg-[#001842] p-2.5 rounded-xl shadow-lg shadow-blue-900/20">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
+            <div class="w-12 h-12 flex items-center justify-center">
+                <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="Logo" class="w-full h-full object-contain drop-shadow-md">
             </div>
             <div>
                 <h1 class="text-sm font-bold text-slate-900 leading-tight">Smart<br>Agroindustri</h1>

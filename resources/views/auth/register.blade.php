@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Daftar Akun - Smart Agroindustri</title>
+    <title>Register - Smart Agroindustri</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,11 +23,11 @@
         
         <!-- Logo Header -->
         <div class="text-center mb-8">
-            <a href="/" class="inline-flex items-center gap-2 mb-2">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <a href="/" class="inline-flex flex-col items-center gap-3 mb-2">
+                <div class="w-24 h-24 flex items-center justify-center">
+                    <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="Logo" class="w-full h-full object-contain drop-shadow-lg">
                 </div>
-                <span class="font-bold text-2xl outfit tracking-tight text-slate-900">Agro<span class="text-blue-600">industri</span></span>
+                <span class="font-bold text-3xl outfit tracking-tight text-slate-900">Agro<span class="text-blue-600">industri</span></span>
             </a>
             <p class="text-slate-500 text-sm">Bergabung dengan ekosistem digital pertanian</p>
         </div>
