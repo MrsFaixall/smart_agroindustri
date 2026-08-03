@@ -37,6 +37,15 @@ use App\Http\Controllers\{
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/tentang-kami', function () {
+    return view('welcome_tentangkami');
+})->name('welcome.tentang-kami');
+Route::get('/layanan', function () {
+    return view('welcome_layanan');
+})->name('welcome.layanan');
+Route::get('/kontak', function () {
+    return view('welcome_kontak');
+})->name('welcome.kontak');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');

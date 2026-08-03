@@ -14,6 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -41,28 +42,7 @@
 <body class="antialiased bg-white text-slate-800">
 
     <!-- Navbar -->
-    <nav class="fixed w-full z-50 glass transition-all duration-300" x-data="{ scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 20)">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 flex items-center justify-center">
-                        <img src="{{ asset('logo.png') }}?v={{ time() }}" alt="Logo" class="w-full h-full object-contain drop-shadow-md">
-                    </div>
-                    <span class="font-bold text-2xl outfit tracking-tight text-slate-900">Agro<span class="text-blue-600">industri</span></span>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#fitur" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">Fitur</a>
-                    <a href="#tentang" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition">Tentang Kami</a>
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Masuk</a>
-                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5">
-                            Daftar Sekarang
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+    @include('partials.welcome-navbar')
 
     <!-- Hero Section -->
     <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -108,6 +88,78 @@
         </div>
     </div>
 
+    <!-- PWA Install Section -->
+    <section class="py-12 bg-slate-50 border-y border-slate-100" x-data="pwaInstall()">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-3xl p-8 md:p-10 shadow-xl text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Gradients backdrops -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+
+                <div class="relative z-10 space-y-3 max-w-xl text-center md:text-left">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/20 text-blue-300 text-xs font-semibold">
+                        📱 Aplikasi Web Progresif (PWA)
+                    </span>
+                    <h2 class="text-2xl font-extrabold outfit">Pasang Aplikasi Agroindustri</h2>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                        Akses platform lebih cepat langsung dari layar utama ponsel Anda tanpa perlu mengunduh dari App Store. Lebih ringan, hemat kuota, dan responsif.
+                    </p>
+                </div>
+
+                <div class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-shrink-0 justify-center">
+                    <!-- Button Install for Android / Chrome / Windows -->
+                    <button @click="installPwa()" 
+                            x-show="deferredPrompt"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-2xl text-xs transition-all shadow-md gap-2">
+                        <span>🤖</span> Pasang untuk Android
+                    </button>
+                    <!-- Button Install for iOS (Shows Instructions) -->
+                    <button @click="showIosModal = true" 
+                            class="inline-flex items-center justify-center px-6 py-3 bg-slate-800/80 border border-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs transition-all shadow-md gap-2">
+                        <span>🍏</span> Petunjuk untuk iOS / Apple
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- iOS Installation Instructions Modal -->
+        <div x-show="showIosModal" 
+             x-transition.opacity 
+             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
+             style="display: none;">
+            <div @click.away="showIosModal = false" class="bg-white rounded-3xl p-8 max-w-sm w-full text-slate-800 relative shadow-2xl border border-slate-100">
+                <button @click="showIosModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
+                
+                <div class="text-center space-y-4">
+                    <span class="text-4xl">🍏</span>
+                    <h3 class="text-xl font-bold outfit text-slate-900">Cara Pasang di iOS (Safari)</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Ikuti langkah mudah berikut untuk menambahkan aplikasi ini ke layar utama iPhone atau iPad Anda:
+                    </p>
+                </div>
+
+                <ol class="mt-6 space-y-4 text-xs font-semibold text-slate-600 border-t border-slate-100 pt-6">
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">1</span>
+                        <span>Buka halaman ini menggunakan browser <strong>Safari</strong> bawaan iOS.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">2</span>
+                        <span>Ketuk tombol <strong>Bagikan (Share)</strong> <span class="text-sm">📤</span> pada bagian bawah atau atas layar.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">3</span>
+                        <span>Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> <span class="text-sm">➕</span>.</span>
+                    </li>
+                </ol>
+
+                <button @click="showIosModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
+                    Mengerti, Siap!
+                </button>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section id="fitur" class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -147,6 +199,9 @@
         </div>
     </section>
 
+    <!-- Tentang Kami Section -->
+    @include('partials.welcome-tentang')
+
     <!-- Footer CTA -->
     <section class="py-20 relative overflow-hidden">
         <div class="absolute inset-0 bg-slate-900"></div>
@@ -164,7 +219,7 @@
     </section>
 
     <!-- Simple Footer -->
-    <footer class="bg-slate-950 py-8 border-t border-slate-800">
+    <footer id="kontak" class="bg-slate-950 py-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
                 <div class="w-12 h-12 flex items-center justify-center">
@@ -185,6 +240,39 @@
                     console.log('ServiceWorker registration failed: ', err);
                 });
             });
+        }
+
+        function pwaInstall() {
+            return {
+                deferredPrompt: null,
+                showIosModal: false,
+                init() {
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        this.deferredPrompt = e;
+                    });
+                    
+                    window.addEventListener('appinstalled', () => {
+                        this.deferredPrompt = null;
+                        alert('Aplikasi Agroindustri berhasil terpasang di layar utama Anda!');
+                    });
+                },
+                installPwa() {
+                    if (this.deferredPrompt) {
+                        this.deferredPrompt.prompt();
+                        this.deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('User accepted the install prompt');
+                            } else {
+                                console.log('User dismissed the install prompt');
+                            }
+                            this.deferredPrompt = null;
+                        });
+                    } else {
+                        alert('PWA sudah terpasang atau browser Anda tidak mendukung instalasi otomatis secara langsung. Silakan ikuti metode pemasangan manual.');
+                    }
+                }
+            }
         }
     </script>
 </body>
