@@ -35,16 +35,16 @@ use App\Http\Controllers\{
 // AUTHENTICATION
 // ==========================================
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome.index');
 });
 Route::get('/tentang-kami', function () {
-    return view('welcome_tentangkami');
+    return view('welcome.tentang-kami');
 })->name('welcome.tentang-kami');
 Route::get('/layanan', function () {
-    return view('welcome_layanan');
+    return view('welcome.layanan');
 })->name('welcome.layanan');
 Route::get('/kontak', function () {
-    return view('welcome_kontak');
+    return view('welcome.kontak');
 })->name('welcome.kontak');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -6,7 +6,7 @@
     <title>Smart Agroindustri</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- PWA Tags -->
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="manifest" href="/manifest.json">
     <script>
         window.deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -16,7 +16,7 @@
         });
     </script>
     <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon" href="{{ asset('icon-192x192.png') }}">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,7 @@
 <body class="antialiased bg-white text-slate-800">
 
     <!-- Navbar -->
-    @include('partials.welcome-navbar')
+    @include('welcome.partials.navbar')
 
     <!-- Hero Section -->
     <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -136,7 +136,7 @@
     </section>
 
     <!-- Tentang Kami Section -->
-    @include('partials.welcome-tentang')
+    @include('welcome.partials.tentang')
 
     <!-- Footer CTA & PWA Section -->
     <section class="py-20 bg-slate-900 relative overflow-hidden" x-data="pwaInstall()">
@@ -178,37 +178,109 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        <!-- Installation Instructions Modal (Fallback) -->
+        </        <!-- Installation Instructions Modal (Fallback) -->
         <div x-show="showAndroidModal" 
              x-transition.opacity 
-             class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4" 
+             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
              style="display: none;">
-            <div @click.away="showAndroidModal = false" class="bg-white rounded-3xl p-8 max-w-sm w-full text-slate-800 relative shadow-2xl border border-slate-100">
-                <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
+            <div @click.away="showAndroidModal = false" class="bg-white rounded-3xl p-8 max-w-md w-full text-slate-800 relative shadow-2xl border border-slate-100">
+                <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-xl">✕</button>
                 
-                <div class="text-center space-y-4">
-                    <span class="text-4xl">📱</span>
-                    <h3 class="text-xl font-bold outfit text-slate-900">Petunjuk Pemasangan</h3>
+                <div class="text-center space-y-3 mb-6">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto text-3xl">
+                        📲
+                    </div>
+                    <h3 class="text-2xl font-bold outfit text-slate-900">Pasang Aplikasi</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Fitur instalasi otomatis dibatasi oleh keamanan atau pemblokir iklan (Shield) browser Anda.
+                        Pasang aplikasi **Smart Agroindustri** di layar perangkat Anda untuk akses lebih cepat, responsif, dan hemat kuota.
                     </p>
                 </div>
 
-                <div class="mt-6 text-xs text-slate-600 border-t border-slate-100 pt-6 space-y-4">
-                    <p class="font-bold text-slate-200">Silakan pasang secara manual:</p>
-                    <div class="space-y-1">
-                        <strong>🤖 Android / Google Chrome:</strong>
-                        <p class="text-[11px] text-slate-500">Ketuk menu tiga titik (⋮) di pojok kanan atas browser, lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".</p>
-                    </div>
-                    <div class="space-y-1">
-                        <strong>🍏 iPhone / iPad (Safari):</strong>
-                        <p class="text-[11px] text-slate-500">Ketuk tombol bagikan (Share 📤) di bawah layar, lalu pilih "Tambahkan ke Layar Utama" (Add to Home Screen ➕).</p>
-                    </div>
+                <div class="space-y-4 border-t border-slate-100 pt-6">
+                    <p class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                        <span>💡</span> Petunjuk pemasangan manual:
+                    </p>
+
+                    <!-- Instruction Card: Insecure Context Warning -->
+                    <template x-if="!isSecure">
+                        <div class="bg-rose-50 rounded-2xl p-4 border border-rose-100 space-y-3 text-xs text-rose-800">
+                            <div class="flex items-center gap-2 font-bold text-rose-900">
+                                <span>⚠️</span> Koneksi HTTP Tidak Aman
+                            </div>
+                            <p class="leading-relaxed">
+                                Anda mengakses situs ini menggunakan alamat IP jaringan (<span class="font-mono bg-rose-100 px-1 py-0.5 rounded" x-text="window.location.hostname"></span>) tanpa HTTPS.
+                            </p>
+                            <p class="leading-relaxed font-semibold">
+                                Browser seluler (Chrome/Brave) secara ketat memblokir instalasi PWA/APK pada koneksi HTTP non-localhost demi keamanan.
+                            </p>
+                            <div class="border-t border-rose-200/50 pt-2 space-y-2">
+                                <p class="font-bold text-rose-950">Cara memunculkan tombol/pop-up instalasi:</p>
+                                <ol class="list-decimal pl-4 space-y-1">
+                                    <li>Gunakan **Ngrok** (`ngrok http 8000`) di komputer untuk mendapatkan tautan HTTPS gratis, lalu buka tautan tersebut di HP Anda.</li>
+                                    <li>Atau, gunakan fitur **Chrome USB Port Forwarding** agar HP Anda mendeteksi alamat sebagai <span class="font-mono">http://localhost:8000</span> (yang dianggap aman oleh browser).</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Instruction Card: macOS / Windows (Chrome, Brave, Edge) -->
+                    <template x-if="isSecure && (deviceInfo.os === 'mac' || deviceInfo.os === 'windows' || deviceInfo.os === 'unknown')">
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 text-xs text-slate-700">
+                            <div class="flex items-center gap-2 font-bold text-slate-900">
+                                <span>💻</span> Komputer (Chrome, Brave, Edge, Opera)
+                            </div>
+                            <ol class="list-decimal pl-4 space-y-2">
+                                <li>Cari dan klik ikon <strong>Pasang Aplikasi</strong> (gambar komputer dengan panah bawah <span class="bg-slate-200 px-1 py-0.5 rounded">🖥️📥</span> atau tombol <span class="bg-slate-200 px-1 py-0.5 rounded">➕</span>) di sebelah kanan bilah alamat (URL bar).</li>
+                                <li>Klik tombol <strong>Instal</strong> pada jendela konfirmasi.</li>
+                                <li>Atau, buka menu browser (titik tiga <span class="font-bold">⋮</span>), pilih <strong>Simpan dan bagikan</strong>, lalu pilih <strong>Instal Halaman sebagai Aplikasi</strong>.</li>
+                            </ol>
+                        </div>
+                    </template>
+
+                    <!-- Instruction Card: macOS Safari -->
+                    <template x-if="isSecure && deviceInfo.os === 'mac' && deviceInfo.browser === 'safari'">
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 text-xs text-slate-700">
+                            <div class="flex items-center gap-2 font-bold text-slate-900">
+                                <span>🍎</span> Mac (Safari)
+                            </div>
+                            <ol class="list-decimal pl-4 space-y-2">
+                                <li>Klik menu <strong>File</strong> di bagian atas layar Mac Anda.</li>
+                                <li>Pilih opsi <strong>Tambahkan ke Dock... (Add to Dock...)</strong>.</li>
+                                <li>Klik <strong>Tambah (Add)</strong> untuk menempatkan aplikasi di Dock Anda.</li>
+                            </ol>
+                        </div>
+                    </template>
+
+                    <!-- Instruction Card: Android / Chrome -->
+                    <template x-if="isSecure && deviceInfo.os === 'android'">
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 text-xs text-slate-700">
+                            <div class="flex items-center gap-2 font-bold text-slate-900">
+                                <span>🤖</span> HP Android (Chrome)
+                            </div>
+                            <ol class="list-decimal pl-4 space-y-2">
+                                <li>Ketuk ikon menu titik tiga (<span class="font-bold">⋮</span>) di pojok kanan atas browser.</li>
+                                <li>Pilih menu <strong>Instal Aplikasi</strong> atau <strong>Tambahkan ke Layar Utama</strong>.</li>
+                                <li>Ketuk <strong>Instal</strong> untuk mengonfirmasi.</li>
+                            </ol>
+                        </div>
+                    </template>
+
+                    <!-- Instruction Card: iPhone / iPad Safari -->
+                    <template x-if="isSecure && deviceInfo.os === 'ios'">
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 text-xs text-slate-700">
+                            <div class="flex items-center gap-2 font-bold text-slate-900">
+                                <span>🍏</span> iPhone / iPad (Safari)
+                            </div>
+                            <ol class="list-decimal pl-4 space-y-2">
+                                <li>Ketuk tombol <strong>Bagikan</strong> (ikon kotak dengan panah atas <span class="bg-slate-200 px-1 py-0.5 rounded">📤</span>) di bagian bawah layar.</li>
+                                <li>Gulir ke bawah dan ketuk opsi <strong>Tambahkan ke Layar Utama</strong> (Add to Home Screen <span class="bg-slate-200 px-1 py-0.5 rounded">➕</span>).</li>
+                                <li>Ketuk <strong>Tambah</strong> di pojok kanan atas.</li>
+                            </ol>
+                        </div>
+                    </template>
                 </div>
 
-                <button @click="showAndroidModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
+                <button @click="showAndroidModal = false" class="mt-6 w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs transition shadow-lg shadow-slate-900/10 uppercase tracking-wider">
                     Mengerti, Siap!
                 </button>
             </div>
@@ -233,6 +305,7 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(registration => {
                     console.log('ServiceWorker registration successful');
+                    registration.update();
                 }).catch(err => {
                     console.log('ServiceWorker registration failed: ', err);
                 });
@@ -242,10 +315,11 @@
         function pwaInstall() {
             return {
                 deferredPrompt: window.deferredPrompt,
-                showIosModal: false,
                 showAndroidModal: false,
+                deviceInfo: { os: 'unknown', browser: 'unknown' },
                 isSecure: window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
                 init() {
+                    this.detectDevice();
                     window.addEventListener('pwa-prompt-ready', () => {
                         this.deferredPrompt = window.deferredPrompt;
                     });
@@ -255,6 +329,32 @@
                         window.deferredPrompt = null;
                         alert('Aplikasi Agroindustri berhasil terpasang di layar utama Anda!');
                     });
+                },
+                detectDevice() {
+                    const ua = navigator.userAgent.toLowerCase();
+                    let os = 'unknown';
+                    let browser = 'unknown';
+
+                    if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {
+                        os = 'ios';
+                    } else if (ua.includes('android')) {
+                        os = 'android';
+                    } else if (ua.includes('macintosh') || ua.includes('mac os x')) {
+                        os = 'mac';
+                    } else if (ua.includes('windows')) {
+                        os = 'windows';
+                    }
+
+                    if (ua.includes('chrome') || ua.includes('crios')) {
+                        browser = 'chrome';
+                        if (ua.includes('edg')) browser = 'edge';
+                    } else if (ua.includes('safari') && !ua.includes('chrome')) {
+                        browser = 'safari';
+                    } else if (ua.includes('firefox')) {
+                        browser = 'firefox';
+                    }
+
+                    this.deviceInfo = { os, browser };
                 },
                 installPwa() {
                     const promptEvent = this.deferredPrompt || window.deferredPrompt;
@@ -270,20 +370,7 @@
                     } else {
                         // Open the manual installation guide modal
                         this.showAndroidModal = true;
-                        
-                        // Download a launcher shortcut file immediately as fallback
-                        this.downloadShortcut();
                     }
-                },
-                downloadShortcut() {
-                    const link = document.createElement('a');
-                    const shortcutContent = `[InternetShortcut]\r\nURL=${window.location.origin}/\r\nIconIndex=0\r\n`;
-                    const blob = new Blob([shortcutContent], { type: 'application/octet-stream' });
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'Smart_Agroindustri.url';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
                 }
             }
         }

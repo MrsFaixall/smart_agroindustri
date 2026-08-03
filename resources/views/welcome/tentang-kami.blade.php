@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tentang Kami - Smart Agroindustri</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <!-- PWA Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        window.deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+        });
+    </script>
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +39,7 @@
 <body class="antialiased bg-white text-slate-800">
 
     <!-- Navbar -->
-    @include('partials.welcome-navbar')
+    @include('welcome.partials.navbar')
 
     <!-- Header Hero Banner -->
     <div class="relative pt-32 pb-16 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-950 text-white overflow-hidden">
@@ -146,5 +158,17 @@
         </div>
     </footer>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                    registration.update();
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
