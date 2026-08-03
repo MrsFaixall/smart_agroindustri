@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Smart Agroindustri</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <!-- PWA Tags -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="{{ asset('icon-192x192.png') }}">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,39 +96,8 @@
                     <!-- Abstract decorative elements -->
                     <div class="absolute inset-0 bg-gradient-to-tr from-blue-100 to-emerald-50 rounded-full blur-3xl opacity-50 animate-pulse"></div>
                     <div class="relative w-full max-w-lg animate-float">
-                        <!-- Dashboard Mockup -->
-                        <div class="bg-white/80 backdrop-blur-xl border border-white shadow-2xl rounded-2xl p-4 overflow-hidden relative">
-                            <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-amber-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                            </div>
-                            <div class="space-y-4">
-                                <div class="h-8 w-1/3 bg-slate-100 rounded-lg"></div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="h-24 bg-blue-50 rounded-xl border border-blue-100 p-4">
-                                        <div class="h-4 w-1/2 bg-blue-200 rounded mb-2"></div>
-                                        <div class="h-6 w-3/4 bg-blue-300 rounded"></div>
-                                    </div>
-                                    <div class="h-24 bg-emerald-50 rounded-xl border border-emerald-100 p-4">
-                                        <div class="h-4 w-1/2 bg-emerald-200 rounded mb-2"></div>
-                                        <div class="h-6 w-3/4 bg-emerald-300 rounded"></div>
-                                    </div>
-                                </div>
-                                <div class="h-32 bg-slate-50 rounded-xl border border-slate-100"></div>
-                            </div>
-                            
-                            <!-- Floating small card -->
-                            <div class="absolute -right-6 -bottom-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-4 animate-bounce" style="animation-duration: 3s;">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-400 uppercase">Transaksi Berhasil</p>
-                                    <p class="text-sm font-bold text-slate-800">Rp 12.500.000</p>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Dashboard Mockup Image -->
+                        <img src="{{ asset('dashboard-preview.png') }}?v={{ time() }}" alt="Dashboard Preview" class="rounded-2xl shadow-2xl border-4 border-white/50 w-full hover:scale-105 transition-transform duration-500 bg-white">
                     </div>
                 </div>
             </div>
@@ -199,5 +172,16 @@
         </div>
     </footer>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
