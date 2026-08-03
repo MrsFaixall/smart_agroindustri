@@ -18,6 +18,26 @@
         </div>
     </div>
 
+    <!-- Alert Success -->
+    @if(session('success'))
+        <div class="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-xs font-semibold text-emerald-800 shadow-2xs">
+            <svg class="h-4 w-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <!-- Alert Error -->
+    @if($errors->any())
+        <div class="flex flex-col gap-1.5 rounded-2xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-xs font-semibold text-rose-800 shadow-2xs">
+            @foreach($errors->all() as $error)
+                <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>{{ $error }}</span>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!-- KPI STATS -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         <div class="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 border border-blue-100 p-5 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex items-center gap-4">
@@ -96,7 +116,19 @@
                                 @if($p->status === 'lunas')
                                     <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold uppercase tracking-wide">✔ Lunas</span>
                                 @else
-                                    <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold uppercase tracking-wide">⏳ Belum Lunas</span>
+                                    @php
+                                        $pendingPayment = $p->pembayarans->where('status', 'pending')->first();
+                                    @endphp
+                                    @if($pendingPayment)
+                                        <form action="{{ route('pembayaran-petani.accept', $p->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Konfirmasi bahwa Anda telah menerima uang pembayaran dari Koperasi?');">
+                                            @csrf
+                                            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-[10px] shadow-sm hover:shadow transition-all flex items-center gap-1 uppercase tracking-wide">
+                                                <span>✔</span> Terima Uang
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-bold uppercase tracking-wide">⏳ Belum Lunas</span>
+                                    @endif
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">

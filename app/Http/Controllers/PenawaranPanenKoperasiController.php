@@ -59,59 +59,14 @@ class PenawaranPanenKoperasiController extends Controller
     
     private function createPembelian(PenawaranPanen $penawaran, $hargaDeal)
     {
-        \DB::transaction(function () use ($penawaran, $hargaDeal) {
-            \App\Models\Pembelian::create([
-                'petani_id' => $penawaran->petani_id,
-                'koperasi_id' => $penawaran->koperasi_id,
-                'jenis_kentang_id' => $penawaran->jenis_kentang_id,
-                'jumlah_kg' => $penawaran->jumlah_kg,
-                'total_harga' => $hargaDeal, // hargaDeal is already total
-                'tanggal_pembelian' => now()->toDateString(),
-                'status' => 'belum lunas'
-            ]);
-
-            $stok = Stok::where('gudang_id', $penawaran->gudang_id)
-                ->where('jenis_kentang_id', $penawaran->jenis_kentang_id)
-                ->first();
-                
-            if ($stok) {
-                $stok->jumlah_stok = max(0, $stok->jumlah_stok - $penawaran->jumlah_kg);
-                if ($stok->stok_dijual > $stok->jumlah_stok) {
-                    $stok->stok_dijual = $stok->jumlah_stok;
-                }
-                $stok->save();
-                $grade = $stok->grade ?? 'A';
-            } else {
-                $grade = 'A';
-            }
-            
-            $gudangKoperasi = \App\Models\Gudang::firstOrCreate(
-                ['jenis_gudang' => 'koperasi'],
-                [
-                    'nama_gudang' => 'Gudang Pusat Koperasi',
-                    'alamat' => 'Alamat Koperasi Pusat',
-                    'latitude' => 0.0,
-                    'longitude' => 0.0,
-                    'kapasitas_max' => 100000,
-                    'status' => 'aktif'
-                ]
-            );
-
-            $stokKoperasi = Stok::firstOrCreate(
-                [
-                    'gudang_id' => $gudangKoperasi->id,
-                    'jenis_kentang_id' => $penawaran->jenis_kentang_id,
-                    'grade' => $grade
-                ],
-                [
-                    'jumlah_stok' => 0,
-                    'stok_dijual' => 0,
-                ]
-            );
-
-            $stokKoperasi->jumlah_stok += $penawaran->jumlah_kg;
-            $stokKoperasi->stok_dijual += $penawaran->jumlah_kg;
-            $stokKoperasi->save();
-        });
+        \App\Models\Pembelian::create([
+            'petani_id' => $penawaran->petani_id,
+            'koperasi_id' => $penawaran->koperasi_id,
+            'jenis_kentang_id' => $penawaran->jenis_kentang_id,
+            'jumlah_kg' => $penawaran->jumlah_kg,
+            'total_harga' => $hargaDeal, // hargaDeal is already total
+            'tanggal_pembelian' => now()->toDateString(),
+            'status' => 'belum lunas'
+        ]);
     }
 }

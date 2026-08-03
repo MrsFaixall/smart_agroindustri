@@ -131,32 +131,9 @@ class MidtransController extends Controller
         $pembelian = Pembelian::find($pembayaran->pembelian_id);
         if (!$pembelian) return;
 
-        // Update status pembelian menjadi lunas
-        $pembelian->update(['status' => 'lunas']);
-
-        // Adjust stok FIFO jika ada
-        try {
-            $jumlah_dibeli = $pembelian->jumlah_kg;
-            $stoks = Stok::where('jenis_kentang_id', $pembelian->jenis_kentang_id)
-                ->where('jumlah_stok', '>', 0)
-                ->orderBy('id')
-                ->get();
-                
-            foreach ($stoks as $stok) {
-                if ($jumlah_dibeli <= 0) break;
-                
-                if ($stok->jumlah_stok >= $jumlah_dibeli) {
-                    $stok->jumlah_stok -= $jumlah_dibeli;
-                    $stok->save();
-                    $jumlah_dibeli = 0;
-                } else {
-                    $jumlah_dibeli -= $stok->jumlah_stok;
-                    $stok->jumlah_stok = 0;
-                    $stok->save();
-                }
-            }
-        } catch (\Exception $e) {
-            Log::warning('Stock update warning on payment: ' . $e->getMessage());
+        if ($pembelian->status !== 'lunas') {
+            $pembelian->update(['status' => 'lunas']);
+            Pembelian::transferStock($pembelian);
         }
     }
 

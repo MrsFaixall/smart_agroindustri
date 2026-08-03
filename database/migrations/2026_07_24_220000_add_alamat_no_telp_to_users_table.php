@@ -23,7 +23,7 @@ return new class extends Migration
 
         // Expand ENUM role to include 'konsumen'
         try {
-            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'petani', 'koperasi', 'super admin', 'konsumen') NOT NULL DEFAULT 'petani'");
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'petani', 'koperasi', 'super admin', 'konsumen', 'mitra') NOT NULL DEFAULT 'petani'");
             DB::statement("UPDATE users SET role = 'konsumen' WHERE role = 'staf'");
         } catch (\Exception $e) {
             // Fallback for sqlite if used in testing

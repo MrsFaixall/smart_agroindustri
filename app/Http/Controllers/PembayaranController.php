@@ -76,13 +76,37 @@ class PembayaranController extends Controller
         $pembelians = $pembelianQuery->latest()->paginate(5, ['*'], 'pembelian_page')->withQueryString();
         $payments = $paymentQuery->latest()->paginate(5, ['*'], 'payment_page')->withQueryString();
 
+        // For the Create Payment Modal:
+        $unpaidPembelians = Pembelian::where('status', '!=', 'lunas')
+            ->with(['petani', 'koperasi'])
+            ->latest()
+            ->get();
+        $methods = MetodePembayaran::with('user')->latest()->get();
+        $metodePembayarans = $methods;
+        $metodePerPetani = [];
+        foreach ($methods as $metode) {
+            if (!$metode->user_id) continue;
+            if (!isset($metodePerPetani[$metode->user_id])) {
+                $metodePerPetani[$metode->user_id] = [];
+            }
+            $metodePerPetani[$metode->user_id][] = [
+                'id' => $metode->id,
+                'kategori' => $metode->kategori ?? 'Transfer Bank',
+                'bank' => $metode->bank,
+                'no_rekening' => $metode->no_rekening,
+                'atas_nama' => $metode->atas_nama
+            ];
+        }
+        $metodePerPetaniJson = json_encode($metodePerPetani);
+        $midtransClientKey = config('midtrans.client_key');
+
         if ($user->role === 'petani' || $request->get('view') === 'petani') {
             return view('petani.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
         } elseif ($user->role === 'mitra' || $request->get('view') === 'mitra') {
             return view('mitra.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
         }
 
-        return view('koperasi.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        return view('koperasi.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai', 'unpaidPembelians', 'methods', 'metodePembayarans', 'metodePerPetaniJson', 'midtransClientKey'));
     }
 
     
@@ -156,9 +180,10 @@ class PembayaranController extends Controller
 
     public function store(Request $request)
     {
+        // Enforce manual cash/transfer to start as pending (requires Petani confirmation)
         $request->merge([
             'tanggal_pembayaran' => $request->input('tanggal_pembayaran', now()->toDateString()),
-            'status' => $request->input('status', 'lunas'),
+            'status' => 'pending',
         ]);
 
         $data = $request->validate([
@@ -174,20 +199,14 @@ class PembayaranController extends Controller
             \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
                 Pembayaran::create($data);
                 
-                $pembelian = Pembelian::find($data['pembelian_id']);
-                $totalDibayar = Pembayaran::where('pembelian_id', $pembelian->id)
-                    ->whereIn('status', ['lunas', 'berhasil', 'sukses'])
-                    ->sum('jumlah_bayar');
-
-                if ($data['status'] === 'lunas' || $totalDibayar >= $pembelian->total_harga) {
-                    $pembelian->update(['status' => 'lunas']);
-                }
+                // We do NOT update Pembelian status to lunas or transfer stock here,
+                // because manual payments are pending until Petani accepts them!
             });
         } catch (\Exception $e) {
             return back()->withErrors(['jumlah_bayar' => $e->getMessage()])->withInput();
         }
 
-        return redirect()->route('pembayaran.index')->with('success', 'Transaksi pembayaran berhasil dibuat, status pembelian dan stok disesuaikan.');
+        return redirect()->route('pembayaran.index')->with('success', 'Transaksi pembayaran manual berhasil dicatat dengan status pending. Menunggu konfirmasi (Accept) dari Petani.');
     }
 
     public function show(string $id)
@@ -259,5 +278,27 @@ class PembayaranController extends Controller
         }
 
         return view('koperasi.pembayaran.pembelian.struk', compact('payment'));
+    }
+
+    public function accept($id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+        
+        if ($pembelian->status === 'lunas') {
+            return back()->with('success', 'Transaksi ini sudah lunas.');
+        }
+
+        $pembayaran = Pembayaran::where('pembelian_id', $pembelian->id)->where('status', 'pending')->first();
+        if (!$pembayaran) {
+            return back()->withErrors(['error' => 'Belum ada rekaman pembayaran dari Koperasi untuk transaksi ini.']);
+        }
+
+        \DB::transaction(function() use ($pembelian, $pembayaran) {
+            $pembayaran->update(['status' => 'lunas']);
+            $pembelian->update(['status' => 'lunas']);
+            Pembelian::transferStock($pembelian);
+        });
+
+        return back()->with('success', 'Pembayaran berhasil dikonfirmasi (Accepted) dan stok hasil panen Anda telah resmi dipindahkan ke Koperasi.');
     }
 }

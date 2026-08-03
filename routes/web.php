@@ -81,6 +81,7 @@ Route::middleware(['auth.custom'])->group(function () {
             
         // Pembayaran
         Route::resource('pembayaran-petani', PembayaranController::class);
+        Route::post('pembayaran-petani/{id}/accept', [PembayaranController::class, 'accept'])->name('pembayaran-petani.accept');
 
         // Tambahan Pembayaran Petani (Collapsible)
         Route::get('/petani/pembayaran/penjualan', [PembayaranPenjualanController::class, 'index'])->name('petani.pembayaran.penjualan');
@@ -319,6 +320,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // 7. CRUD Transaksi Pembayaran (Koperasi lakukan pembayaran)
     Route::resource('pembayaran', PembayaranController::class)->only(['index', 'create', 'store']);
+    Route::post('/koperasi/pembayaran/notify-petani', [PembayaranController::class, 'notifyPetani'])->name('koperasi.pembayaran.notify-petani');
 
     // Tambahan Pembayaran Koperasi (Collapsible)
     Route::get('/koperasi/pembayaran/penjualan', [PembayaranPenjualanController::class, 'index'])->name('koperasi.pembayaran.penjualan');
@@ -353,6 +355,7 @@ Route::middleware(['auth.custom'])->group(function () {
 });
 
 // Midtrans Webhook (Tanpa Auth)
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])->name('midtrans.notification');
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('koperasi/stok-koperasi', \App\Http\Controllers\KoperasiStokController::class, [

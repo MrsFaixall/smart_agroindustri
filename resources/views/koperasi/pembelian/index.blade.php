@@ -70,6 +70,18 @@
         </div>
     @endif
 
+    <!-- Alert Error -->
+    @if($errors->any())
+        <div class="flex flex-col gap-1.5 rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-xs font-semibold text-rose-800 shadow-2xs">
+            @foreach($errors->all() as $error)
+                <div class="flex items-center gap-2">
+                    <svg class="h-4 w-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>{{ $error }}</span>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Compact Search & Filter Bar -->
     <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100">
         <form action="{{ route('pembelian.index') }}" method="GET" class="flex flex-wrap lg:flex-nowrap items-center gap-2 w-full text-xs">
@@ -195,13 +207,6 @@
                                     <a href="{{ route('pembelian.edit', $pembelian->id) }}" class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-[11px] font-bold hover:bg-blue-100">
                                         Edit
                                     </a>
-                                    <form action="{{ route('pembelian.destroy', $pembelian->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus data transaksi ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="px-2 py-1 rounded-lg bg-rose-50 text-rose-700 text-[11px] font-bold hover:bg-rose-100">
-                                            Hapus
-                                        </button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>
