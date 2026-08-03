@@ -103,7 +103,9 @@
             </div>
         </div>
 
-        <table class="w-full text-sm text-left">
+    <x-petani-table-filter placeholder="Cari data manajemen stok..." />
+
+            <table class="w-full text-sm text-left">
             <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-6 py-4">Komoditas</th>

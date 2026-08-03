@@ -2,18 +2,38 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Header Bagian Atas dengan Banner Gradient -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
+    @php
+        $role = strtolower(auth()->user()->role ?? 'admin');
+        // fallback mapping just in case
+        if (!in_array($role, ['admin', 'petani', 'koperasi'])) {
+            $role = 'admin';
+        }
+        $bannerImage = 'banner-' . $role . '-wide.png';
+        
+        $dashboardTitle = match($role) {
+            'petani' => 'Dashboard Petani',
+            'koperasi' => 'Dashboard Pengepul',
+            default => 'Dashboard Utama',
+        };
+    @endphp
+    <!-- Header Bagian Atas dengan Banner Image -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900 p-6 md:p-10 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden min-h-[320px]">
+        <!-- Dynamic Background Image based on Role -->
+        <div class="absolute inset-0 z-0">
+            <img src="{{ asset($bannerImage) }}?v={{ time() }}" alt="Dashboard Banner" class="w-full h-full object-cover object-center opacity-100">
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/40 to-transparent pointer-events-none"></div>
+        </div>
+
         <!-- Decorative Glow Elements -->
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-12 -right-12 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
+        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none z-0"></div>
 
         <div class="relative z-10 space-y-1">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-1 backdrop-blur-md">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Sistem Operasional Logistik</span>
+                <span>Role Session: <span class="uppercase font-bold">{{ $role }}</span></span>
             </div>
-            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Dashboard Utama</h2>
+            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">{{ $dashboardTitle }}</h2>
             <p class="text-slate-300 text-sm max-w-xl">Selamat datang kembali, <span class="font-bold text-white">{{ auth()->user()->name ?? 'Pengguna' }}</span>! Berikut ringkasan statistik operasional hari ini.</p>
         </div>
         <div class="relative z-10 flex flex-wrap gap-3">

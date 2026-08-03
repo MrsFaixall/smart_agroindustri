@@ -2,19 +2,15 @@
 
 @section('content')
 <div class="space-y-8">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div class="relative z-10 space-y-1">
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Penawaran Penjualan</h1>
-            <p class="text-blue-100/80 text-sm max-w-xl">Tawarkan hasil panen konsumsi Anda ke Koperasi dan negosiasikan harganya.</p>
-        </div>
-        <div class="relative z-10">
-            <a href="{{ route('petani.penawaran-panen.create') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-600/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Buat Penawaran
-            </a>
-        </div>
-    </div>
+        <x-petani-page-header 
+        title="Penawaran Penjualan" 
+        subtitle="Tawarkan hasil panen konsumsi Anda ke Koperasi dan negosiasikan harganya."
+        icon="archive-box"
+        color="emerald"
+        actionUrl="{{ route('petani.penawaran-panen.create') }}"
+        actionText="Buat Penawaran"
+        actionIcon="plus"
+    />
 
     @if(session('success'))
     <div class="p-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
@@ -29,7 +25,9 @@
     @endif
 
     <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-100/60">
-        <table class="w-full border-collapse text-left text-sm">
+    <x-petani-table-filter placeholder="Cari data penawaran penjualan..." />
+
+            <table class="w-full border-collapse text-left text-sm">
             <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-6 py-4">Tanggal</th>

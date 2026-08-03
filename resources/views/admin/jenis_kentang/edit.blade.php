@@ -29,9 +29,11 @@
         </div>
         <div>
             <label class="block text-sm font-medium mb-1">Kategori</label>
-            <select name="kategori" class="w-full border rounded-lg px-3 py-2" required>
-                <option value="benih_hulu" {{ (old('kategori') ?? $item->kategori) == 'benih_hulu' ? 'selected' : '' }}>Benih Hulu</option>
-                <option value="kentang_konsumsi" {{ (old('kategori') ?? $item->kategori) == 'kentang_konsumsi' ? 'selected' : '' }}>Kentang Konsumsi</option>
+            <select name="kategori_kentang_id" class="w-full border rounded-lg px-3 py-2" required>
+                <option value="">-- Pilih Kategori --</option>
+                @foreach($kategoris as $kat)
+                    <option value="{{ $kat->id }}" {{ (old('kategori_kentang_id') ?? $item->kategori_kentang_id) == $kat->id ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
+                @endforeach
             </select>
         </div>
         <button class="bg-blue-900 text-white px-4 py-2 rounded-lg">Update</button>

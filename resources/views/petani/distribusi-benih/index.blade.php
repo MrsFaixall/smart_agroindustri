@@ -6,57 +6,16 @@
 @endphp
 
 <div class="space-y-8">
-    <!-- Header Banner Gradient -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-purple-900 via-indigo-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 space-y-1">
-            @if($isPetani)
-            <div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/90 text-[10px] font-bold tracking-widest uppercase mb-3 border border-white/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                    Penerimaan & Pembelian
-                </span>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Distribusi Benih (Penerimaan)</h1>
-                <p class="text-sm text-slate-300 max-w-xl">Catatan distribusi atau pembelian benih yang Anda terima dari Koperasi.</p>
-            </div>
-            @else
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-1 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                <span>Penyaluran & Kemitraan Petani</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Distribusi Benih</h1>
-            <p class="text-purple-100/80 text-sm max-w-xl">
-                Penyaluran/penjualan benih dari Koperasi ke Petani Mitra.
-            </p>
-            @endif
-        </div>
-        @if(!$isPetani)
-        <div class="relative z-10">
-            <a href="{{ route('distribusi-benih.create') }}" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-purple-600/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Tambah Distribusi
-            </a>
-        </div>
-        @endif
-    </div>
-
-    <!-- Alert Info Alur Data -->
-    @if(!$isPetani)
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-xs">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-bold text-blue-800">Alur Data Distribusi Benih</h3>
-                <div class="mt-1 text-sm text-blue-700">
-                    <p>Halaman ini mencatat penyaluran benih dari Anda ke <strong>Petani</strong>. Data transaksi di sini akan mengambil stok benih Anda, sehingga <strong class="text-blue-900">STOK BENIH AKAN BERKURANG</strong> di menu <strong>Gudang & Stok</strong> Anda.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
+        <x-petani-page-header 
+        title="Distribusi Benih (Penerimaan)" 
+        subtitle="Catatan distribusi atau pembelian benih yang Anda terima dari Koperasi."
+        icon="sparkles"
+        color="teal"
+        bgImage="bg-benih.jpg"
+        actionUrl="{{ route('distribusi-benih.create') }}"
+        actionText="Tambah Distribusi"
+        actionIcon="plus"
+    />
 
     @if(session('success'))
     <div class="p-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
@@ -99,7 +58,9 @@
 
     <!-- Table Card -->
     <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-100/60">
-        <table class="w-full border-collapse text-left text-sm">
+    <x-petani-table-filter placeholder="Cari data distribusi benih (penerimaan)..." />
+
+            <table class="w-full border-collapse text-left text-sm">
             <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-6 py-4">Tanggal</th>

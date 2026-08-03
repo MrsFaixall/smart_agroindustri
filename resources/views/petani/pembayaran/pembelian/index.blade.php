@@ -65,12 +65,14 @@
     <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
-                <h2 class="font-bold text-lg text-slate-800">Daftar Tagihan Penjualan Ke Koperasi</h2>
+                <h2 class="flex items-center gap-2 font-bold text-lg text-slate-800">Daftar Tagihan Penjualan Ke Koperasi</h2>
                 <p class="text-xs text-slate-400">Rincian status pembayaran untuk setiap hasil panen yang disetorkan</p>
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+    <x-petani-table-filter placeholder="Cari data riwayat pembayaran petani..." />
+
+                <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                     <tr>
                         <th class="px-6 py-4">Kode Transaksi</th>

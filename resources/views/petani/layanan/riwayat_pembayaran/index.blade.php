@@ -17,7 +17,9 @@
     </div>
 
     <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-100/60">
-        <table class="w-full border-collapse text-left text-sm">
+    <x-petani-table-filter placeholder="Cari data riwayat pembayaran..." />
+
+            <table class="w-full border-collapse text-left text-sm">
             <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                 <tr>
                     <th class="px-6 py-4">Tanggal Pencairan</th>

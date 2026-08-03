@@ -2,26 +2,16 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Header Banner Gradient -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 space-y-1">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-semibold mb-1 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                <span>Fasilitas & Infrastruktur Logistik</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Manajemen Gudang</h1>
-            <p class="text-slate-300 text-sm max-w-xl">Pantau dan kelola lokasi serta kapasitas penyimpanan logistik di seluruh wilayah.</p>
-        </div>
-        <div class="relative z-10">
-            <a href="{{ route('petani-gudang.create') }}" 
-               class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-600/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Tambah Gudang Baru
-            </a>
-        </div>
-    </div>
+        <x-petani-page-header 
+        title="Manajemen Gudang" 
+        subtitle="Pantau dan kelola lokasi serta kapasitas penyimpanan logistik di seluruh wilayah."
+        icon="building-storefront"
+        color="blue"
+        bgImage="bg-gudang.jpg"
+        actionUrl="{{ route('petani-gudang.create') }}"
+        actionText="Tambah Gudang Baru"
+        actionIcon="plus"
+    />
 
     @if(session('success'))
         <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-5 py-4 text-sm font-semibold text-emerald-800 shadow-sm">
@@ -85,14 +75,16 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         </div>
                         <div>
-                            <h2 class="font-bold text-lg text-slate-800">Daftar Inventaris Gudang</h2>
+                            <h2 class="flex items-center gap-2 font-bold text-lg text-slate-800">Daftar Inventaris Gudang</h2>
                             <p class="text-xs text-slate-400">Kapasitas & lokasi gudang operasional</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-left">
+    <x-petani-table-filter placeholder="Cari data manajemen gudang..." />
+
+                        <table class="w-full text-left">
                         <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                             <tr>
                                 <th class="px-6 py-4">Nama Gudang</th>

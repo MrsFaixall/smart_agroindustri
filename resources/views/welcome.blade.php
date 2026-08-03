@@ -65,8 +65,12 @@
     </nav>
 
     <!-- Hero Section -->
-    <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-bg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="{{ asset('farm-bg.png') }}?v={{ time() }}" alt="Background" class="w-full h-full object-cover opacity-20">
+            <div class="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent"></div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
                 <div class="max-w-2xl">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-semibold mb-6">

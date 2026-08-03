@@ -21,9 +21,22 @@
         h1, h2, h3, h4, h5, h6, .outfit { font-family: 'Outfit', sans-serif; }
     </style>
 </head>
-<body class="antialiased min-h-screen flex items-center justify-center p-4 py-10">
+<body class="antialiased min-h-screen flex bg-white">
 
-    <div class="w-full max-w-lg">
+    <!-- Left Side: Illustration -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-blue-900 overflow-hidden items-center justify-center fixed inset-y-0 left-0">
+        <div class="absolute inset-0 bg-blue-900/30 z-10 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-transparent z-10"></div>
+        <img src="{{ asset('farm-bg.png') }}?v={{ time() }}" alt="Farm Background" class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative z-20 text-center text-white px-12 mt-auto pb-24">
+            <h2 class="text-4xl font-extrabold outfit mb-4 drop-shadow-lg leading-tight">Bergabung Bersama Kami</h2>
+            <p class="text-lg text-blue-50 drop-shadow-md font-medium max-w-md mx-auto">Tingkatkan efisiensi dan jangkauan pasar pertanian Anda melalui platform kami.</p>
+        </div>
+    </div>
+
+    <!-- Right Side: Register Form -->
+    <div class="w-full lg:w-1/2 lg:ml-auto flex items-center justify-center p-4 lg:p-12 overflow-y-auto min-h-screen">
+        <div class="w-full max-w-lg py-8">
         
         <!-- Logo Header -->
         <div class="text-center mb-8">
@@ -126,6 +139,7 @@
                 <p class="text-sm text-slate-500">Sudah punya akun? <a href="{{ route('login') }}" class="font-semibold text-blue-600 hover:underline">Masuk di sini</a></p>
             </div>
         </div>
+    </div>
     </div>
     <script>
         if ('serviceWorker' in navigator) {

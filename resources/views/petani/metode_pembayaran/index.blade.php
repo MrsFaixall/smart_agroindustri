@@ -2,27 +2,16 @@
 
 @section('content')
 <div class="space-y-8">
-    <!-- Header Banner Gradient -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <x-petani-page-header 
+        title="Metode Pembayaran" 
+        subtitle="Kelola rekening bank, e-wallet, dan QRIS untuk penerimaan transaksi hasil panen."
+        icon="credit-card"
+        color="indigo"
+        actionUrl="{{ route('metode-pembayaran.create') }}"
+        actionText="Tambah Metode Baru"
+        actionIcon="plus"
+    />
 
-        <div class="relative z-10 space-y-1">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-semibold mb-1 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                <span>Pencairan & Rekening Petani</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Metode Pembayaran</h1>
-            <p class="text-slate-300 text-sm max-w-xl">Kelola rekening bank, e-wallet, dan QRIS untuk penerimaan transaksi hasil panen.</p>
-        </div>
-        <div class="relative z-10">
-            <a href="{{ route('metode-pembayaran.create') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-600/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Tambah Metode Baru
-            </a>
-        </div>
-    </div>
-
-    <!-- Alert Success -->
     @if(session('success'))
         <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-5 py-4 text-sm font-semibold text-emerald-800 shadow-sm">
             <x-heroicon-o-check-circle class="h-5 w-5 text-emerald-600" /> {{ session('success') }}
@@ -56,7 +45,9 @@
     <!-- Table Card -->
     <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/60 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
+    <x-petani-table-filter placeholder="Cari data metode pembayaran..." />
+
+                <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                     <tr>
                         <th class="px-6 py-4">Kategori</th>

@@ -56,7 +56,9 @@
     <!-- Data Table -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+    <x-petani-table-filter placeholder="Cari data laporan penawaran panen..." />
+
+                <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100">
                     <tr>
                         <th class="px-6 py-4">Tanggal</th><th class="px-6 py-4">Koperasi</th><th class="px-6 py-4">Komoditas</th><th class="px-6 py-4 text-right">Kuantitas</th><th class="px-6 py-4 text-right">Harga/Kg</th><th class="px-6 py-4 text-center">Status</th>

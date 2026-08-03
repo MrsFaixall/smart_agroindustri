@@ -21,9 +21,22 @@
         h1, h2, h3, h4, h5, h6, .outfit { font-family: 'Outfit', sans-serif; }
     </style>
 </head>
-<body class="antialiased min-h-screen flex items-center justify-center p-4">
+<body class="antialiased min-h-screen flex bg-white">
 
-    <div class="w-full max-w-md" x-data="{ 
+    <!-- Left Side: Illustration -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-blue-900 overflow-hidden items-center justify-center">
+        <div class="absolute inset-0 bg-blue-900/30 z-10 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-transparent z-10"></div>
+        <img src="{{ asset('farm-bg.png') }}?v={{ time() }}" alt="Farm Background" class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative z-20 text-center text-white px-12 mt-auto pb-24">
+            <h2 class="text-4xl font-extrabold outfit mb-4 drop-shadow-lg leading-tight">Digitalisasi Pertanian Masa Depan</h2>
+            <p class="text-lg text-blue-50 drop-shadow-md font-medium max-w-md mx-auto">Kelola logistik dan rantai pasok dengan efisien dalam satu ekosistem terpadu.</p>
+        </div>
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-12">
+        <div class="w-full max-w-md" x-data="{ 
             step: 1, 
             selectedRole: '', 
             roleName: '',

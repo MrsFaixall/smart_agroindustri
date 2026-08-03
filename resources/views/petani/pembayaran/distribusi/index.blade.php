@@ -3,19 +3,12 @@
 @section('content')
 <div class="space-y-8">
     <!-- Header VIP -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-[#001842] via-slate-900 to-[#001842] p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 space-y-1">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-1 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Keuangan & Transaksi</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Tagihan Distribusi Benih</h1>
-            <p class="text-slate-300 text-sm max-w-xl">Bayar tagihan distribusi benih yang diterima dari Koperasi.</p>
-        </div>
-    </div>
+        <x-petani-page-header 
+        title="Tagihan Distribusi Benih" 
+        subtitle="Bayar tagihan distribusi benih yang diterima dari Koperasi."
+        icon="credit-card"
+        color="indigo"
+    />
 
     @if(session('success'))
     <div class="p-4 rounded-2xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 shadow-sm flex items-center gap-3">
@@ -79,14 +72,16 @@
         <div class="flex items-center gap-3 mb-4 px-2">
             <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
             <div>
-                <h2 class="text-lg font-bold text-slate-800">Daftar Pengadaan Benih (Tagihan dari Koperasi)</h2>
+                <h2 class="flex items-center gap-2 text-lg font-bold text-slate-800">Daftar Pengadaan Benih (Tagihan dari Koperasi)</h2>
                 <p class="text-xs text-slate-500 font-medium">Seluruh data transaksi tagihan yang perlu diproses atau telah dilunasi.</p>
             </div>
         </div>
 
         <div class="bg-white rounded-3xl shadow-xl shadow-slate-100/60 border border-slate-100 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
+    <x-petani-table-filter placeholder="Cari data tagihan distribusi benih..." />
+
+                    <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead class="bg-slate-50/80 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                         <tr>
                     <th class="px-6 py-4">No. Transaksi (TRX)</th>

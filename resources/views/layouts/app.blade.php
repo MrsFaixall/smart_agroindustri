@@ -53,6 +53,77 @@
             $isKoperasi = $currentRole === 'koperasi';
             $isPetani = $currentRole === 'petani';
             $isMitra = $currentRole === 'mitra';
+            
+            $userId = auth()->id();
+            $notif = [];
+            
+            try {
+                // Common
+                $notif['metode_pembayaran'] = \App\Models\MetodePembayaran::where('user_id', $userId)->count() === 0 ? 1 : 0;
+                
+                // 1. Koperasi Notifs
+                if ($isKoperasi || $isAdmin) {
+                    $notif['koperasi_pengajuan_benih'] = \App\Models\PengajuanBenih::count() === 0 ? 1 : 0;
+                    $notif['koperasi_distribusi_benih'] = \App\Models\DistribusiBenih::count() === 0 ? 1 : 0;
+                    $notif['koperasi_pembelian'] = \App\Models\Pembelian::count() === 0 ? 1 : 0;
+                    $notif['koperasi_penjualan_buah'] = \App\Models\PenjualanBuah::count() === 0 ? 1 : 0;
+                    $notif['koperasi_penawaran_panen'] = \App\Models\PenawaranPanen::count() === 0 ? 1 : 0;
+                    $notif['koperasi_gudang'] = \App\Models\Gudang::where('jenis_gudang', 'koperasi')->count() === 0 ? 1 : 0;
+                    $notif['koperasi_stok'] = \App\Models\Stok::whereHas('gudang', function($q) { $q->where('jenis_gudang', 'koperasi'); })->count() === 0 ? 1 : 0;
+                    $notif['koperasi_harga_pasar'] = \App\Models\HargaPasar::count() === 0 ? 1 : 0;
+                    
+                    // Riwayat Koperasi
+                    $notif['kop_riwayat_pengajuan'] = \App\Models\PengajuanBenih::where('status', '!=', 'menunggu')->count() === 0 ? 1 : 0;
+                    $notif['kop_riwayat_distribusi'] = \App\Models\DistribusiBenih::count() === 0 ? 1 : 0;
+                    $notif['kop_riwayat_penawaran'] = \App\Models\PenawaranPanen::where('status', '!=', 'menunggu')->count() === 0 ? 1 : 0;
+                    $notif['kop_riwayat_pembelian'] = \App\Models\Pembelian::count() === 0 ? 1 : 0;
+                    $notif['kop_riwayat_pembayaran'] = \App\Models\Pembayaran::count() === 0 ? 1 : 0;
+
+                    // Pembayaran Koperasi
+                    $notif['kop_bayar_pembelian'] = \App\Models\Pembayaran::count() === 0 ? 1 : 0;
+                    $notif['kop_bayar_penjualan'] = \App\Models\PembayaranPenjualan::count() === 0 ? 1 : 0;
+                    $notif['kop_bayar_distribusi'] = \App\Models\PembayaranDistribusi::count() === 0 ? 1 : 0;
+
+                    // Laporan Koperasi
+                    $notif['kop_lap_pengajuan'] = $notif['kop_riwayat_pengajuan'];
+                    $notif['kop_lap_distribusi'] = $notif['kop_riwayat_distribusi'];
+                    $notif['kop_lap_penawaran'] = $notif['kop_riwayat_penawaran'];
+                    $notif['kop_lap_pembelian'] = $notif['kop_riwayat_pembelian'];
+                    $notif['kop_lap_pembayaran'] = $notif['kop_riwayat_pembayaran'];
+                }
+
+                // 2. Petani Notifs
+                if ($isPetani || $isAdmin) {
+                    $notif['petani_panen'] = \App\Models\Panen::whereHas('gudang', function($q) use ($userId) { $q->where('user_id', $userId); })->count() === 0 ? 1 : 0;
+                    $notif['petani_stok'] = \App\Models\Stok::whereHas('gudang', function($q) use ($userId) { $q->where('user_id', $userId); })->count() === 0 ? 1 : 0;
+                    $notif['petani_penawaran_panen'] = \App\Models\PenawaranPanen::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['petani_pengajuan_benih'] = \App\Models\PengajuanBenih::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['petani_penanaman'] = \App\Models\PenanamanBenih::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['petani_distribusi_benih'] = \App\Models\DistribusiBenih::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['petani_gudang'] = \App\Models\Gudang::where('user_id', $userId)->where('jenis_gudang', 'petani')->count() === 0 ? 1 : 0;
+                    $notif['petani_atur_harga'] = \App\Models\Harga::where('user_id', $userId)->count() === 0 ? 1 : 0;
+
+                    // Riwayat Petani
+                    $notif['pet_riwayat_pengajuan'] = \App\Models\PengajuanBenih::where('petani_id', $userId)->where('status', '!=', 'menunggu')->count() === 0 ? 1 : 0;
+                    $notif['pet_riwayat_distribusi'] = \App\Models\DistribusiBenih::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['pet_riwayat_penawaran'] = \App\Models\PenawaranPanen::where('petani_id', $userId)->where('status', '!=', 'menunggu')->count() === 0 ? 1 : 0;
+                    $notif['pet_riwayat_pembelian'] = \App\Models\Pembelian::where('petani_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['pet_riwayat_penjualan'] = \App\Models\PenjualanBuah::where('pembeli_id', $userId)->count() === 0 ? 1 : 0;
+                    $notif['pet_riwayat_pembayaran'] = \App\Models\Pembayaran::count() === 0 ? 1 : 0; // simplified
+
+                    // Pembayaran Petani
+                    $notif['pet_bayar_penjualan'] = \App\Models\PembayaranPenjualan::count() === 0 ? 1 : 0;
+                    $notif['pet_bayar_distribusi'] = \App\Models\PembayaranDistribusi::count() === 0 ? 1 : 0;
+
+                    // Laporan Petani
+                    $notif['pet_lap_pengajuan'] = $notif['pet_riwayat_pengajuan'];
+                    $notif['pet_lap_distribusi'] = $notif['pet_riwayat_distribusi'];
+                    $notif['pet_lap_penawaran'] = $notif['pet_riwayat_penawaran'];
+                    $notif['pet_lap_pembelian'] = $notif['pet_riwayat_pembelian'];
+                    $notif['pet_lap_penjualan'] = $notif['pet_riwayat_penjualan'];
+                    $notif['pet_lap_pembayaran'] = $notif['pet_riwayat_pembayaran'];
+                }
+            } catch (\Exception $e) {}
         @endphp
 
         <!-- Navigasi dengan Pengelompokan -->
@@ -151,13 +222,13 @@
 
                 <div x-show="openBenih" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('pengajuan-benih.koperasi') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('pengajuan-benih.koperasi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition flex items-center {{ request()->routeIs('pengajuan-benih.koperasi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
+                        <span>- Pengajuan Benih</span>
+ <x-sidebar-badge :count="$notif['koperasi_pengajuan_benih'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('distribusi-benih.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('distribusi-benih.index') || (request()->routeIs('distribusi-benih.*') && !request()->routeIs('distribusi-benih.index')) ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('distribusi-benih.index') || (request()->routeIs('distribusi-benih.*') && !request()->routeIs('distribusi-benih.index')) ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Distribusi Benih
+                    </span></a>
                 </div>
 
                 <!-- Collapsible Riwayat Layanan Koperasi -->
@@ -175,25 +246,29 @@
 
                 <div x-show="openRiwayat" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('koperasi.layanan.riwayat-pengajuan-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pengajuan Benih
+                    </span>
+ <x-sidebar-badge :count="$notif['koperasi_distribusi_benih'] ?? 0" :pulse="true" />
+ <x-sidebar-badge :count="$notif['kop_riwayat_pengajuan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.layanan.riwayat-distribusi-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Distribusi Benih
+                    </span> <x-sidebar-badge :count="$notif['kop_riwayat_distribusi'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.layanan.riwayat-penawaran-panen') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Penawaran Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Penawaran Panen
+                    </span> <x-sidebar-badge :count="$notif['kop_riwayat_penawaran'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.layanan.riwayat-pembelian') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pembelian
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pembelian
+                    </span>
+ <x-sidebar-badge :count="$notif['kop_riwayat_pembelian'] ?? 0" :pulse="true" />
+ <x-sidebar-badge :count="$notif['petani_distribusi_benih'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.layanan.riwayat-pembayaran') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pembayaran
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.layanan.riwayat-pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pembayaran
+                    </span> <x-sidebar-badge :count="$notif['kop_riwayat_pembayaran'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <!-- Collapsible Jual Beli Panen -->
@@ -211,34 +286,40 @@
 
                 <div x-show="openPanen" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('pembelian.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('pembelian.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembelian Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('pembelian.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembelian Panen
+                    </span>
+ <x-sidebar-badge :count="$notif['koperasi_pembelian'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('penjualan-buah.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('penjualan-buah.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penjualan Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('penjualan-buah.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penjualan Panen
+                    </span>
+ <x-sidebar-badge :count="$notif['koperasi_penjualan_buah'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.penawaran-panen.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.penawaran-panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penawaran Masuk
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition flex items-center {{ request()->routeIs('koperasi.penawaran-panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
+                        <span>- Penawaran Masuk</span>
+ <x-sidebar-badge :count="$notif['koperasi_penawaran_panen'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <a href="{{ route('koperasi.gudang-stok.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.gudang-stok.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     <span class="font-semibold text-sm">Gudang Koperasi</span>
-                </a>
+ <x-sidebar-badge :count="$notif['koperasi_gudang'] ?? 0" :pulse="true" />
+</a>
                 <a href="{{ route('koperasi.stok-koperasi.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.stok-koperasi.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                     <span class="font-semibold text-sm">Stok Koperasi</span>
-                </a>
+ <x-sidebar-badge :count="$notif['koperasi_stok'] ?? 0" :pulse="true" />
+</a>
                 <a href="{{ route('koperasi.atur-harga-pasar.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.atur-harga-pasar.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8v8m0-8V6m0 12v-2m0 0V8" /></svg>
                     <span class="font-semibold text-sm">Atur Harga Pasar</span>
-                </a>
+ <x-sidebar-badge :count="$notif['koperasi_harga_pasar'] ?? 0" :pulse="true" />
+</a>
                 <button type="button" @click="openPembayaranKoperasi = !openPembayaranKoperasi"
                     class="w-full flex items-center justify-between px-4 py-3 rounded-xl {{ $isKoperasiPembayaranActive ? 'bg-slate-100 text-slate-900 font-bold' : 'text-slate-500 hover:bg-slate-50' }} transition mt-2">
                     <div class="flex items-center gap-3">
@@ -252,17 +333,19 @@
                 </button>
                 <div x-show="openPembayaranKoperasi" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('pembayaran.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ (request()->routeIs('pembayaran.index') && !request()->has('view')) ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembelian Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ (request()->routeIs('pembayaran.index') && !request()->has('view')) ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembelian Panen
+                    </span> <x-sidebar-badge :count="$notif['kop_bayar_pembelian'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.pembayaran.penjualan') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.pembayaran.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penjualan Buah
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.pembayaran.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penjualan Buah
+                    </span>
+ <x-sidebar-badge :count="$notif['kop_bayar_penjualan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.pembayaran.distribusi') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.pembayaran.distribusi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.pembayaran.distribusi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Distribusi Benih
+                    </span>
+ <x-sidebar-badge :count="$notif['kop_bayar_distribusi'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <!-- Collapsible Laporan Koperasi -->
@@ -280,25 +363,25 @@
 
                 <div x-show="openLaporan" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('koperasi.laporan.pengajuan-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pengajuan Benih
+                    </span> <x-sidebar-badge :count="$notif['kop_lap_pengajuan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.laporan.distribusi-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Distribusi Benih
+                    </span> <x-sidebar-badge :count="$notif['kop_lap_distribusi'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.laporan.penawaran-panen') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penawaran Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penawaran Panen
+                    </span> <x-sidebar-badge :count="$notif['kop_lap_penawaran'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.laporan.pembelian') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembelian Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembelian Panen
+                    </span> <x-sidebar-badge :count="$notif['kop_lap_pembelian'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('koperasi.laporan.pembayaran') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembayaran Keluar
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('koperasi.laporan.pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembayaran Keluar
+                    </span> <x-sidebar-badge :count="$notif['kop_lap_pembayaran'] ?? 0" :pulse="true" />
+</a>
                 </div>
             </div>
             @endif
@@ -329,17 +412,20 @@
 
                 <div x-show="openPanenPetani" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('panen.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Hasil Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition flex items-center {{ request()->routeIs('panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
+                        <span>- Hasil Panen</span>
+ <x-sidebar-badge :count="$notif['petani_panen'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('stok.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('stok.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Stok Siap Jual
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('stok.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Stok Siap Jual
+                    </span>
+ <x-sidebar-badge :count="$notif['petani_stok'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.penawaran-panen.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.penawaran-panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penawaran Penjualan
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.penawaran-panen.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penawaran Penjualan
+                    </span>
+ <x-sidebar-badge :count="$notif['petani_penawaran_panen'] ?? 0" :pulse="true" />
+</a>
                 </div>
                 
                 <!-- Collapsible Layanan Benih -->
@@ -357,17 +443,20 @@
 
                 <div x-show="open" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('pengajuan-benih.petani') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('pengajuan-benih.petani') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition flex items-center {{ request()->routeIs('pengajuan-benih.petani') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
+                        <span>- Pengajuan Benih</span>
+ <x-sidebar-badge :count="$notif['petani_pengajuan_benih'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('penanaman.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('penanaman.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penanaman Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('penanaman.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penanaman Benih
+                    </span>
+ <x-sidebar-badge :count="$notif['petani_penanaman'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('distribusi-benih.index') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('distribusi-benih.index') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Distribusi / Pembelian Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('distribusi-benih.index') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Distribusi / Pembelian Benih
+                    </span>
+ <x-sidebar-badge :count="$notif['petani_distribusi_benih'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <!-- Collapsible Riwayat Layanan Petani -->
@@ -385,29 +474,29 @@
 
                 <div x-show="openRiwayat" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('petani.layanan.riwayat-pengajuan-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pengajuan Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_pengajuan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.layanan.riwayat-distribusi-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Distribusi Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_distribusi'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.layanan.riwayat-penawaran-panen') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Penawaran Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Penawaran Panen
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_penawaran'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.layanan.riwayat-pembelian') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pembelian
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pembelian
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_pembelian'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.layanan.riwayat-penjualan') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Penjualan
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Penjualan
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_penjualan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.layanan.riwayat-pembayaran') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Riwayat Pembayaran
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.layanan.riwayat-pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Riwayat Pembayaran
+                    </span> <x-sidebar-badge :count="$notif['pet_riwayat_pembayaran'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <!-- Collapsible Kelola Panen Petani -->
@@ -416,17 +505,20 @@
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('petani-gudang.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     <span class="font-semibold text-sm">Gudang Petani</span>
-                </a>
+ <x-sidebar-badge :count="$notif['petani_gudang'] ?? 0" :pulse="true" />
+</a>
                 <a href="{{ route('atur-harga.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('atur-harga.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8v8m0-8V6m0 12v-2m0 0V8" /></svg>
                     <span class="font-semibold text-sm">Atur Harga Petani</span>
-                </a>
+ <x-sidebar-badge :count="$notif['petani_atur_harga'] ?? 0" :pulse="true" />
+</a>
                 <a href="{{ route('metode-pembayaran.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('metode-pembayaran.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     <span class="font-semibold text-sm">Metode Pembayaran</span>
-                </a>
+ <x-sidebar-badge :count="$notif['metode_pembayaran'] ?? 0" :pulse="true" />
+</a>
                 <button type="button" @click="openPembayaranPetani = !openPembayaranPetani"
                     class="w-full flex items-center justify-between px-4 py-3 rounded-xl {{ $isPetaniPembayaranActive ? 'bg-slate-100 text-slate-900 font-bold' : 'text-slate-500 hover:bg-slate-50' }} transition mt-2">
                     <div class="flex items-center gap-3">
@@ -444,13 +536,13 @@
                         - Penjualan Panen
                     </a>
                     <a href="{{ route('petani.pembayaran.penjualan') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.pembayaran.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembelian Buah
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.pembayaran.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembelian Buah
+                    </span> <x-sidebar-badge :count="$notif['pet_bayar_penjualan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.pembayaran.distribusi') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.pembayaran.distribusi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Tagihan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.pembayaran.distribusi') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Tagihan Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_bayar_distribusi'] ?? 0" :pulse="true" />
+</a>
                 </div>
 
                 <!-- Collapsible Laporan Petani -->
@@ -468,29 +560,29 @@
 
                 <div x-show="openLaporan" x-cloak class="pl-4 mt-1 space-y-1">
                     <a href="{{ route('petani.laporan.pengajuan-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pengajuan Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pengajuan-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pengajuan Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_pengajuan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.laporan.distribusi-benih') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Distribusi Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.distribusi-benih') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Distribusi Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_distribusi'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.laporan.penawaran-panen') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penawaran Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.penawaran-panen') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penawaran Panen
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_penawaran'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.laporan.pembelian') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Pembelian Benih
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Pembelian Benih
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_pembelian'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.laporan.penjualan') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Penjualan Panen
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Penjualan Panen
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_penjualan'] ?? 0" :pulse="true" />
+</a>
                     <a href="{{ route('petani.laporan.pembayaran') }}"
-                        class="block px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }}">
-                        - Dana Diterima
-                    </a>
+                        class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('petani.laporan.pembayaran') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between"><span>- Dana Diterima
+                    </span> <x-sidebar-badge :count="$notif['pet_lap_pembayaran'] ?? 0" :pulse="true" />
+</a>
                 </div>
             </div>
             @endif

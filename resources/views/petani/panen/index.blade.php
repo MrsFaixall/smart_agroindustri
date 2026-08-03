@@ -2,25 +2,15 @@
 
 @section('content')
 <div class="space-y-8" x-data="{ searchQuery: '' }">
-    <!-- Header Banner Gradient -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 p-6 md:p-8 rounded-3xl text-white shadow-xl shadow-slate-200/50 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-56 h-56 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-12 right-1/3 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 space-y-1">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold mb-1 backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Pencatatan & Logistik Panen</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Manajemen Panen</h1>
-            <p class="text-emerald-100/80 text-sm max-w-xl">Kelola pencatatan dan pantau status hasil panen komoditas musim ini.</p>
-        </div>
-        <div class="relative z-10">
-            <a href="{{ route('panen.create') }}" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-emerald-500/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Catat Hasil Panen
-            </a>
-        </div>
-    </div>
+        <x-petani-page-header 
+        title="Manajemen Panen" 
+        subtitle="Kelola pencatatan dan pantau status hasil panen komoditas musim ini."
+        icon="archive-box"
+        color="emerald"
+        actionUrl="{{ route('panen.create') }}"
+        actionText="Catat Hasil Panen"
+        actionIcon="plus"
+    />
 
     @if(session('success'))
         <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/90 px-5 py-4 text-sm font-semibold text-emerald-800 shadow-sm">
@@ -180,7 +170,7 @@
     <div class="grid grid-cols-12 gap-8">
         <!-- Left Side: Batch Aktif -->
         <div class="col-span-12 xl:col-span-4 space-y-4">
-            <h2 class="font-bold text-lg text-slate-800">Batch Aktif</h2>
+            <h2 class="flex items-center gap-2 font-bold text-lg text-slate-800">Batch Aktif</h2>
             <div class="space-y-4">
                 @forelse($activeBatches as $batch)
                     @php
@@ -233,7 +223,7 @@
 
         <!-- Right Side: Riwayat Panen -->
         <div class="col-span-12 xl:col-span-8 space-y-4">
-            <h2 class="font-bold text-lg text-slate-800">Riwayat Panen</h2>
+            <h2 class="flex items-center gap-2 font-bold text-lg text-slate-800">Riwayat Panen</h2>
 
             <!-- Search & Filter Bar -->
             <div class="bg-white p-4 rounded-3xl shadow-xl shadow-slate-100/60 border border-slate-100">
@@ -279,7 +269,9 @@
 
             <!-- Table Card -->
             <div class="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-100/60">
-                <table class="w-full border-collapse text-left text-sm">
+    <x-petani-table-filter placeholder="Cari data manajemen panen..." />
+
+                    <table class="w-full border-collapse text-left text-sm">
                     <thead class="bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                         <tr>
                             <th class="px-6 py-4">Tanggal</th>
