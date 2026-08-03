@@ -7,6 +7,14 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- PWA Tags -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <script>
+        window.deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            window.dispatchEvent(new CustomEvent('pwa-prompt-ready'));
+        });
+    </script>
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="{{ asset('icon-192x192.png') }}">
     <!-- Fonts -->
@@ -280,30 +288,30 @@
 
         function pwaInstall() {
             return {
-                deferredPrompt: null,
+                deferredPrompt: window.deferredPrompt,
                 showIosModal: false,
                 showAndroidModal: false,
                 init() {
-                    window.addEventListener('beforeinstallprompt', (e) => {
-                        e.preventDefault();
-                        this.deferredPrompt = e;
+                    window.addEventListener('pwa-prompt-ready', () => {
+                        this.deferredPrompt = window.deferredPrompt;
                     });
                     
                     window.addEventListener('appinstalled', () => {
                         this.deferredPrompt = null;
+                        window.deferredPrompt = null;
                         alert('Aplikasi Agroindustri berhasil terpasang di layar utama Anda!');
                     });
                 },
                 installPwa() {
-                    if (this.deferredPrompt) {
-                        this.deferredPrompt.prompt();
-                        this.deferredPrompt.userChoice.then((choiceResult) => {
+                    const promptEvent = this.deferredPrompt || window.deferredPrompt;
+                    if (promptEvent) {
+                        promptEvent.prompt();
+                        promptEvent.userChoice.then((choiceResult) => {
                             if (choiceResult.outcome === 'accepted') {
                                 console.log('User accepted the install prompt');
-                            } else {
-                                console.log('User dismissed the install prompt');
                             }
                             this.deferredPrompt = null;
+                            window.deferredPrompt = null;
                         });
                     } else {
                         // Open the manual installation guide modal for Android
