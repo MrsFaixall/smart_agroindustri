@@ -42,4 +42,9 @@ class JenisKentang extends Model
     {
         return $this->hasMany(Pembelian::class, 'jenis_kentang_id');
     }
+
+    public function kategoriKentang()
+    {
+        return $this->belongsTo(KategoriKentang::class, 'kategori_kentang_id');
+    }
 }

@@ -22,4 +22,9 @@ class DistribusiBenih extends Model
     {
         return $this->belongsTo(JenisKentang::class, 'jenis_kentang_id');
     }
+
+    public function pembayaranDistribusis()
+    {
+        return $this->hasMany(PembayaranDistribusi::class, 'distribusi_benih_id');
+    }
 }

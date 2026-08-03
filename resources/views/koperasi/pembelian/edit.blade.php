@@ -88,12 +88,17 @@
                 <!-- Pengepul / Koperasi (Pembeli) -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Pengepul / Koperasi (Pembeli) <span class="text-rose-500">*</span></label>
-                    <select name="koperasi_id" id="koperasi_select" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required>
-                        <option value="">Pilih Koperasi / Pengepul</option>
+                    <select name="koperasi_id" id="koperasi_select" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" required {{ auth()->user()->role === 'koperasi' || $koperasis->count() == 1 ? 'disabled' : '' }}>
+                        @if(auth()->user()->role !== 'koperasi' && $koperasis->count() > 1)
+                            <option value="">Pilih Koperasi / Pengepul</option>
+                        @endif
                         @foreach($koperasis as $koperasi)
-                            <option value="{{ $koperasi->id }}" {{ old('koperasi_id', $pembelian->koperasi_id) == $koperasi->id ? 'selected' : '' }}>🏢 {{ $koperasi->name }}</option>
+                            <option value="{{ $koperasi->id }}" {{ (old('koperasi_id', $pembelian->koperasi_id) == $koperasi->id || auth()->id() == $koperasi->id || $koperasis->count() == 1) ? 'selected' : '' }}>🏢 {{ $koperasi->name }}</option>
                         @endforeach
                     </select>
+                    @if(auth()->user()->role === 'koperasi' || $koperasis->count() == 1)
+                        <input type="hidden" name="koperasi_id" value="{{ auth()->user()->role === 'koperasi' ? auth()->id() : $koperasis->first()->id }}">
+                    @endif
                     @error('koperasi_id')
                         <p class="mt-1 text-sm text-rose-500 font-medium">{{ $message }}</p>
                     @enderror
@@ -186,11 +191,8 @@
                 @php $lastPembayaran = $pembelian->pembayarans->last(); @endphp
                 <div id="metode_pembayaran_container">
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Metode Pembayaran (Rekening Tujuan)</label>
-                    <select name="metode_pembayaran_id" id="metode_pembayaran_select" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2">
-                        <option value="">Pilih Rekening Pembayaran</option>
-                        @foreach($metodePembayarans as $metode)
-                            <option value="{{ $metode->id }}" {{ ($lastPembayaran->metode_pembayaran_id ?? null) == $metode->id ? 'selected' : '' }}>{{ $metode->bank }} - {{ $metode->no_rekening }} (a.n {{ $metode->atas_nama }})</option>
-                        @endforeach
+                    <select name="metode_pembayaran_id" id="metode_pembayaran_select" class="w-full rounded-2xl border-slate-200 px-4 py-3 select2" disabled>
+                        <option value="">Pilih Petani / Penjual Terlebih Dahulu</option>
                     </select>
                 </div>
             </div>
@@ -204,6 +206,12 @@
     </div>
 </div>
 
+<script>
+    window.stokPerPetani = {!! $stokPerPetaniJson !!};
+    window.metodePerPetani = {!! $metodePerPetaniJson !!};
+    window.oldMetodePembayaran = "{{ old('metode_pembayaran_id', $pembelian->pembayarans->first()->metode_pembayaran_id ?? '') }}";
+    window.oldJenisKentang = "{{ old('jenis_kentang_id', $pembelian->jenis_kentang_id) }}";
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const jumlahKgInput = document.getElementById('jumlah_kg');
@@ -225,6 +233,86 @@
 
         if (typeof $ !== 'undefined') {
             $('.select2').select2({ width: '100%' });
+
+            
+        const petaniSelect = $('#petani_select');
+        const jenisSelect = $('#jenis_kentang_select');
+
+        function populateJenisKentang() {
+            const petaniId = petaniSelect.val();
+            jenisSelect.empty();
+            
+            if (!petaniId) {
+                jenisSelect.append(new Option("Pilih Petani / Penjual Terlebih Dahulu", ""));
+                jenisSelect.prop('disabled', true);
+                stokStatusCard.className = 'p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 transition-all';
+                stokSiapBadge.className = 'font-bold font-mono text-slate-700 bg-slate-200/80 px-2.5 py-0.5 rounded-lg text-xs';
+                stokSiapBadge.textContent = 'Pilih Komoditas';
+                stokStatusDetail.className = 'text-xs text-slate-500 italic';
+                stokStatusDetail.textContent = 'Silakan pilih jenis kentang untuk memeriksa ketersediaan stok siap dijual.';
+                return;
+            }
+
+            const stoks = window.stokPerPetani[petaniId];
+            if (!stoks || Object.keys(stoks).length === 0) {
+                jenisSelect.append(new Option("Petani ini tidak memiliki Stok Siap Dijual", ""));
+                jenisSelect.prop('disabled', true);
+                stokStatusCard.className = 'p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1.5 transition-all';
+                stokSiapBadge.className = 'font-bold font-mono text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-lg text-xs';
+                stokSiapBadge.textContent = '0 Kg';
+                stokStatusDetail.className = 'text-xs text-rose-700 font-bold';
+                stokStatusDetail.textContent = '⚠️ Petani belum mengalokasikan stok apapun di Manajemen Stok.';
+                return;
+            }
+
+            
+            const metodeSelect = $('#metode_pembayaran_select');
+            
+            // Populate Metode Pembayaran
+            metodeSelect.empty();
+            if (!petaniId) {
+                metodeSelect.append(new Option("Pilih Petani / Penjual Terlebih Dahulu", ""));
+                metodeSelect.prop('disabled', true);
+            } else {
+                const metodes = window.metodePerPetani[petaniId];
+                if (!metodes || metodes.length === 0) {
+                    metodeSelect.append(new Option("Petani ini belum menambahkan Rekening Pembayaran", ""));
+                    metodeSelect.prop('disabled', false); // Still allow form submission if it's cash maybe, but for UI feedback
+                } else {
+                    metodeSelect.prop('disabled', false);
+                    metodeSelect.append(new Option("Pilih Rekening Pembayaran", ""));
+                    for (const m of metodes) {
+                        metodeSelect.append(new Option(`${m.bank} - ${m.no_rekening} (a.n ${m.atas_nama})`, m.id));
+                    }
+                    if (window.oldMetodePembayaran) {
+                        metodeSelect.val(window.oldMetodePembayaran).trigger('change');
+                    }
+                }
+            }
+
+            jenisSelect.prop('disabled', false);
+            jenisSelect.append(new Option("Pilih Jenis Kentang", ""));
+            
+            for (const [jenisId, data] of Object.entries(stoks)) {
+                const stokText = new Intl.NumberFormat('id-ID').format(data.stok_dijual);
+                const optionText = `${data.nama_jenis} — (Stok Siap Dijual: ${stokText} Kg)`;
+                const option = new Option(optionText, jenisId);
+                $(option).attr('data-harga', data.harga);
+                $(option).attr('data-stok-dijual', data.stok_dijual);
+                jenisSelect.append(option);
+            }
+
+            if (window.oldJenisKentang && stoks[window.oldJenisKentang]) {
+                jenisSelect.val(window.oldJenisKentang).trigger('change');
+            }
+        }
+
+        petaniSelect.on('change', populateJenisKentang);
+        
+        // Trigger on load if old value exists
+        if (petaniSelect.val()) {
+            populateJenisKentang();
+        }
 
             $('#jenis_kentang_select').on('change', function() {
                 const harga = $(this).find(':selected').data('harga');

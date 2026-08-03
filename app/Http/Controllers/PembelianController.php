@@ -69,7 +69,6 @@ class PembelianController extends Controller
 
     public function create()
     {
-        // Allow Petani and Konsumen as suppliers/partners interacting with Koperasi
         $petanis = User::whereIn('role', ['petani', 'konsumen'])->get();
         $koperasis = User::where('role', 'koperasi')->get();
         
@@ -77,15 +76,46 @@ class PembelianController extends Controller
             $koperasis = User::whereIn('role', ['admin', 'super admin'])->get();
         }
 
-        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
-            $jenis->stok_siap_dijual = $jenis->stoks->sum('stok_dijual');
-            $jenis->total_stok_fisik = $jenis->stoks->sum('jumlah_stok');
-            $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
-            return $jenis;
-        });
+        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get();
+        
+        $stok_per_petani = [];
+        $semuaStok = Stok::with(['gudang', 'jenisKentang.harga'])->where('stok_dijual', '>', 0)->get();
+        foreach ($semuaStok as $stok) {
+            if (!$stok->gudang || !$stok->gudang->user_id) continue;
+            $petani_id = $stok->gudang->user_id;
+            $jenis_id = $stok->jenis_kentang_id;
+            
+            if (!isset($stok_per_petani[$petani_id])) {
+                $stok_per_petani[$petani_id] = [];
+            }
+            if (!isset($stok_per_petani[$petani_id][$jenis_id])) {
+                $stok_per_petani[$petani_id][$jenis_id] = [
+                    'stok_dijual' => 0,
+                    'nama_jenis' => $stok->jenisKentang->nama_jenis ?? '-',
+                    'harga' => $stok->jenisKentang->harga->harga ?? 0
+                ];
+            }
+            $stok_per_petani[$petani_id][$jenis_id]['stok_dijual'] += $stok->stok_dijual;
+        }
+        $stokPerPetaniJson = json_encode($stok_per_petani);
 
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();
-        return view('koperasi.pembelian.create', compact('petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans'));
+        $metodePerPetani = [];
+        foreach ($metodePembayarans as $metode) {
+            if (!$metode->user_id) continue;
+            if (!isset($metodePerPetani[$metode->user_id])) {
+                $metodePerPetani[$metode->user_id] = [];
+            }
+            $metodePerPetani[$metode->user_id][] = [
+                'id' => $metode->id,
+                'bank' => $metode->bank,
+                'no_rekening' => $metode->no_rekening,
+                'atas_nama' => $metode->atas_nama
+            ];
+        }
+        $metodePerPetaniJson = json_encode($metodePerPetani);
+
+        return view('koperasi.pembelian.create', compact('petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans', 'stokPerPetaniJson', 'metodePerPetaniJson'));
     }
 
     public function store(Request $request)
@@ -102,7 +132,7 @@ class PembelianController extends Controller
         ]);
 
         // STRICT ALUR CEK STOK: Harus mengambil stok siap dijual (`stok_dijual`) di tabel stoks
-        $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('stok_dijual');
+        $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->whereHas('gudang', function($q) use ($data) { $q->where('user_id', $data['petani_id']); })->sum('stok_dijual');
 
         if ($totalStokSiapDijual <= 0) {
             return back()->withErrors([
@@ -135,6 +165,7 @@ class PembelianController extends Controller
             // Potong Stok Siap Dijual & Stok Fisik Petani di tabel stoks
             $jumlah_dibeli = $data['jumlah_kg'];
             $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
+                ->whereHas('gudang', function($q) use ($data) { $q->where('user_id', $data['petani_id']); })
                 ->where('stok_dijual', '>', 0)
                 ->orderBy('id')
                 ->get();
@@ -200,15 +231,61 @@ class PembelianController extends Controller
             $koperasis = User::whereIn('role', ['admin', 'super admin'])->get();
         }
 
-        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get()->map(function($jenis) {
-            $jenis->stok_siap_dijual = $jenis->stoks->sum('stok_dijual');
-            $jenis->total_stok_fisik = $jenis->stoks->sum('jumlah_stok');
-            $jenis->harga_per_kg = $jenis->harga ? $jenis->harga->harga : 0;
-            return $jenis;
-        });
+        $jenisKentangs = JenisKentang::with(['harga', 'stoks.gudang'])->get();
+
+        $stok_per_petani = [];
+        $semuaStok = Stok::with(['gudang', 'jenisKentang.harga'])->where('stok_dijual', '>', 0)->get();
+        
+        // Include the current transaction's stock so it shows up in edit mode
+        if ($pembelian) {
+            $pet_id = $pembelian->petani_id;
+            $jen_id = $pembelian->jenis_kentang_id;
+            if (!isset($stok_per_petani[$pet_id])) $stok_per_petani[$pet_id] = [];
+            if (!isset($stok_per_petani[$pet_id][$jen_id])) {
+                $jks = JenisKentang::with('harga')->find($jen_id);
+                $stok_per_petani[$pet_id][$jen_id] = [
+                    'stok_dijual' => 0,
+                    'nama_jenis' => $jks->nama_jenis ?? '-',
+                    'harga' => $jks->harga->harga ?? 0
+                ];
+            }
+            $stok_per_petani[$pet_id][$jen_id]['stok_dijual'] += $pembelian->jumlah_kg;
+        }
+
+        foreach ($semuaStok as $stok) {
+            if (!$stok->gudang || !$stok->gudang->user_id) continue;
+            $petani_id = $stok->gudang->user_id;
+            $jenis_id = $stok->jenis_kentang_id;
+            
+            if (!isset($stok_per_petani[$petani_id])) $stok_per_petani[$petani_id] = [];
+            if (!isset($stok_per_petani[$petani_id][$jenis_id])) {
+                $stok_per_petani[$petani_id][$jenis_id] = [
+                    'stok_dijual' => 0,
+                    'nama_jenis' => $stok->jenisKentang->nama_jenis ?? '-',
+                    'harga' => $stok->jenisKentang->harga->harga ?? 0
+                ];
+            }
+            $stok_per_petani[$petani_id][$jenis_id]['stok_dijual'] += $stok->stok_dijual;
+        }
+        $stokPerPetaniJson = json_encode($stok_per_petani);
 
         $metodePembayarans = MetodePembayaran::with('user')->latest()->get();
-        return view('koperasi.pembelian.edit', compact('pembelian', 'petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans'));
+        $metodePerPetani = [];
+        foreach ($metodePembayarans as $metode) {
+            if (!$metode->user_id) continue;
+            if (!isset($metodePerPetani[$metode->user_id])) {
+                $metodePerPetani[$metode->user_id] = [];
+            }
+            $metodePerPetani[$metode->user_id][] = [
+                'id' => $metode->id,
+                'bank' => $metode->bank,
+                'no_rekening' => $metode->no_rekening,
+                'atas_nama' => $metode->atas_nama
+            ];
+        }
+        $metodePerPetaniJson = json_encode($metodePerPetani);
+
+        return view('koperasi.pembelian.edit', compact('pembelian', 'petanis', 'koperasis', 'jenisKentangs', 'metodePembayarans', 'stokPerPetaniJson', 'metodePerPetaniJson'));
     }
 
     public function update(Request $request, string $id)
@@ -240,7 +317,7 @@ class PembelianController extends Controller
                 }
 
                 // Strictly Validate stok_dijual yang baru
-                $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->sum('stok_dijual');
+                $totalStokSiapDijual = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])->whereHas('gudang', function($q) use ($data) { $q->where('user_id', $data['petani_id']); })->sum('stok_dijual');
                 
                 if ($totalStokSiapDijual <= 0) {
                     throw new \Exception('Pembelian tidak dapat dilakukan! Belum ada alokasi "Stok Siap Dijual" di Manajemen Stok untuk komoditas ini.');
@@ -272,6 +349,7 @@ class PembelianController extends Controller
                 // Kurangi stok siap dijual & fisik Petani di tabel stoks
             $jumlah_dibeli = $data['jumlah_kg'];
             $stoks = Stok::where('jenis_kentang_id', $data['jenis_kentang_id'])
+                ->whereHas('gudang', function($q) use ($data) { $q->where('user_id', $data['petani_id']); })
                 ->where('stok_dijual', '>', 0)
                 ->orderBy('id')
                 ->get();

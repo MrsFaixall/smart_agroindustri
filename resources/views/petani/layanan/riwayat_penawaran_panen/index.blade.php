@@ -84,6 +84,10 @@
             </tbody>
         </table>
     </div>
+
+    @if($penawarans->isNotEmpty())
+        @include('partials.pagination', ['paginator' => $penawarans, 'label' => 'riwayat penawaran panen'])
+    @endif
     
     <div class="mt-4">
         {{ $penawarans->links() }}

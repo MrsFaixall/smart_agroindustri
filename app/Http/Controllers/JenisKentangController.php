@@ -16,7 +16,8 @@ class JenisKentangController extends Controller
 
     public function create()
     {
-        return view('admin.jenis_kentang.create');
+        $kategoris = \App\Models\KategoriKentang::all();
+        return view('admin.jenis_kentang.create', compact('kategoris'));
     }
 
     public function store(Request $request) {
@@ -25,7 +26,7 @@ class JenisKentangController extends Controller
             'deskripsi' => 'required|string',
             'satuan' => 'required|string|max:100',
             'kualitas' => 'required|string|max:100',
-            'kategori' => 'required|in:benih_hulu,kentang_konsumsi',
+            'kategori_kentang_id' => 'required|exists:kategori_kentangs,id',
         ]);
 
         JenisKentang::create($request->all());
@@ -34,7 +35,8 @@ class JenisKentangController extends Controller
 
     public function edit($id) {
         $item = JenisKentang::findOrFail($id);
-        return view('admin.jenis_kentang.edit', compact('item'));
+        $kategoris = \App\Models\KategoriKentang::all();
+        return view('admin.jenis_kentang.edit', compact('item', 'kategoris'));
     }
 
     public function update(Request $request, $id) {
@@ -43,7 +45,7 @@ class JenisKentangController extends Controller
             'deskripsi' => 'required|string',
             'satuan' => 'required|string|max:100',
             'kualitas' => 'required|string|max:100',
-            'kategori' => 'required|in:benih_hulu,kentang_konsumsi',
+            'kategori_kentang_id' => 'required|exists:kategori_kentangs,id',
         ]);
 
         JenisKentang::findOrFail($id)->update($request->all());

@@ -131,13 +131,8 @@
                         <!-- Dropdown Rekening Manual -->
                         <div id="manual-account-select-wrapper" class="hidden space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-fadeIn">
                             <label for="manual_bank_select" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pilih Rekening Tujuan</label>
-                            <select id="manual_bank_select" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white text-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-semibold">
-                                <option value="" disabled selected>-- Pilih Rekening Transfer Manual --</option>
-                                @foreach($methods as $metode)
-                                    <option value="{{ $metode->id }}">
-                                        🏢 {{ $metode->kategori }} - {{ $metode->bank }} (A/N {{ $metode->atas_nama }} - {{ $metode->no_rekening }})
-                                    </option>
-                                @endforeach
+                            <select id="manual_bank_select" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white text-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-semibold" disabled>
+                                <option value="" disabled selected>-- Pilih Transaksi Terlebih Dahulu --</option>
                             </select>
                         </div>
 
@@ -316,6 +311,10 @@
 </div>
 
 <script>
+    window.metodePerPetani = {!! isset($metodePerPetaniJson) ? $metodePerPetaniJson : '{}' !!};
+    window.notifyRoute = "{{ route('koperasi.pembayaran.notify-petani') }}";
+</script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         const pembelianSelect = document.getElementById('pembelian_id');
         const summaryPetani = document.getElementById('summary-petani');
@@ -338,16 +337,76 @@
         function updateSummary() {
             if (!pembelianSelect) return;
             const selectedOption = pembelianSelect.options[pembelianSelect.selectedIndex];
+            
+            // Reset manual bank select
+            if (manualBankSelect) {
+                manualBankSelect.innerHTML = '';
+            }
+
             if (selectedOption && selectedOption.value) {
                 const petani = selectedOption.getAttribute('data-petani');
+                const petaniId = selectedOption.getAttribute('data-petani-id');
                 const total = parseFloat(selectedOption.getAttribute('data-total')) || 0;
                 summaryPetani.textContent = petani;
                 summaryTotal.textContent = 'Rp ' + total.toLocaleString('id-ID');
                 jumlahBayar.value = total;
+
+                // Populate manual bank select
+                if (manualBankSelect && petaniId) {
+                    const metodes = window.metodePerPetani[petaniId];
+                    if (!metodes || metodes.length === 0) {
+                        manualBankSelect.disabled = true;
+                        const opt = document.createElement('option');
+                        opt.value = "";
+                        opt.disabled = true;
+                        opt.selected = true;
+                        opt.textContent = "Petani belum mendaftarkan Rekening Bank";
+                        manualBankSelect.appendChild(opt);
+                        
+                        // Send notification to Petani
+                        fetch(window.notifyRoute, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ petani_id: petaniId })
+                        }).then(res => res.json()).then(data => {
+                            if (data.success) {
+                                console.log("Notification sent:", data.message);
+                            }
+                        }).catch(err => console.error(err));
+                    } else {
+                        manualBankSelect.disabled = false;
+                        const opt = document.createElement('option');
+                        opt.value = "";
+                        opt.disabled = true;
+                        opt.selected = true;
+                        opt.textContent = "-- Pilih Rekening Transfer Manual --";
+                        manualBankSelect.appendChild(opt);
+                        
+                        metodes.forEach(m => {
+                            const option = document.createElement('option');
+                            option.value = m.id;
+                            option.textContent = `🏢 ${m.kategori} - ${m.bank} (A/N ${m.atas_nama} - ${m.no_rekening})`;
+                            manualBankSelect.appendChild(option);
+                        });
+                    }
+                }
             } else {
                 summaryPetani.textContent = '-';
                 summaryTotal.textContent = 'Rp 0';
                 jumlahBayar.value = '';
+                
+                if (manualBankSelect) {
+                    manualBankSelect.disabled = true;
+                    const opt = document.createElement('option');
+                    opt.value = "";
+                    opt.disabled = true;
+                    opt.selected = true;
+                    opt.textContent = "-- Pilih Transaksi Terlebih Dahulu --";
+                    manualBankSelect.appendChild(opt);
+                }
             }
         }
 

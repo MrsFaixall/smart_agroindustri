@@ -3,6 +3,7 @@
     "short_name": "Agroindustri",
     "description": "Platform Manajemen Logistik & Kemitraan Koperasi Pertanian",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#001842",
     "theme_color": "#001842",

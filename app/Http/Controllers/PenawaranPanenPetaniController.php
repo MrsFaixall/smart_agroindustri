@@ -44,7 +44,7 @@ class PenawaranPanenPetaniController extends Controller
                 $q->where('user_id', Auth::id());
             })
             ->whereHas('jenisKentang', function($q) {
-                $q->where('kategori', 'kentang_konsumsi');
+                $q->whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'konsumsi'); });
             })
             ->where('stok_dijual', '>', 0)
             ->get();

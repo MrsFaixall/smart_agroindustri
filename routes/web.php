@@ -9,11 +9,14 @@ use App\Http\Controllers\{
     PanenController,
     StokController,
     PembayaranController,
+    PembayaranPenjualanController,
+    PembayaranDistribusiController,
     MetodePembayaranController,
     LaporanController,
     PengaturanController,
     BbmController,
     JenisKentangController,
+    KategoriKentangController,
     HargaController,
     UserController,
     MidtransController,
@@ -56,39 +59,52 @@ Route::middleware(['auth.custom'])->group(function () {
     //master data (admin)
     Route::resource('admin/bbm', BbmController::class, ['as' => 'admin']);
     Route::resource('admin/jenis_kentang', JenisKentangController::class, ['as' => 'admin']);
+    Route::resource('admin/kategori_kentang', KategoriKentangController::class, ['as' => 'admin']);
     Route::resource('pengguna', UserController::class);
 
     //petani
     // 2. CRUD Gudang (Gunakan Resource agar singkat)
-    Route::get('petani-gudang/wilayah/{level}/{parentId?}', [GudangController::class, 'wilayah'])
-        ->whereIn('level', ['provinsi', 'kota', 'kecamatan', 'kelurahan'])
-        ->whereNumber('parentId')
-        ->name('petani-gudang.wilayah');
-    Route::get('petani-gudang/cari-lokasi', [GudangController::class, 'cariLokasi'])->name('petani-gudang.cari-lokasi');
-    Route::resource('petani-gudang', GudangController::class);
+    Route::middleware('role:petani,admin,super admin')->group(function() {
+        Route::get('petani-gudang/wilayah/{level}/{parentId?}', [GudangController::class, 'wilayah'])
+            ->whereIn('level', ['provinsi', 'kota', 'kecamatan', 'kelurahan'])
+            ->whereNumber('parentId')
+            ->name('petani-gudang.wilayah');
+        Route::get('petani-gudang/cari-lokasi', [GudangController::class, 'cariLokasi'])->name('petani-gudang.cari-lokasi');
+        Route::resource('petani-gudang', GudangController::class);
+        
+        Route::resource('stok', StokController::class);
+            
+        // Penawaran Penjualan Panen (ke Koperasi)
+        Route::resource('penawaran-panen', \App\Http\Controllers\PenawaranPanenPetaniController::class, [
+            'as' => 'petani'
+        ])->only(['index', 'create', 'store', 'update']);
+            
+        // Pembayaran
+        Route::resource('pembayaran-petani', PembayaranController::class);
+
+        // Tambahan Pembayaran Petani (Collapsible)
+        Route::get('/petani/pembayaran/penjualan', [PembayaranPenjualanController::class, 'index'])->name('petani.pembayaran.penjualan');
+        Route::get('/petani/pembayaran/distribusi', [PembayaranDistribusiController::class, 'index'])->name('petani.pembayaran.distribusi');
+
+        Route::resource('atur-harga', HargaController::class);
+    });
     Route::resource('mitra-gudang', MitraGudangController::class);
-    Route::resource('stok', StokController::class);
-        
-    // Penawaran Penjualan Panen (ke Koperasi)
-    Route::resource('penawaran-panen', \App\Http\Controllers\PenawaranPanenPetaniController::class, [
-        'as' => 'petani'
-    ])->only(['index', 'create', 'store', 'update']);
-        
-    // Pembayaran
-    Route::resource('pembayaran-petani', PembayaranController::class);
-    Route::resource('atur-harga', HargaController::class);
 
     // 3. CRUD Pembelian
     Route::resource('pembelian', PembelianController::class);
 
     // 3.1. CRUD Transaksi Koperasi (Pengadaan Benih, Distribusi Benih, Penjualan Buah)
-    Route::get('petani/pengajuan-benih', [PengajuanBenihController::class, 'indexPetani'])->name('pengajuan-benih.petani');
-    Route::get('petani/pengajuan-benih/create', [PengajuanBenihController::class, 'create'])->name('pengajuan-benih.create');
-    Route::post('petani/pengajuan-benih', [PengajuanBenihController::class, 'store'])->name('pengajuan-benih.store');
+    Route::middleware('role:petani,admin,super admin')->group(function() {
+        Route::get('petani/pengajuan-benih', [PengajuanBenihController::class, 'indexPetani'])->name('pengajuan-benih.petani');
+        Route::get('petani/pengajuan-benih/create', [PengajuanBenihController::class, 'create'])->name('pengajuan-benih.create');
+        Route::post('petani/pengajuan-benih', [PengajuanBenihController::class, 'store'])->name('pengajuan-benih.store');
+    });
     
-    Route::get('koperasi/pengajuan-benih', [PengajuanBenihController::class, 'indexKoperasi'])->name('pengajuan-benih.koperasi');
-    Route::post('koperasi/pengajuan-benih/{id}/approve', [PengajuanBenihController::class, 'approve'])->name('pengajuan-benih.approve');
-    Route::post('koperasi/pengajuan-benih/{id}/reject', [PengajuanBenihController::class, 'reject'])->name('pengajuan-benih.reject');
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::get('koperasi/pengajuan-benih', [PengajuanBenihController::class, 'indexKoperasi'])->name('pengajuan-benih.koperasi');
+        Route::post('koperasi/pengajuan-benih/{id}/approve', [PengajuanBenihController::class, 'approve'])->name('pengajuan-benih.approve');
+        Route::post('koperasi/pengajuan-benih/{id}/reject', [PengajuanBenihController::class, 'reject'])->name('pengajuan-benih.reject');
+    });
 
     Route::get('pengadaan-benih', [PengadaanBenihController::class, 'index'])->name('pengadaan-benih.index');
     Route::get('pengadaan-benih/create', [PengadaanBenihController::class, 'create'])->name('pengadaan-benih.create');
@@ -104,69 +120,129 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('distribusi-benih/{id}', [DistribusiBenihController::class, 'destroy'])->name('distribusi-benih.destroy');
 
     // Riwayat Layanan (Petani & Koperasi) — tanpa controller baru, pakai closure
-    Route::get('petani/layanan/riwayat-pengajuan-benih', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\PengajuanBenih::with(['koperasi', 'jenisKentang']);
-        if ($user->role === 'petani') {
-            $query->where('petani_id', $user->id);
-        }
-        $pengajuans = $query->latest()->paginate(10);
-        return view('petani.layanan.riwayat_pengajuan_benih.index', compact('pengajuans'));
-    })->name('petani.layanan.riwayat-pengajuan-benih');
+    Route::middleware('role:petani,admin,super admin')->group(function() {
+        Route::get('petani/layanan/riwayat-pengajuan-benih', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\PengajuanBenih::with(['koperasi', 'jenisKentang']);
+            if ($user->role === 'petani') {
+                $query->where('petani_id', $user->id);
+            }
+            $pengajuans = $query->latest()->paginate(10);
+            return view('petani.layanan.riwayat_pengajuan_benih.index', compact('pengajuans'));
+        })->name('petani.layanan.riwayat-pengajuan-benih');
 
-    Route::get('petani/layanan/riwayat-distribusi-benih', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\DistribusiBenih::with(['petani', 'jenisKentang', 'koperasi']);
-        if ($user->role === 'petani') {
-            $query->where('petani_id', $user->id);
-        }
-        $transaksis = $query->latest()->paginate(10)->withQueryString();
-        $totalNilai = $query->sum('total_harga');
-        return view('petani.layanan.riwayat_distribusi_benih.index', compact('transaksis', 'totalNilai'));
-    })->name('petani.layanan.riwayat-distribusi-benih');
+        Route::get('petani/layanan/riwayat-distribusi-benih', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\DistribusiBenih::with(['petani', 'jenisKentang', 'koperasi']);
+            if ($user->role === 'petani') {
+                $query->where('petani_id', $user->id);
+            }
+            $transaksis = $query->latest()->paginate(10)->withQueryString();
+            $totalNilai = $query->sum('total_harga');
+            return view('petani.layanan.riwayat_distribusi_benih.index', compact('transaksis', 'totalNilai'));
+        })->name('petani.layanan.riwayat-distribusi-benih');
 
-    Route::get('koperasi/layanan/riwayat-pengajuan-benih', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\PengajuanBenih::with(['petani', 'jenisKentang']);
-        if ($user->role === 'koperasi') {
-            $query->where('koperasi_id', $user->id);
-        }
-        $pengajuans = $query->latest()->paginate(10);
-        return view('koperasi.layanan.riwayat_pengajuan_benih.index', compact('pengajuans'));
-    })->name('koperasi.layanan.riwayat-pengajuan-benih');
+        Route::get('petani/layanan/riwayat-pembelian', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\PenjualanBuah::with(['koperasi', 'pembeli', 'jenisKentang']);
+            if ($user->role === 'petani') {
+                $query->where('pembeli_id', $user->id);
+            }
+            $transaksis = $query->latest()->paginate(10);
+            return view('petani.layanan.riwayat_pembelian.index', compact('transaksis'));
+        })->name('petani.layanan.riwayat-pembelian');
 
-    Route::get('koperasi/layanan/riwayat-distribusi-benih', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\DistribusiBenih::with(['petani', 'jenisKentang', 'koperasi']);
-        if ($user->role === 'koperasi') {
-            $query->where('koperasi_id', $user->id);
-        }
-        $transaksis = $query->latest()->paginate(10)->withQueryString();
-        $totalNilai = $query->sum('total_harga');
-        return view('koperasi.layanan.riwayat_distribusi_benih.index', compact('transaksis', 'totalNilai'));
-    })->name('koperasi.layanan.riwayat-distribusi-benih');
+        Route::get('petani/layanan/riwayat-penjualan', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\Pembelian::with(['petani', 'koperasi', 'jenisKentang']);
+            if ($user->role === 'petani') {
+                $query->where('petani_id', $user->id);
+            }
+            $transaksis = $query->latest()->paginate(10);
+            return view('petani.layanan.riwayat_penjualan.index', compact('transaksis'));
+        })->name('petani.layanan.riwayat-penjualan');
 
-    Route::get('petani/layanan/riwayat-penawaran-panen', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\PenawaranPanen::with(['koperasi', 'jenisKentang', 'gudang']);
-        if ($user->role === 'petani') {
-            $query->where('petani_id', $user->id);
-        }
-        $query->whereIn('status', ['disetujui', 'ditolak']);
-        $penawarans = $query->latest()->paginate(10);
-        return view('petani.layanan.riwayat_penawaran_panen.index', compact('penawarans'));
-    })->name('petani.layanan.riwayat-penawaran-panen');
+        Route::get('petani/layanan/riwayat-pembayaran', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\Pembayaran::with(['pembelian.koperasi', 'metodePembayaran'])->whereHas('pembelian', function($q) use ($user) {
+                if ($user->role === 'petani') {
+                    $q->where('petani_id', $user->id);
+                }
+            });
+            $transaksis = $query->latest()->paginate(10);
+            return view('petani.layanan.riwayat_pembayaran.index', compact('transaksis'));
+        })->name('petani.layanan.riwayat-pembayaran');
+    });
 
-    Route::get('koperasi/layanan/riwayat-penawaran-panen', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $query = \App\Models\PenawaranPanen::with(['petani', 'jenisKentang', 'gudang']);
-        if ($user->role === 'koperasi') {
-            $query->where('koperasi_id', $user->id);
-        }
-        $query->whereIn('status', ['disetujui', 'ditolak']);
-        $penawarans = $query->latest()->paginate(10);
-        return view('koperasi.layanan.riwayat_penawaran_panen.index', compact('penawarans'));
-    })->name('koperasi.layanan.riwayat-penawaran-panen');
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::get('koperasi/layanan/riwayat-pengajuan-benih', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\PengajuanBenih::with(['petani', 'jenisKentang']);
+            if ($user->role === 'koperasi') {
+                $query->where('koperasi_id', $user->id);
+            }
+            $pengajuans = $query->latest()->paginate(10);
+            return view('koperasi.layanan.riwayat_pengajuan_benih.index', compact('pengajuans'));
+        })->name('koperasi.layanan.riwayat-pengajuan-benih');
+
+        Route::get('koperasi/layanan/riwayat-distribusi-benih', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\DistribusiBenih::with(['petani', 'jenisKentang', 'koperasi']);
+            if ($user->role === 'koperasi') {
+                $query->where('koperasi_id', $user->id);
+            }
+            $transaksis = $query->latest()->paginate(10)->withQueryString();
+            $totalNilai = $query->sum('total_harga');
+            return view('koperasi.layanan.riwayat_distribusi_benih.index', compact('transaksis', 'totalNilai'));
+        })->name('koperasi.layanan.riwayat-distribusi-benih');
+
+        Route::get('koperasi/layanan/riwayat-pembelian', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\Pembelian::with(['petani', 'koperasi', 'jenisKentang']);
+            if ($user->role === 'koperasi') {
+                $query->where('koperasi_id', $user->id);
+            }
+            $transaksis = $query->latest()->paginate(10);
+            return view('koperasi.layanan.riwayat_pembelian.index', compact('transaksis'));
+        })->name('koperasi.layanan.riwayat-pembelian');
+
+        Route::get('koperasi/layanan/riwayat-pembayaran', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\Pembayaran::with(['pembelian.petani', 'metodePembayaran'])->whereHas('pembelian', function($q) use ($user) {
+                if ($user->role === 'koperasi') {
+                    $q->where('koperasi_id', $user->id);
+                }
+            });
+            $transaksis = $query->latest()->paginate(10);
+            return view('koperasi.layanan.riwayat_pembayaran.index', compact('transaksis'));
+        })->name('koperasi.layanan.riwayat-pembayaran');
+    });
+
+    Route::middleware('role:petani,admin,super admin')->group(function() {
+        Route::get('petani/layanan/riwayat-penawaran-panen', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\PenawaranPanen::with(['koperasi', 'jenisKentang', 'gudang']);
+            if ($user->role === 'petani') {
+                $query->where('petani_id', $user->id);
+            }
+            $query->whereIn('status', ['disetujui', 'ditolak']);
+            $penawarans = $query->latest()->paginate(10);
+            return view('petani.layanan.riwayat_penawaran_panen.index', compact('penawarans'));
+        })->name('petani.layanan.riwayat-penawaran-panen');
+    });
+
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::get('koperasi/layanan/riwayat-penawaran-panen', function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $query = \App\Models\PenawaranPanen::with(['petani', 'jenisKentang', 'gudang']);
+            if ($user->role === 'koperasi') {
+                $query->where('koperasi_id', $user->id);
+            }
+            $query->whereIn('status', ['disetujui', 'ditolak']);
+            $penawarans = $query->latest()->paginate(10);
+            return view('koperasi.layanan.riwayat_penawaran_panen.index', compact('penawarans'));
+        })->name('koperasi.layanan.riwayat-penawaran-panen');
+    });
 
     Route::get('penjualan-buah', [PenjualanBuahController::class, 'index'])->name('penjualan-buah.index');
     Route::get('penjualan-buah/create', [PenjualanBuahController::class, 'create'])->name('penjualan-buah.create');
@@ -175,31 +251,65 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('penjualan-buah/{id}', [PenjualanBuahController::class, 'destroy'])->name('penjualan-buah.destroy');
 
     // Penawaran Masuk (Dari Petani)
-    Route::resource('koperasi/penawaran-panen', \App\Http\Controllers\PenawaranPanenKoperasiController::class, [
-        'as' => 'koperasi'
-    ])->only(['index', 'update']);
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::resource('koperasi/penawaran-panen', \App\Http\Controllers\PenawaranPanenKoperasiController::class, [
+            'as' => 'koperasi'
+        ])->only(['index', 'update']);
+    });
 
     // 3.2. Koperasi Gudang & Stok
-    Route::get('koperasi/gudang-stok', [KoperasiGudangStokController::class, 'index'])->name('koperasi.gudang-stok.index');
-    Route::get('koperasi/gudang-stok/create-gudang', [KoperasiGudangStokController::class, 'createGudang'])->name('koperasi.gudang-stok.create-gudang');
-    Route::post('koperasi/gudang-stok/store-gudang', [KoperasiGudangStokController::class, 'storeGudang'])->name('koperasi.gudang-stok.store-gudang');
-    Route::get('koperasi/gudang-stok/edit-gudang/{id}', [KoperasiGudangStokController::class, 'editGudang'])->name('koperasi.gudang-stok.edit-gudang');
-    Route::put('koperasi/gudang-stok/update-gudang/{id}', [KoperasiGudangStokController::class, 'updateGudang'])->name('koperasi.gudang-stok.update-gudang');
-    Route::delete('koperasi/gudang-stok/destroy-gudang/{id}', [KoperasiGudangStokController::class, 'destroyGudang'])->name('koperasi.gudang-stok.destroy-gudang');
-    Route::get('koperasi/gudang-stok/edit-stok/{id}', [KoperasiGudangStokController::class, 'editStok'])->name('koperasi.gudang-stok.edit-stok');
-    Route::put('koperasi/gudang-stok/update-stok/{id}', [KoperasiGudangStokController::class, 'updateStok'])->name('koperasi.gudang-stok.update-stok');
-    Route::delete('koperasi/gudang-stok/destroy-stok/{id}', [KoperasiGudangStokController::class, 'destroyStok'])->name('koperasi.gudang-stok.destroy-stok');
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::get('koperasi/gudang-stok', [KoperasiGudangStokController::class, 'index'])->name('koperasi.gudang-stok.index');
+        Route::get('koperasi/gudang-stok/create-gudang', [KoperasiGudangStokController::class, 'createGudang'])->name('koperasi.gudang-stok.create-gudang');
+        Route::post('koperasi/gudang-stok/store-gudang', [KoperasiGudangStokController::class, 'storeGudang'])->name('koperasi.gudang-stok.store-gudang');
+        Route::get('koperasi/gudang-stok/edit-gudang/{id}', [KoperasiGudangStokController::class, 'editGudang'])->name('koperasi.gudang-stok.edit-gudang');
+        Route::put('koperasi/gudang-stok/update-gudang/{id}', [KoperasiGudangStokController::class, 'updateGudang'])->name('koperasi.gudang-stok.update-gudang');
+        Route::delete('koperasi/gudang-stok/destroy-gudang/{id}', [KoperasiGudangStokController::class, 'destroyGudang'])->name('koperasi.gudang-stok.destroy-gudang');
+        Route::get('koperasi/gudang-stok/edit-stok/{id}', [KoperasiGudangStokController::class, 'editStok'])->name('koperasi.gudang-stok.edit-stok');
+        Route::put('koperasi/gudang-stok/update-stok/{id}', [KoperasiGudangStokController::class, 'updateStok'])->name('koperasi.gudang-stok.update-stok');
+        Route::delete('koperasi/gudang-stok/destroy-stok/{id}', [KoperasiGudangStokController::class, 'destroyStok'])->name('koperasi.gudang-stok.destroy-stok');
+    });
 
-    // 3.3. Koperasi Harga Pasar
-    Route::resource('koperasi/atur-harga-pasar', KoperasiHargaPasarController::class, ['as' => 'koperasi']);
+    // 3.3. Koperasi Harga Pasar & Laporan
+    Route::middleware('role:koperasi,admin,super admin')->group(function() {
+        Route::resource('koperasi/atur-harga-pasar', KoperasiHargaPasarController::class, ['as' => 'koperasi']);
+        
+        // Laporan Koperasi
+        Route::get('koperasi/laporan/pengajuan-benih', [\App\Http\Controllers\KoperasiLaporanController::class, 'pengajuanBenih'])->name('koperasi.laporan.pengajuan-benih');
+        Route::get('koperasi/laporan/pengajuan-benih/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPengajuanBenih'])->name('koperasi.laporan.pengajuan-benih.export');
+        Route::get('koperasi/laporan/distribusi-benih', [\App\Http\Controllers\KoperasiLaporanController::class, 'distribusiBenih'])->name('koperasi.laporan.distribusi-benih');
+        Route::get('koperasi/laporan/distribusi-benih/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportDistribusiBenih'])->name('koperasi.laporan.distribusi-benih.export');
+        Route::get('koperasi/laporan/penawaran-panen', [\App\Http\Controllers\KoperasiLaporanController::class, 'penawaranPanen'])->name('koperasi.laporan.penawaran-panen');
+        Route::get('koperasi/laporan/penawaran-panen/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPenawaranPanen'])->name('koperasi.laporan.penawaran-panen.export');
+        Route::get('koperasi/laporan/pembelian', [\App\Http\Controllers\KoperasiLaporanController::class, 'pembelian'])->name('koperasi.laporan.pembelian');
+        Route::get('koperasi/laporan/pembelian/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPembelian'])->name('koperasi.laporan.pembelian.export');
+        Route::get('koperasi/laporan/pembayaran', [\App\Http\Controllers\KoperasiLaporanController::class, 'pembayaran'])->name('koperasi.laporan.pembayaran');
+        Route::get('koperasi/laporan/pembayaran/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPembayaran'])->name('koperasi.laporan.pembayaran.export');
+    });
 
-    // 4. CRUD Panen
+    // 4. CRUD Panen & Laporan Petani
+    Route::middleware('role:petani,admin,super admin')->group(function() {
         Route::get('/penanaman', [App\Http\Controllers\PenanamanBenihController::class, 'index'])->name('penanaman.index');
         Route::get('/penanaman/create', [App\Http\Controllers\PenanamanBenihController::class, 'create'])->name('penanaman.create');
         Route::post('/penanaman', [App\Http\Controllers\PenanamanBenihController::class, 'store'])->name('penanaman.store');
         Route::delete('/penanaman/{id}', [App\Http\Controllers\PenanamanBenihController::class, 'destroy'])->name('penanaman.destroy');
 
         Route::resource('panen', App\Http\Controllers\PanenController::class);
+        
+        // Laporan Petani
+        Route::get('petani/laporan/pengajuan-benih', [\App\Http\Controllers\PetaniLaporanController::class, 'pengajuanBenih'])->name('petani.laporan.pengajuan-benih');
+        Route::get('petani/laporan/pengajuan-benih/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPengajuanBenih'])->name('petani.laporan.pengajuan-benih.export');
+        Route::get('petani/laporan/distribusi-benih', [\App\Http\Controllers\PetaniLaporanController::class, 'distribusiBenih'])->name('petani.laporan.distribusi-benih');
+        Route::get('petani/laporan/distribusi-benih/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportDistribusiBenih'])->name('petani.laporan.distribusi-benih.export');
+        Route::get('petani/laporan/penawaran-panen', [\App\Http\Controllers\PetaniLaporanController::class, 'penawaranPanen'])->name('petani.laporan.penawaran-panen');
+        Route::get('petani/laporan/penawaran-panen/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPenawaranPanen'])->name('petani.laporan.penawaran-panen.export');
+        Route::get('petani/laporan/pembelian', [\App\Http\Controllers\PetaniLaporanController::class, 'pembelian'])->name('petani.laporan.pembelian');
+        Route::get('petani/laporan/pembelian/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPembelian'])->name('petani.laporan.pembelian.export');
+        Route::get('petani/laporan/penjualan', [\App\Http\Controllers\PetaniLaporanController::class, 'penjualan'])->name('petani.laporan.penjualan');
+        Route::get('petani/laporan/penjualan/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPenjualan'])->name('petani.laporan.penjualan.export');
+        Route::get('petani/laporan/pembayaran', [\App\Http\Controllers\PetaniLaporanController::class, 'pembayaran'])->name('petani.laporan.pembayaran');
+        Route::get('petani/laporan/pembayaran/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPembayaran'])->name('petani.laporan.pembayaran.export');
+    });
 
     // 5. CRUD Stok
     Route::resource('stok', StokController::class);
@@ -209,6 +319,20 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // 7. CRUD Transaksi Pembayaran (Koperasi lakukan pembayaran)
     Route::resource('pembayaran', PembayaranController::class)->only(['index', 'create', 'store']);
+
+    // Tambahan Pembayaran Koperasi (Collapsible)
+    Route::get('/koperasi/pembayaran/penjualan', [PembayaranPenjualanController::class, 'index'])->name('koperasi.pembayaran.penjualan');
+    Route::get('/koperasi/pembayaran/penjualan/create', [PembayaranPenjualanController::class, 'create'])->name('koperasi.pembayaran.penjualan.create');
+    Route::post('/koperasi/pembayaran/penjualan', [PembayaranPenjualanController::class, 'store'])->name('koperasi.pembayaran.penjualan.store');
+    Route::get('/koperasi/pembayaran/penjualan/{id}/invoice', [PembayaranPenjualanController::class, 'invoice'])->name('koperasi.pembayaran.penjualan.invoice');
+    Route::get('/koperasi/pembayaran/penjualan/{id}/struk', [PembayaranPenjualanController::class, 'cetakStruk'])->name('koperasi.pembayaran.penjualan.struk');
+
+    Route::get('/koperasi/pembayaran/distribusi', [PembayaranDistribusiController::class, 'index'])->name('koperasi.pembayaran.distribusi');
+    Route::get('/koperasi/pembayaran/distribusi/create', [PembayaranDistribusiController::class, 'create'])->name('koperasi.pembayaran.distribusi.create');
+    Route::post('/koperasi/pembayaran/distribusi', [PembayaranDistribusiController::class, 'store'])->name('koperasi.pembayaran.distribusi.store');
+    Route::get('/koperasi/pembayaran/distribusi/{id}/invoice', [PembayaranDistribusiController::class, 'invoice'])->name('koperasi.pembayaran.distribusi.invoice');
+    Route::get('/koperasi/pembayaran/distribusi/{id}/struk', [PembayaranDistribusiController::class, 'cetakStruk'])->name('koperasi.pembayaran.distribusi.struk');
+
     Route::get('/pembayaran/{id}/invoice', [PembayaranController::class, 'invoice'])->name('pembayaran.invoice');
     Route::get('/pembayaran/{id}/struk', [PembayaranController::class, 'cetakStruk'])->name('pembayaran.struk');
 

@@ -88,7 +88,7 @@ class KoperasiStokController extends Controller
         $user = Auth::user();
         $gudangQuery = Gudang::where('jenis_gudang', 'koperasi');
         $gudangs = $gudangQuery->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
+        $jenisKentangs = JenisKentang::whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'konsumsi'); })->get();
         
         $existingStokQuery = Stok::query()
             ->whereHas('gudang', function($q) {

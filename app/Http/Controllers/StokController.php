@@ -95,7 +95,7 @@ class StokController extends Controller
             $gudangQuery->where('user_id', $user->id);
         }
         $gudangs = $gudangQuery->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
+        $jenisKentangs = JenisKentang::whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'konsumsi'); })->get();
         
         $existingStokQuery = Stok::query()
             ->whereHas('gudang', function($q) use ($user) {
@@ -175,7 +175,7 @@ class StokController extends Controller
             $gudangQuery->where('user_id', $user->id);
         }
         $gudangs = $gudangQuery->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'kentang_konsumsi')->get();
+        $jenisKentangs = JenisKentang::whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'konsumsi'); })->get();
         
         $totalFisikGudang = $stok->jumlah_stok;
 

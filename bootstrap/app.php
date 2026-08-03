@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'auth.custom' => \App\Http\Middleware\AuthenticateCustom::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
         
         $middleware->validateCsrfTokens(except: [

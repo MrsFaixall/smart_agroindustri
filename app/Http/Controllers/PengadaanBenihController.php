@@ -53,7 +53,7 @@ class PengadaanBenihController extends Controller
     public function create()
     {
         $mitras = User::where('role', 'mitra')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'benih_hulu')->get();
+        $jenisKentangs = JenisKentang::whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'benih'); })->get();
 
         return view('koperasi.pengadaan-benih.create', compact('mitras', 'jenisKentangs'));
     }

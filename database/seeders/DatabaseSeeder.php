@@ -27,10 +27,12 @@ class DatabaseSeeder extends Seeder
             
             // Koperasi
             ['name' => 'Faisal Koperasi', 'email' => 'faisal@gmail.com', 'role' => 'koperasi', 'password' => 'faisalst'],
+            ['name' => 'Cici Muda', 'email' => 'xixi@gmail.com', 'role' => 'koperasi', 'password' => 'xixist'],
             ['name' => 'Koperasi', 'email' => 'koperasi@gmail.com', 'role' => 'koperasi', 'password' => 'koperasist'],
             
             // Petani
             ['name' => 'Habibi Petani', 'email' => 'habibi@gmail.com', 'role' => 'petani', 'password' => 'habibist'],
+            ['name' => 'Rofiq Cikajang', 'email' => 'rofiq@gmail.com', 'role' => 'petani', 'password' => 'rofiqst'],
             ['name' => 'Petani', 'email' => 'petani@gmail.com', 'role' => 'petani', 'password' => 'petanist'],
         ];
 

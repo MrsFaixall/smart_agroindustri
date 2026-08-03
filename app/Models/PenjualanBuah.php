@@ -23,4 +23,9 @@ class PenjualanBuah extends Model
     {
         return $this->belongsTo(JenisKentang::class, 'jenis_kentang_id');
     }
+
+    public function pembayaranPenjualans()
+    {
+        return $this->hasMany(PembayaranPenjualan::class, 'penjualan_buah_id');
+    }
 }

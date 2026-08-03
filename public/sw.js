@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-agro-v1';
+const CACHE_NAME = 'smart-agro-v2';
 const urlsToCache = [
     '/',
     '/icon.svg',

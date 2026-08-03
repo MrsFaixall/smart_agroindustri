@@ -47,7 +47,7 @@ class PengajuanBenihController extends Controller
         }
 
         $koperasis = User::where('role', 'koperasi')->get();
-        $jenisKentangs = JenisKentang::where('kategori', 'benih_hulu')->get();
+        $jenisKentangs = JenisKentang::whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'benih'); })->get();
         return view('petani.pengajuan-benih.create', compact('koperasis', 'jenisKentangs'));
     }
 

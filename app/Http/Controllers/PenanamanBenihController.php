@@ -44,7 +44,7 @@ class PenanamanBenihController extends Controller
         $availableSeeds = Stok::with(['jenisKentang', 'gudang'])
             ->whereIn('gudang_id', $gudangs->pluck('id'))
             ->whereHas('jenisKentang', function ($q) {
-                $q->where('kategori', 'benih_hulu');
+                $q->whereHas('kategoriKentang', function($q) { $q->where('tipe_komoditas', 'benih'); });
             })
             ->where('jumlah_stok', '>', 0)
             ->get();

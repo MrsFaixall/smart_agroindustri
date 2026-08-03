@@ -77,14 +77,15 @@ class PembayaranController extends Controller
         $payments = $paymentQuery->latest()->paginate(5, ['*'], 'payment_page')->withQueryString();
 
         if ($user->role === 'petani' || $request->get('view') === 'petani') {
-            return view('petani.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+            return view('petani.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
         } elseif ($user->role === 'mitra' || $request->get('view') === 'mitra') {
-            return view('mitra.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+            return view('mitra.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
         }
 
-        return view('koperasi.pembayaran.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
+        return view('koperasi.pembayaran.pembelian.index', compact('pembelians', 'payments', 'totalTransaksi', 'totalLunas', 'totalPending', 'totalNilai'));
     }
 
+    
     public function create()
     {
         $pembelians = Pembelian::where('status', '!=', 'lunas')
@@ -101,8 +102,56 @@ class PembayaranController extends Controller
 
         $methods = MetodePembayaran::with('user')->latest()->get();
         $metodePembayarans = $methods;
+        
+        $metodePerPetani = [];
+        foreach ($methods as $metode) {
+            if (!$metode->user_id) continue;
+            if (!isset($metodePerPetani[$metode->user_id])) {
+                $metodePerPetani[$metode->user_id] = [];
+            }
+            $metodePerPetani[$metode->user_id][] = [
+                'id' => $metode->id,
+                'kategori' => $metode->kategori ?? 'Transfer Bank',
+                'bank' => $metode->bank,
+                'no_rekening' => $metode->no_rekening,
+                'atas_nama' => $metode->atas_nama
+            ];
+        }
+        $metodePerPetaniJson = json_encode($metodePerPetani);
+
         $midtransClientKey = config('midtrans.client_key');
-        return view('koperasi.pembayaran.create', compact('pembelians', 'methods', 'metodePembayarans', 'midtransClientKey'));
+        return view('koperasi.pembayaran.pembelian.create', compact('pembelians', 'methods', 'metodePembayarans', 'metodePerPetaniJson', 'midtransClientKey'));
+    }
+
+
+
+    public function notifyPetani(Request $request)
+    {
+        $petani_id = $request->petani_id;
+        if (!$petani_id) {
+            return response()->json(['success' => false, 'message' => 'ID Petani tidak valid.']);
+        }
+
+        $exists = \App\Models\Notifikasi::where('user_id', $petani_id)
+            ->where('tipe_notifikasi', 'system_alert')
+            ->where('pesan', 'like', '%metode pembayaran%')
+            ->where('is_read', false)
+            ->exists();
+
+        if (!$exists) {
+            \App\Models\Notifikasi::create([
+                'user_id' => $petani_id,
+                'pesan' => 'Tagihan Anda belum dapat dibayar! Mohon segera mendaftarkan Metode Pembayaran / Rekening Bank Anda agar kami (Koperasi) dapat memproses pelunasan transaksi Anda. Langkah-langkah:
+1. Buka menu "Pengaturan" di sidebar kiri, lalu pilih "Metode Pembayaran".
+2. Klik tombol "+ Tambah Metode Baru".
+3. Masukkan detail Rekening Bank atau E-Wallet Anda dengan benar lalu simpan.',
+                'tipe_notifikasi' => 'system_alert',
+                'url' => url('/metode-pembayaran'),
+            ]);
+            return response()->json(['success' => true, 'message' => 'Notifikasi berhasil dikirimkan ke Petani.']);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Notifikasi sudah dikirim sebelumnya (belum dibaca).']);
     }
 
     public function store(Request $request)
@@ -176,7 +225,7 @@ class PembayaranController extends Controller
             $payment->setRelation('pembelian', $pembelian);
         }
 
-        return view('koperasi.pembayaran.invoice', compact('payment'));
+        return view('koperasi.pembayaran.pembelian.invoice', compact('payment'));
     }
 
     public function cetakStruk(string $id)
@@ -209,6 +258,6 @@ class PembayaranController extends Controller
             $payment->setRelation('pembelian', $pembelian);
         }
 
-        return view('koperasi.pembayaran.struk', compact('payment'));
+        return view('koperasi.pembayaran.pembelian.struk', compact('payment'));
     }
 }
