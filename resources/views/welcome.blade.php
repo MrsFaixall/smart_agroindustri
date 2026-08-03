@@ -269,9 +269,22 @@
                             window.deferredPrompt = null;
                         });
                     } else {
-                        // Open the manual installation guide modal for Android
+                        // Open the manual installation guide modal
                         this.showAndroidModal = true;
+                        
+                        // Download a launcher shortcut file immediately as fallback
+                        this.downloadShortcut();
                     }
+                },
+                downloadShortcut() {
+                    const link = document.createElement('a');
+                    const shortcutContent = `[InternetShortcut]\r\nURL=${window.location.origin}/\r\nIconIndex=0\r\n`;
+                    const blob = new Blob([shortcutContent], { type: 'application/octet-stream' });
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Smart_Agroindustri.url';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 }
             }
         }
