@@ -168,63 +168,20 @@
                     </span>
                     <h2 class="text-2xl font-extrabold outfit">Pasang Aplikasi Agroindustri</h2>
                     <p class="text-slate-300 text-xs leading-relaxed">
-                        Akses platform lebih cepat langsung dari layar utama ponsel Anda tanpa perlu mengunduh dari App Store. Lebih ringan, hemat kuota, dan responsif.
+                        Akses platform lebih cepat langsung dari layar utama ponsel Anda. Lebih ringan, hemat kuota, dan responsif.
                     </p>
                 </div>
 
                 <div class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-shrink-0 justify-center">
-                    <!-- Button Install for Android / Chrome / Windows -->
                     <button @click="installPwa()" 
-                            class="inline-flex items-center justify-center px-6 py-3 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-2xl text-xs transition-all shadow-md gap-2">
-                        <span>🤖</span> Pasang untuk Android
-                    </button>
-                    <!-- Button Install for iOS (Shows Instructions) -->
-                    <button @click="showIosModal = true" 
-                            class="inline-flex items-center justify-center px-6 py-3 bg-slate-800/80 border border-slate-700 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs transition-all shadow-md gap-2">
-                        <span>🍏</span> Petunjuk untuk iOS / Apple
+                            class="inline-flex items-center justify-center px-8 py-4 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-2xl text-xs transition-all shadow-md gap-2 uppercase tracking-wider">
+                        <span>📥</span> Unduh Sekarang
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- iOS Installation Instructions Modal -->
-        <div x-show="showIosModal" 
-             x-transition.opacity 
-             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
-             style="display: none;">
-            <div @click.away="showIosModal = false" class="bg-white rounded-3xl p-8 max-w-sm w-full text-slate-800 relative shadow-2xl border border-slate-100">
-                <button @click="showIosModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
-                
-                <div class="text-center space-y-4">
-                    <span class="text-4xl">🍏</span>
-                    <h3 class="text-xl font-bold outfit text-slate-900">Cara Pasang di iOS (Safari)</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Ikuti langkah mudah berikut untuk menambahkan aplikasi ini ke layar utama iPhone or iPad Anda:
-                    </p>
-                </div>
-
-                <ol class="mt-6 space-y-4 text-xs font-semibold text-slate-600 border-t border-slate-100 pt-6">
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">1</span>
-                        <span>Buka halaman ini menggunakan browser <strong>Safari</strong> bawaan iOS.</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">2</span>
-                        <span>Ketuk tombol <strong>Bagikan (Share)</strong> <span class="text-sm">📤</span> pada bagian bawah atau atas layar.</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">3</span>
-                        <span>Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> <span class="text-sm">➕</span>.</span>
-                    </li>
-                </ol>
-
-                <button @click="showIosModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
-                    Mengerti, Siap!
-                </button>
-            </div>
-        </div>
-
-        <!-- Android Installation Instructions Modal -->
+        <!-- Installation Instructions Modal (Fallback) -->
         <div x-show="showAndroidModal" 
              x-transition.opacity 
              class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
@@ -233,27 +190,24 @@
                 <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
                 
                 <div class="text-center space-y-4">
-                    <span class="text-4xl">🤖</span>
-                    <h3 class="text-xl font-bold outfit text-slate-900">Cara Pasang di Android</h3>
+                    <span class="text-4xl">📱</span>
+                    <h3 class="text-xl font-bold outfit text-slate-900">Petunjuk Pemasangan</h3>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Jika tombol pasang otomatis tidak merespons, ikuti langkah mudah berikut di browser Google Chrome ponsel Anda:
+                        Fitur instalasi otomatis dibatasi oleh keamanan atau pemblokir iklan (Shield) browser Anda.
                     </p>
                 </div>
 
-                <ol class="mt-6 space-y-4 text-xs font-semibold text-slate-600 border-t border-slate-100 pt-6">
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">1</span>
-                        <span>Ketuk tombol <strong>Menu (Tiga Titik)</strong> <span class="text-sm">⋮</span> di pojok kanan atas browser Chrome Anda.</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">2</span>
-                        <span>Pilih menu <strong>"Tambahkan ke Layar Utama" (Add to Home Screen)</strong> atau <strong>"Instal Aplikasi" (Install App)</strong>.</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 text-[10px]">3</span>
-                        <span>Ketuk <strong>"Instal" (Install)</strong> untuk mengonfirmasi pemasangan aplikasi.</span>
-                    </li>
-                </ol>
+                <div class="mt-6 text-xs text-slate-600 border-t border-slate-100 pt-6 space-y-4">
+                    <p class="font-bold">Silakan pasang secara manual:</p>
+                    <div class="space-y-1">
+                        <strong>🤖 Android / Google Chrome:</strong>
+                        <p class="text-[11px] text-slate-500">Ketuk menu tiga titik (⋮) di pojok kanan atas browser, lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".</p>
+                    </div>
+                    <div class="space-y-1">
+                        <strong>🍏 iPhone / iPad (Safari):</strong>
+                        <p class="text-[11px] text-slate-500">Ketuk tombol bagikan (Share 📤) di bawah layar, lalu pilih "Tambahkan ke Layar Utama" (Add to Home Screen ➕).</p>
+                    </div>
+                </div>
 
                 <button @click="showAndroidModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
                     Mengerti, Siap!
@@ -291,6 +245,7 @@
                 deferredPrompt: window.deferredPrompt,
                 showIosModal: false,
                 showAndroidModal: false,
+                isSecure: window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
                 init() {
                     window.addEventListener('pwa-prompt-ready', () => {
                         this.deferredPrompt = window.deferredPrompt;
