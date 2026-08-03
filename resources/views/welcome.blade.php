@@ -155,19 +155,19 @@
     </section>
 
     <!-- PWA Install Section -->
-    <section class="py-12 bg-slate-50 border-y border-slate-100" x-data="pwaInstall()">
+    <section class="py-16 bg-slate-950 border-t border-slate-900" x-data="pwaInstall()">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-3xl p-8 md:p-10 shadow-xl text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-3xl p-8 md:p-10 shadow-2xl text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
                 <!-- Gradients backdrops -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"></div>
 
                 <div class="relative z-10 space-y-3 max-w-xl text-center md:text-left">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/20 text-blue-300 text-xs font-semibold">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold">
                         📱 Aplikasi Web Progresif (PWA)
                     </span>
-                    <h2 class="text-2xl font-extrabold outfit">Pasang Aplikasi Agroindustri</h2>
-                    <p class="text-slate-300 text-xs leading-relaxed">
+                    <h2 class="text-2xl font-extrabold outfit text-white">Pasang Aplikasi Agroindustri</h2>
+                    <p class="text-slate-400 text-xs leading-relaxed">
                         Akses platform lebih cepat langsung dari layar utama ponsel Anda. Lebih ringan, hemat kuota, dan responsif.
                     </p>
                 </div>
@@ -184,32 +184,32 @@
         <!-- Installation Instructions Modal (Fallback) -->
         <div x-show="showAndroidModal" 
              x-transition.opacity 
-             class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" 
+             class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4" 
              style="display: none;">
-            <div @click.away="showAndroidModal = false" class="bg-white rounded-3xl p-8 max-w-sm w-full text-slate-800 relative shadow-2xl border border-slate-100">
-                <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 focus:outline-none text-lg">✕</button>
+            <div @click.away="showAndroidModal = false" class="bg-slate-900 rounded-3xl p-8 max-w-sm w-full text-slate-100 relative shadow-2xl border border-slate-800">
+                <button @click="showAndroidModal = false" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 focus:outline-none text-lg">✕</button>
                 
                 <div class="text-center space-y-4">
                     <span class="text-4xl">📱</span>
-                    <h3 class="text-xl font-bold outfit text-slate-900">Petunjuk Pemasangan</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
+                    <h3 class="text-xl font-bold outfit text-white">Petunjuk Pemasangan</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
                         Fitur instalasi otomatis dibatasi oleh keamanan atau pemblokir iklan (Shield) browser Anda.
                     </p>
                 </div>
 
-                <div class="mt-6 text-xs text-slate-600 border-t border-slate-100 pt-6 space-y-4">
-                    <p class="font-bold">Silakan pasang secara manual:</p>
+                <div class="mt-6 text-xs text-slate-300 border-t border-slate-800 pt-6 space-y-4">
+                    <p class="font-bold text-slate-200">Silakan pasang secara manual:</p>
                     <div class="space-y-1">
-                        <strong>🤖 Android / Google Chrome:</strong>
-                        <p class="text-[11px] text-slate-500">Ketuk menu tiga titik (⋮) di pojok kanan atas browser, lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".</p>
+                        <strong class="text-white">🤖 Android / Google Chrome:</strong>
+                        <p class="text-[11px] text-slate-400">Ketuk menu tiga titik (⋮) di pojok kanan atas browser, lalu pilih "Instal Aplikasi" atau "Tambahkan ke Layar Utama".</p>
                     </div>
                     <div class="space-y-1">
-                        <strong>🍏 iPhone / iPad (Safari):</strong>
-                        <p class="text-[11px] text-slate-500">Ketuk tombol bagikan (Share 📤) di bawah layar, lalu pilih "Tambahkan ke Layar Utama" (Add to Home Screen ➕).</p>
+                        <strong class="text-white">🍏 iPhone / iPad (Safari):</strong>
+                        <p class="text-[11px] text-slate-400">Ketuk tombol bagikan (Share 📤) di bawah layar, lalu pilih "Tambahkan ke Layar Utama" (Add to Home Screen ➕).</p>
                     </div>
                 </div>
 
-                <button @click="showAndroidModal = false" class="mt-8 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition">
+                <button @click="showAndroidModal = false" class="mt-8 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition border border-slate-700">
                     Mengerti, Siap!
                 </button>
             </div>
