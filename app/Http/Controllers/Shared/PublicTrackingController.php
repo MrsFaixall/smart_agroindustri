@@ -15,7 +15,9 @@ class PublicTrackingController extends Controller
             ->where('tracking_token', $token)
             ->firstOrFail();
 
-        return view('welcome.lacak', compact('transaksi'));
+        $gudang = \App\Models\Gudang::where('user_id', $transaksi->pembeli_id)->first();
+
+        return view('welcome.lacak', compact('transaksi', 'gudang'));
     }
 
     public function apiTrack($token)
@@ -30,6 +32,12 @@ class PublicTrackingController extends Controller
 
         $rawGrade = $transaksi->grade ?? 'A';
         $gradeLetter = trim(str_ireplace('Grade', '', $rawGrade));
+
+        $gudang = \App\Models\Gudang::where('user_id', $transaksi->pembeli_id)->first();
+        $lat = $gudang->latitude ?? -7.22647805;
+        $lng = $gudang->longitude ?? 107.90107369;
+        
+        $mapEmbed = '<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q=' . $lat . ',' . $lng . '&hl=id&z=15&output=embed" allowfullscreen></iframe>';
 
         return response()->json([
             'success' => true,
@@ -50,6 +58,7 @@ class PublicTrackingController extends Controller
                 'truckNo' => 'B 9042 CHAMP',
                 'waktuTempuh' => $transaksi->estimasi_waktu ?? '3 Jam 30 Menit',
                 'suhuKargo' => '16°C (Optimal)',
+                'mapEmbed' => $mapEmbed,
             ]
         ]);
     }

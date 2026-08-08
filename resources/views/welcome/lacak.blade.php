@@ -148,38 +148,13 @@
                         </div>
                     </div>
 
-                    <!-- SVG Route Path render -->
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl h-36 overflow-hidden relative">
+                    <!-- Google Maps Embed for Gudang Pembeli/Mitra -->
+                    <div class="bg-slate-100 border border-slate-200 rounded-2xl h-64 overflow-hidden relative shadow-inner">
                         @php
-                            $origin = $transaksi->koperasi->name ?? 'Koperasi Tani';
-                            $dest = $transaksi->pembeli->name ?? 'PT Camp';
-                            $isPtCamp = stripos($dest, 'camp') !== false;
+                            $lat = $gudang->latitude ?? -7.22647805;
+                            $lng = $gudang->longitude ?? 107.90107369;
                         @endphp
-                        @if($isPtCamp)
-                            <svg class="w-full h-full" viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290" stroke="#f1f5f9" stroke-width="1"/>
-                                <path d="M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110" stroke="#f1f5f9" stroke-width="1"/>
-                                <circle cx="60" cy="80" r="6" fill="#f59e0b" stroke="white" stroke-width="2" class="animate-pulse"/>
-                                <circle cx="60" cy="80" r="4" fill="#f59e0b"/>
-                                <text x="52" y="95" fill="#64748b" class="text-[8px] font-extrabold outfit">{{ $origin }}</text>
-                                <circle cx="240" cy="40" r="4" fill="#10b981"/>
-                                <text x="225" y="32" fill="#64748b" class="text-[8px] font-extrabold outfit">{{ $dest }}</text>
-                                <path d="M60 80 Q 120 100 160 60 T 240 40" stroke="#6366f1" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4" class="animate-route"/>
-                                <path d="M60 80 Q 120 100 160 60 T 240 40" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        @else
-                            <svg class="w-full h-full" viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290" stroke="#f1f5f9" stroke-width="1"/>
-                                <path d="M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110" stroke="#f1f5f9" stroke-width="1"/>
-                                <circle cx="90" cy="90" r="6" fill="#f59e0b" stroke="white" stroke-width="2" class="animate-pulse"/>
-                                <circle cx="90" cy="90" r="4" fill="#f59e0b"/>
-                                <text x="70" y="105" fill="#64748b" class="text-[8px] font-extrabold outfit">{{ $origin }}</text>
-                                <circle cx="210" cy="40" r="4" fill="#10b981"/>
-                                <text x="200" y="32" fill="#64748b" class="text-[8px] font-extrabold outfit">{{ $dest }}</text>
-                                <path d="M90 90 Q 140 75 160 65 T 210 40" stroke="#6366f1" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 4" class="animate-route"/>
-                                <path d="M90 90 Q 140 75 160 65 T 210 40" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        @endif
+                        <iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q={{ $lat }},{{ $lng }}&hl=id&z=15&output=embed" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
