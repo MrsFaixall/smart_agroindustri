@@ -33,11 +33,15 @@ class PublicTrackingController extends Controller
         $rawGrade = $transaksi->grade ?? 'A';
         $gradeLetter = trim(str_ireplace('Grade', '', $rawGrade));
 
+        $koperasiGudang = \App\Models\Gudang::where('jenis_gudang', 'koperasi')->first();
+        $originLat = $koperasiGudang->latitude ?? -7.20000000;
+        $originLng = $koperasiGudang->longitude ?? 107.80000000;
+
         $gudang = \App\Models\Gudang::where('user_id', $transaksi->pembeli_id)->first();
-        $lat = $gudang->latitude ?? -7.22647805;
-        $lng = $gudang->longitude ?? 107.90107369;
+        $destLat = $gudang->latitude ?? -7.22647805;
+        $destLng = $gudang->longitude ?? 107.90107369;
         
-        $mapEmbed = '<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q=' . $lat . ',' . $lng . '&hl=id&z=15&output=embed" allowfullscreen></iframe>';
+        $mapEmbed = '<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?saddr=' . $originLat . ',' . $originLng . '&daddr=' . $destLat . ',' . $destLng . '&hl=id&z=11&output=embed" allowfullscreen></iframe>';
 
         return response()->json([
             'success' => true,

@@ -151,10 +151,14 @@
                     <!-- Google Maps Embed for Gudang Pembeli/Mitra -->
                     <div class="bg-slate-100 border border-slate-200 rounded-2xl h-64 overflow-hidden relative shadow-inner">
                         @php
-                            $lat = $gudang->latitude ?? -7.22647805;
-                            $lng = $gudang->longitude ?? 107.90107369;
+                            $koperasiGudang = \App\Models\Gudang::where('jenis_gudang', 'koperasi')->first();
+                            $originLat = $koperasiGudang->latitude ?? -7.20000000;
+                            $originLng = $koperasiGudang->longitude ?? 107.80000000;
+
+                            $destLat = $gudang->latitude ?? -7.22647805;
+                            $destLng = $gudang->longitude ?? 107.90107369;
                         @endphp
-                        <iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q={{ $lat }},{{ $lng }}&hl=id&z=15&output=embed" allowfullscreen></iframe>
+                        <iframe class="w-full h-full border-0" src="https://maps.google.com/maps?saddr={{ $originLat }},{{ $originLng }}&daddr={{ $destLat }},{{ $destLng }}&hl=id&z=11&output=embed" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
