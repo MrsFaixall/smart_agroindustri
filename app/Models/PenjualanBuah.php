@@ -46,4 +46,39 @@ class PenjualanBuah extends Model
     {
         return $this->hasMany(PembayaranPenjualan::class, 'penjualan_buah_id');
     }
+
+    public static function transferStockToMitra($penjualan)
+    {
+        // Pastikan pembeli adalah Mitra
+        $pembeli = User::find($penjualan->pembeli_id);
+        if ($pembeli && $pembeli->role === 'mitra') {
+            $gudangMitra = Gudang::where('user_id', $penjualan->pembeli_id)->first();
+            if ($gudangMitra) {
+                $stokMitra = Stok::firstOrCreate(
+                    [
+                        'gudang_id' => $gudangMitra->id,
+                        'jenis_kentang_id' => $penjualan->jenis_kentang_id,
+                        'grade' => $penjualan->grade ?? 'A'
+                    ],
+                    [
+                        'jumlah_stok' => 0,
+                        'stok_dijual' => 0,
+                    ]
+                );
+
+                $stokMitra->jumlah_stok += $penjualan->jumlah_kg;
+                $stokMitra->stok_dijual += $penjualan->jumlah_kg;
+                $stokMitra->save();
+                
+                // Tambahkan notifikasi untuk Mitra
+                Notifikasi::create([
+                    'user_id' => $penjualan->pembeli_id,
+                    'pesan' => 'Pembayaran Anda untuk transaksi pembelian hasil panen senilai Rp ' . number_format($penjualan->total_harga, 0, ',', '.') . ' telah lunas. Stok sebanyak ' . $penjualan->jumlah_kg . ' kg telah masuk ke gudang Anda.',
+                    'tipe_notifikasi' => 'pembayaran_berhasil',
+                    'terkait_id' => $penjualan->id,
+                    'url' => route('mitra.stok.index')
+                ]);
+            }
+        }
+    }
 }

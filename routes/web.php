@@ -131,6 +131,39 @@ Route::middleware(['auth.custom'])->group(function () {
     });
     Route::resource('mitra-gudang', MitraGudangController::class);
 
+    // ==========================================
+    // MITRA MODULE ROUTES
+    // ==========================================
+    Route::middleware('role:mitra,admin,super admin')->group(function() {
+        // Pembelian Mitra
+        Route::get('mitra/pembelian', [\App\Http\Controllers\Mitra\MitraPembelianController::class, 'index'])->name('mitra.pembelian.index');
+        Route::post('mitra/pembelian/{id}/bayar', [\App\Http\Controllers\Mitra\MitraPembelianController::class, 'bayar'])->name('mitra.pembelian.bayar');
+
+        // Penjualan Mitra
+        Route::resource('mitra/penjualan', \App\Http\Controllers\Mitra\MitraPenjualanController::class, ['as' => 'mitra']);
+        Route::post('mitra/penjualan/{id}/bayar', [\App\Http\Controllers\Mitra\MitraPenjualanController::class, 'bayar'])->name('mitra.penjualan.bayar');
+
+        // Stok Mitra
+        Route::get('mitra/stok', [\App\Http\Controllers\Mitra\MitraStokController::class, 'index'])->name('mitra.stok.index');
+
+        // Pembayaran Mitra
+        Route::get('mitra/pembayaran', [\App\Http\Controllers\Mitra\MitraPembayaranController::class, 'index'])->name('mitra.pembayaran.index');
+        Route::get('mitra/pembayaran/create', [\App\Http\Controllers\Mitra\MitraPembayaranController::class, 'create'])->name('mitra.pembayaran.create');
+        Route::post('mitra/pembayaran', [\App\Http\Controllers\Mitra\MitraPembayaranController::class, 'store'])->name('mitra.pembayaran.store');
+        Route::get('mitra/pembayaran/{id}/invoice', [\App\Http\Controllers\Mitra\MitraPembayaranController::class, 'invoice'])->name('mitra.pembayaran.invoice');
+        Route::get('mitra/pembayaran/{id}/struk', [\App\Http\Controllers\Mitra\MitraPembayaranController::class, 'cetakStruk'])->name('mitra.pembayaran.struk');
+
+        // Laporan Mitra
+        Route::get('mitra/laporan/pembelian', [\App\Http\Controllers\Mitra\MitraLaporanController::class, 'pembelian'])->name('mitra.laporan.pembelian');
+        Route::get('mitra/laporan/pembelian/export', [\App\Http\Controllers\Mitra\MitraLaporanController::class, 'exportPembelian'])->name('mitra.laporan.pembelian.export');
+        Route::get('mitra/laporan/penjualan', [\App\Http\Controllers\Mitra\MitraLaporanController::class, 'penjualan'])->name('mitra.laporan.penjualan');
+        Route::get('mitra/laporan/penjualan/export', [\App\Http\Controllers\Mitra\MitraLaporanController::class, 'exportPenjualan'])->name('mitra.laporan.penjualan.export');
+
+        // Layanan/Riwayat Mitra
+        Route::get('mitra/layanan/riwayat-pembelian', [\App\Http\Controllers\Mitra\MitraLayananController::class, 'riwayatPembelian'])->name('mitra.layanan.riwayat-pembelian');
+        Route::get('mitra/layanan/riwayat-penjualan', [\App\Http\Controllers\Mitra\MitraLayananController::class, 'riwayatPenjualan'])->name('mitra.layanan.riwayat-penjualan');
+    });
+
     // 3. CRUD Pembelian
     Route::resource('pembelian', PembelianController::class);
 

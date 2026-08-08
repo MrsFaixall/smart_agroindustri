@@ -173,7 +173,15 @@
 
             <!-- Group 1: MITRA (PT. CHAMP) -->
             @if($isAdmin || $isKoperasi || $isMitra)
-            <div>
+            @php
+                $isMitraPembelianActive = request()->routeIs('mitra.pembelian.*');
+                $isMitraPenjualanActive = request()->routeIs('mitra.penjualan.*');
+                $isMitraStokActive = request()->routeIs('mitra.stok.*');
+                $isMitraPembayaranActive = request()->routeIs('mitra.pembayaran.*');
+                $isMitraRiwayatActive = request()->routeIs('mitra.layanan.*');
+                $isMitraLaporanActive = request()->routeIs('mitra.laporan.*');
+            @endphp
+            <div x-data="{ openRiwayatMitra: {{ $isMitraRiwayatActive ? 'true' : 'false' }}, openLaporanMitra: {{ $isMitraLaporanActive ? 'true' : 'false' }} }">
                 <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">1. Mitra (PT. Champ)</p>
                 <a href="{{ route('pengadaan-benih.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('pengadaan-benih.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
@@ -185,11 +193,73 @@
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     <span class="font-semibold text-sm">Gudang Mitra</span>
                 </a>
-                <a href="{{ route('pembayaran.index', ['view' => 'mitra']) }}"
-                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->get('view') === 'mitra' ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                
+                @if($isAdmin || $isMitra)
+                <!-- Pembelian Kentang Mitra -->
+                <a href="{{ route('mitra.pembelian.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ $isMitraPembelianActive ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    <span class="font-semibold text-sm">Pembelian Kentang</span>
+                </a>
+                <!-- Penjualan Kentang Mitra -->
+                <a href="{{ route('mitra.penjualan.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ $isMitraPenjualanActive ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    <span class="font-semibold text-sm">Penjualan Kentang</span>
+                </a>
+                <!-- Stok Kentang Mitra -->
+                <a href="{{ route('mitra.stok.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ $isMitraStokActive ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
+                    <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    <span class="font-semibold text-sm">Stok Kentang</span>
+                </a>
+                <!-- Pembayaran Mitra -->
+                <a href="{{ route('mitra.pembayaran.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ $isMitraPembayaranActive ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     <span class="font-semibold text-sm">Pembayaran Mitra</span>
                 </a>
+                
+                <!-- Riwayat Layanan Mitra -->
+                <button type="button" @click="openRiwayatMitra = !openRiwayatMitra" 
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-xl {{ $isMitraRiwayatActive ? 'bg-slate-100 text-slate-900 font-bold' : 'text-slate-500 hover:bg-slate-50' }} transition mt-1">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                        <span class="font-semibold text-sm">Layanan Mitra</span>
+                    </div>
+                    <svg class="w-4 h-4 transition-transform" :class="openRiwayatMitra ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div x-show="openRiwayatMitra" x-cloak class="pl-4 mt-1 space-y-1">
+                    <a href="{{ route('mitra.layanan.riwayat-pembelian') }}" class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('mitra.layanan.riwayat-pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between">
+                        <span>- Riwayat Pembelian</span>
+                    </a>
+                    <a href="{{ route('mitra.layanan.riwayat-penjualan') }}" class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('mitra.layanan.riwayat-penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between">
+                        <span>- Riwayat Penjualan</span>
+                    </a>
+                </div>
+
+                <!-- Laporan Mitra -->
+                <button type="button" @click="openLaporanMitra = !openLaporanMitra" 
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-xl {{ $isMitraLaporanActive ? 'bg-slate-100 text-slate-900 font-bold' : 'text-slate-500 hover:bg-slate-50' }} transition mt-1">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        <span class="font-semibold text-sm">Laporan Mitra</span>
+                    </div>
+                    <svg class="w-4 h-4 transition-transform" :class="openLaporanMitra ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div x-show="openLaporanMitra" x-cloak class="pl-4 mt-1 space-y-1">
+                    <a href="{{ route('mitra.laporan.pembelian') }}" class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('mitra.laporan.pembelian') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between">
+                        <span>- Laporan Pembelian</span>
+                    </a>
+                    <a href="{{ route('mitra.laporan.penjualan') }}" class="px-4 py-2 text-sm rounded-xl transition {{ request()->routeIs('mitra.laporan.penjualan') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} flex items-center justify-between">
+                        <span>- Laporan Penjualan</span>
+                    </a>
+                </div>
+                @endif
             </div>
             @endif
  
