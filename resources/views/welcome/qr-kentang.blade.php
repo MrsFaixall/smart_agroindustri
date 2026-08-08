@@ -900,6 +900,25 @@
                 errorMessage: '',
                 html5QrCodeInstance: null,
                 batches: {
+                    'scanned': {
+                        id: '',
+                        varietas: '',
+                        grade: '',
+                        berat: '',
+                        petani: '',
+                        koperasi: '',
+                        lokasi: '',
+                        ketinggian: '',
+                        tanggalPanen: '',
+                        tanggalKirim: '',
+                        tujuan: '',
+                        jarak: '',
+                        ruteInfo: '',
+                        truckNo: '',
+                        waktuTempuh: '',
+                        suhuKargo: '',
+                        mapSvg: ''
+                    },
                     'batch-1': {
                         id: 'KTG-0824-GRN',
                         varietas: 'Kentang Granola Super',
