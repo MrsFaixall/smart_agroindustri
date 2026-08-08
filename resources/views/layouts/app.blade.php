@@ -302,6 +302,14 @@
 </a>
                 </div>
 
+                <a href="{{ route('koperasi.qr-code.index') }}"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.qr-code.*') ? 'bg-[#001842] text-white font-bold' : 'text-slate-500 hover:bg-slate-50' }} transition mt-2">
+                    <svg class="w-5 h-5 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M4 8h16M4 16h16" />
+                    </svg>
+                    <span class="font-semibold text-sm">Traceability QR Batch</span>
+                </a>
+
                 <a href="{{ route('koperasi.gudang-stok.index') }}"
                     class="flex items-center gap-4 px-4 py-3 rounded-xl {{ request()->routeIs('koperasi.gudang-stok.*') ? 'bg-[#001842] text-white' : 'text-slate-500 hover:bg-slate-50' }}">
                     <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>

@@ -134,15 +134,24 @@
                     <input type="number" step="0.01" name="jumlah_kg" id="jumlah_kg" class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-mono font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Tanggal Transaksi <span class="text-rose-500">*</span></label>
-                    <input type="date" name="tanggal_transaksi" value="{{ date('Y-m-d') }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Harga Per Kg (Rp) <span class="text-rose-500">*</span></label>
+                    <input type="number" step="0.01" id="harga_per_kg" placeholder="0" class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-mono font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Harga Per Kg (Rp) <span class="text-rose-500">*</span></label>
-                    <input type="number" step="0.01" id="harga_per_kg" placeholder="0" class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-mono font-bold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Tanggal Transaksi <span class="text-rose-500">*</span></label>
+                    <input type="date" name="tanggal_transaksi" value="{{ date('Y-m-d') }}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Grade Kualitas <span class="text-rose-500">*</span></label>
+                    <select name="grade" class="w-full rounded-2xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" required>
+                        <option value="">Pilih Grade</option>
+                        <option value="Grade A">Grade A (Premium)</option>
+                        <option value="Grade B">Grade B (Standar Olahan)</option>
+                        <option value="Grade C">Grade C (Ekonomi)</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Status Pembayaran <span class="text-rose-500">*</span></label>

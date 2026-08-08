@@ -1,34 +1,56 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
+use App\Http\Controllers\Auth\{
     AuthController,
-    DashboardController,
-    GudangController,
-    PembelianController,
-    PanenController,
-    StokController,
-    PembayaranController,
-    PembayaranPenjualanController,
-    PembayaranDistribusiController,
-    MetodePembayaranController,
-    LaporanController,
-    PengaturanController,
+    UserController
+};
+use App\Http\Controllers\Master\{
     BbmController,
+    HargaController,
     JenisKentangController,
     KategoriKentangController,
-    HargaController,
-    UserController,
-    MidtransController,
-    DaftarTransaksiController,
+    MetodePembayaranController,
+    PengaturanController
+};
+use App\Http\Controllers\Koperasi\{
     KoperasiGudangStokController,
     KoperasiHargaPasarController,
-    PengadaanBenihController,
-    DistribusiBenihController,
-    PenjualanBuahController,
-    PengajuanBenihController,
-    NotifikasiController,
+    KoperasiLaporanController,
+    KoperasiQrController,
+    KoperasiStokController,
+    PenawaranPanenKoperasiController
+};
+use App\Http\Controllers\Petani\{
+    PenanamanBenihController,
+    PenawaranPanenPetaniController,
+    PetaniLaporanController,
+    GudangController,
+    LaporanController,
+    StokController
+};
+use App\Http\Controllers\Mitra\{
     MitraGudangController
+};
+use App\Http\Controllers\Transaksi\{
+    DaftarTransaksiController,
+    DistribusiBenihController,
+    PanenController,
+    PembelianController,
+    PenjualanBuahController,
+    PengadaanBenihController,
+    PengajuanBenihController
+};
+use App\Http\Controllers\Pembayaran\{
+    PembayaranController,
+    PembayaranDistribusiController,
+    PembayaranPenjualanController,
+    MidtransController
+};
+use App\Http\Controllers\Shared\{
+    DashboardController,
+    NotifikasiController,
+    PublicTrackingController
 };
 
 // ==========================================
@@ -46,6 +68,14 @@ Route::get('/layanan', function () {
 Route::get('/kontak', function () {
     return view('welcome.kontak');
 })->name('welcome.kontak');
+Route::get('/qr-kentang', function () {
+    return view('welcome.qr-kentang');
+})->name('welcome.qr-kentang');
+Route::get('/penjualan-buah/{id}/print-qr', function ($id) {
+    $transaksi = \App\Models\PenjualanBuah::with(['koperasi', 'jenisKentang', 'pembeli'])->findOrFail($id);
+    return view('koperasi.penjualan-buah.print-qr', compact('transaksi'));
+})->name('penjualan-buah.print-qr');
+Route::get('/lacak/{token}', [PublicTrackingController::class, 'track'])->name('public.track');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -84,7 +114,7 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::resource('stok', StokController::class);
             
         // Penawaran Penjualan Panen (ke Koperasi)
-        Route::resource('penawaran-panen', \App\Http\Controllers\PenawaranPanenPetaniController::class, [
+        Route::resource('penawaran-panen', PenawaranPanenPetaniController::class, [
             'as' => 'petani'
         ])->only(['index', 'create', 'store', 'update']);
             
@@ -262,9 +292,10 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Penawaran Masuk (Dari Petani)
     Route::middleware('role:koperasi,admin,super admin')->group(function() {
-        Route::resource('koperasi/penawaran-panen', \App\Http\Controllers\PenawaranPanenKoperasiController::class, [
+        Route::resource('koperasi/penawaran-panen', PenawaranPanenKoperasiController::class, [
             'as' => 'koperasi'
         ])->only(['index', 'update']);
+        Route::get('koperasi/qr-code', [KoperasiQrController::class, 'index'])->name('koperasi.qr-code.index');
     });
 
     // 3.2. Koperasi Gudang & Stok
@@ -285,40 +316,40 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::resource('koperasi/atur-harga-pasar', KoperasiHargaPasarController::class, ['as' => 'koperasi']);
         
         // Laporan Koperasi
-        Route::get('koperasi/laporan/pengajuan-benih', [\App\Http\Controllers\KoperasiLaporanController::class, 'pengajuanBenih'])->name('koperasi.laporan.pengajuan-benih');
-        Route::get('koperasi/laporan/pengajuan-benih/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPengajuanBenih'])->name('koperasi.laporan.pengajuan-benih.export');
-        Route::get('koperasi/laporan/distribusi-benih', [\App\Http\Controllers\KoperasiLaporanController::class, 'distribusiBenih'])->name('koperasi.laporan.distribusi-benih');
-        Route::get('koperasi/laporan/distribusi-benih/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportDistribusiBenih'])->name('koperasi.laporan.distribusi-benih.export');
-        Route::get('koperasi/laporan/penawaran-panen', [\App\Http\Controllers\KoperasiLaporanController::class, 'penawaranPanen'])->name('koperasi.laporan.penawaran-panen');
-        Route::get('koperasi/laporan/penawaran-panen/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPenawaranPanen'])->name('koperasi.laporan.penawaran-panen.export');
-        Route::get('koperasi/laporan/pembelian', [\App\Http\Controllers\KoperasiLaporanController::class, 'pembelian'])->name('koperasi.laporan.pembelian');
-        Route::get('koperasi/laporan/pembelian/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPembelian'])->name('koperasi.laporan.pembelian.export');
-        Route::get('koperasi/laporan/pembayaran', [\App\Http\Controllers\KoperasiLaporanController::class, 'pembayaran'])->name('koperasi.laporan.pembayaran');
-        Route::get('koperasi/laporan/pembayaran/export', [\App\Http\Controllers\KoperasiLaporanController::class, 'exportPembayaran'])->name('koperasi.laporan.pembayaran.export');
+        Route::get('koperasi/laporan/pengajuan-benih', [KoperasiLaporanController::class, 'pengajuanBenih'])->name('koperasi.laporan.pengajuan-benih');
+        Route::get('koperasi/laporan/pengajuan-benih/export', [KoperasiLaporanController::class, 'exportPengajuanBenih'])->name('koperasi.laporan.pengajuan-benih.export');
+        Route::get('koperasi/laporan/distribusi-benih', [KoperasiLaporanController::class, 'distribusiBenih'])->name('koperasi.laporan.distribusi-benih');
+        Route::get('koperasi/laporan/distribusi-benih/export', [KoperasiLaporanController::class, 'exportDistribusiBenih'])->name('koperasi.laporan.distribusi-benih.export');
+        Route::get('koperasi/laporan/penawaran-panen', [KoperasiLaporanController::class, 'penawaranPanen'])->name('koperasi.laporan.penawaran-panen');
+        Route::get('koperasi/laporan/penawaran-panen/export', [KoperasiLaporanController::class, 'exportPenawaranPanen'])->name('koperasi.laporan.penawaran-panen.export');
+        Route::get('koperasi/laporan/pembelian', [KoperasiLaporanController::class, 'pembelian'])->name('koperasi.laporan.pembelian');
+        Route::get('koperasi/laporan/pembelian/export', [KoperasiLaporanController::class, 'exportPembelian'])->name('koperasi.laporan.pembelian.export');
+        Route::get('koperasi/laporan/pembayaran', [KoperasiLaporanController::class, 'pembayaran'])->name('koperasi.laporan.pembayaran');
+        Route::get('koperasi/laporan/pembayaran/export', [KoperasiLaporanController::class, 'exportPembayaran'])->name('koperasi.laporan.pembayaran.export');
     });
 
     // 4. CRUD Panen & Laporan Petani
     Route::middleware('role:petani,admin,super admin')->group(function() {
-        Route::get('/penanaman', [App\Http\Controllers\PenanamanBenihController::class, 'index'])->name('penanaman.index');
-        Route::get('/penanaman/create', [App\Http\Controllers\PenanamanBenihController::class, 'create'])->name('penanaman.create');
-        Route::post('/penanaman', [App\Http\Controllers\PenanamanBenihController::class, 'store'])->name('penanaman.store');
-        Route::delete('/penanaman/{id}', [App\Http\Controllers\PenanamanBenihController::class, 'destroy'])->name('penanaman.destroy');
+        Route::get('/penanaman', [PenanamanBenihController::class, 'index'])->name('penanaman.index');
+        Route::get('/penanaman/create', [PenanamanBenihController::class, 'create'])->name('penanaman.create');
+        Route::post('/penanaman', [PenanamanBenihController::class, 'store'])->name('penanaman.store');
+        Route::delete('/penanaman/{id}', [PenanamanBenihController::class, 'destroy'])->name('penanaman.destroy');
 
-        Route::resource('panen', App\Http\Controllers\PanenController::class);
+        Route::resource('panen', PanenController::class);
         
         // Laporan Petani
-        Route::get('petani/laporan/pengajuan-benih', [\App\Http\Controllers\PetaniLaporanController::class, 'pengajuanBenih'])->name('petani.laporan.pengajuan-benih');
-        Route::get('petani/laporan/pengajuan-benih/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPengajuanBenih'])->name('petani.laporan.pengajuan-benih.export');
-        Route::get('petani/laporan/distribusi-benih', [\App\Http\Controllers\PetaniLaporanController::class, 'distribusiBenih'])->name('petani.laporan.distribusi-benih');
-        Route::get('petani/laporan/distribusi-benih/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportDistribusiBenih'])->name('petani.laporan.distribusi-benih.export');
-        Route::get('petani/laporan/penawaran-panen', [\App\Http\Controllers\PetaniLaporanController::class, 'penawaranPanen'])->name('petani.laporan.penawaran-panen');
-        Route::get('petani/laporan/penawaran-panen/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPenawaranPanen'])->name('petani.laporan.penawaran-panen.export');
-        Route::get('petani/laporan/pembelian', [\App\Http\Controllers\PetaniLaporanController::class, 'pembelian'])->name('petani.laporan.pembelian');
-        Route::get('petani/laporan/pembelian/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPembelian'])->name('petani.laporan.pembelian.export');
-        Route::get('petani/laporan/penjualan', [\App\Http\Controllers\PetaniLaporanController::class, 'penjualan'])->name('petani.laporan.penjualan');
-        Route::get('petani/laporan/penjualan/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPenjualan'])->name('petani.laporan.penjualan.export');
-        Route::get('petani/laporan/pembayaran', [\App\Http\Controllers\PetaniLaporanController::class, 'pembayaran'])->name('petani.laporan.pembayaran');
-        Route::get('petani/laporan/pembayaran/export', [\App\Http\Controllers\PetaniLaporanController::class, 'exportPembayaran'])->name('petani.laporan.pembayaran.export');
+        Route::get('petani/laporan/pengajuan-benih', [PetaniLaporanController::class, 'pengajuanBenih'])->name('petani.laporan.pengajuan-benih');
+        Route::get('petani/laporan/pengajuan-benih/export', [PetaniLaporanController::class, 'exportPengajuanBenih'])->name('petani.laporan.pengajuan-benih.export');
+        Route::get('petani/laporan/distribusi-benih', [PetaniLaporanController::class, 'distribusiBenih'])->name('petani.laporan.distribusi-benih');
+        Route::get('petani/laporan/distribusi-benih/export', [PetaniLaporanController::class, 'exportDistribusiBenih'])->name('petani.laporan.distribusi-benih.export');
+        Route::get('petani/laporan/penawaran-panen', [PetaniLaporanController::class, 'penawaranPanen'])->name('petani.laporan.penawaran-panen');
+        Route::get('petani/laporan/penawaran-panen/export', [PetaniLaporanController::class, 'exportPenawaranPanen'])->name('petani.laporan.penawaran-panen.export');
+        Route::get('petani/laporan/pembelian', [PetaniLaporanController::class, 'pembelian'])->name('petani.laporan.pembelian');
+        Route::get('petani/laporan/pembelian/export', [PetaniLaporanController::class, 'exportPembelian'])->name('petani.laporan.pembelian.export');
+        Route::get('petani/laporan/penjualan', [PetaniLaporanController::class, 'penjualan'])->name('petani.laporan.penjualan');
+        Route::get('petani/laporan/penjualan/export', [PetaniLaporanController::class, 'exportPenjualan'])->name('petani.laporan.penjualan.export');
+        Route::get('petani/laporan/pembayaran', [PetaniLaporanController::class, 'pembayaran'])->name('petani.laporan.pembayaran');
+        Route::get('petani/laporan/pembayaran/export', [PetaniLaporanController::class, 'exportPembayaran'])->name('petani.laporan.pembayaran.export');
     });
 
     // 5. CRUD Stok
@@ -367,7 +398,7 @@ Route::middleware(['auth.custom'])->group(function () {
 Route::post('/midtrans/notification', [MidtransController::class, 'notification'])->name('midtrans.notification');
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('koperasi/stok-koperasi', \App\Http\Controllers\KoperasiStokController::class, [
+    Route::resource('koperasi/stok-koperasi', KoperasiStokController::class, [
         'as' => 'koperasi'
     ])->except(['show']);
 });

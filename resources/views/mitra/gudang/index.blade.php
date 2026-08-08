@@ -19,7 +19,7 @@
             @if(auth()->user()->role === 'mitra' || auth()->user()->role === 'admin' || in_array(auth()->user()->role, ['super admin', 'superadmin']))
             <a href="{{ route('mitra-gudang.create') }}" 
                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-200 text-sm font-bold shadow-lg shadow-blue-600/30 transform hover:-translate-y-0.5">
-                <span class="text-lg leading-none">+</span> Tambah Gudang Mitra
+                <span class="text-lg leading-none">+</span> Tambah Gudang Mitrac
             </a>
             @endif
         </div>

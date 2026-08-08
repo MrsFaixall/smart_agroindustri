@@ -9,6 +9,24 @@ class PenjualanBuah extends Model
     protected $guarded = [];
     protected $table = 'penjualan_buahs';
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->tracking_token)) {
+                $model->tracking_token = (string) \Illuminate\Support\Str::uuid();
+            }
+            if (empty($model->estimasi_waktu)) {
+                $model->estimasi_waktu = '6 Jam 15 Menit';
+            }
+            if (empty($model->routing_path)) {
+                // Mock SVG routing coordinate path
+                $model->routing_path = 'M60 80 Q 120 100 160 60 T 240 40';
+            }
+        });
+    }
+
     public function koperasi()
     {
         return $this->belongsTo(User::class, 'koperasi_id');

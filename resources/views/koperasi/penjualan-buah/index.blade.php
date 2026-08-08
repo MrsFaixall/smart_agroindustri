@@ -110,6 +110,9 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
+                            <a href="{{ route('penjualan-buah.print-qr', $t->id) }}" target="_blank" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1 shadow-sm border border-indigo-100/50">
+                                <span>🖨️</span> QR Tag
+                            </a>
                             @if($t->status === 'belum lunas')
                                 <form action="{{ route('penjualan-buah.bayar', $t->id) }}" method="POST" onsubmit="return confirm('Konfirmasi pelunasan transaksi ini?')">
                                     @csrf

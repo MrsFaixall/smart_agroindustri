@@ -83,6 +83,17 @@
                             Pelajari Lebih Lanjut
                         </a>
                     </div>
+
+                    <!-- Quick QR Traceability Search (Non-login) -->
+                    <div class="mt-8 max-w-md" x-data="{ quickToken: '' }">
+                        <form @submit.prevent="if (quickToken.trim() === '') { alert('Mohon masukkan token QR Anda!'); return; } window.open('/lacak/' + quickToken.trim(), '_blank')" class="relative flex items-center rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-100/50 focus-within:border-emerald-500 transition-all">
+                            <span class="pl-3 text-slate-400 text-xs sm:text-sm">🎫</span>
+                            <input type="text" x-model="quickToken" placeholder="Lacak Token QR Kentang Anda..." class="flex-1 pl-2.5 pr-2 py-2.5 text-xs font-mono font-bold outline-none text-slate-700 placeholder-slate-400 bg-transparent">
+                            <button type="submit" class="bg-gradient-to-r from-blue-600 to-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md shadow-emerald-500/20 hover:shadow-lg transition flex items-center gap-1">
+                                <span>🔍</span> Lacak
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div class="relative lg:h-[600px] flex items-center justify-center">
                     <!-- Abstract decorative elements -->
