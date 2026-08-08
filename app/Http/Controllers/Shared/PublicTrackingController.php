@@ -28,13 +28,16 @@ class PublicTrackingController extends Controller
             return response()->json(['success' => false, 'message' => 'Token pelacakan tidak ditemukan.'], 404);
         }
 
+        $rawGrade = $transaksi->grade ?? 'A';
+        $gradeLetter = trim(str_ireplace('Grade', '', $rawGrade));
+
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $transaksi->tracking_token,
                 'varietas' => $transaksi->jenisKentang->nama_jenis ?? '-',
-                'grade' => 'Grade ' . ($transaksi->grade ?? 'A'),
-                'berat' => number_format($transaksi->kuantitas, 0, ',', '.') . ' Kg',
+                'grade' => 'Grade ' . ($gradeLetter ?: 'A'),
+                'berat' => number_format($transaksi->jumlah_kg ?? 0, 0, ',', '.') . ' Kg',
                 'petani' => 'Mitra Kelompok Tani Koperasi',
                 'koperasi' => $transaksi->koperasi->name ?? '-',
                 'lokasi' => $transaksi->koperasi->alamat ?? 'Sentra Tani Koperasi',
