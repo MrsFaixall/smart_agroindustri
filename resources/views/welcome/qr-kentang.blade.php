@@ -633,8 +633,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Dynamic Google Maps Embed representing the warehouse destination -->
-                                <div class="bg-slate-100 border border-slate-200 rounded-2xl h-64 overflow-hidden relative shadow-inner" x-html="batches[selectedBatch] ? batches[selectedBatch].mapEmbed : ''">
+                                <!-- Dynamic SVG map representing the route -->
+                                <div class="bg-slate-50 border border-slate-100 rounded-2xl h-36 overflow-hidden relative" x-html="batches[selectedBatch] ? batches[selectedBatch].mapSvg : ''">
                                 </div>
                                 <p class="text-[10px] text-slate-400 text-center leading-relaxed font-semibold italic">
                                     "Optimasi rute Smart Routing menjamin kentang sampai di tujuan dalam kesegaran maksimal."
@@ -919,7 +919,27 @@
                         suhuKargo: '16°C (Optimal)',
                         kategoriColor: 'text-amber-600 bg-amber-50 border-amber-100',
                         gradeColor: 'text-emerald-700 bg-emerald-50 border-emerald-100',
-                        mapEmbed: `<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q=-6.2926715,106.8710344&hl=id&z=15&output=embed" allowfullscreen></iframe>`
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M60 80 Q 120 100 160 60 T 240 40' stroke='#e2e8f0' stroke-width='4' stroke-linecap='round'/>
+                            <path d='M60 80 Q 120 100 160 60 T 240 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M60 80 Q 120 100 160 60 T 240 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                            <circle cx='60' cy='80' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='60' cy='80' r='4' fill='#f59e0b'/>
+                            <text x='52' y='95' fill='#64748b' class='text-[8px] font-extrabold outfit'>DIENG</text>
+                            <circle cx='240' cy='40' r='4' fill='#ef4444' stroke='white' stroke-width='1.5'/>
+                            <circle cx='240' cy='40' r='2.5' fill='#ef4444'/>
+                            <text x='225' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>JAKARTA</text>
+                            <text x='15' y='105' fill='#94a3b8' class='text-[7px] font-mono tracking-wider font-bold'>DIENG → JAKARTA</text>
+                            <g>
+                                <path d='M-6 -2 H1 L3 0 V2 H-6 V-2 Z' fill='#0f172a'/>
+                                <rect x='-8' y='-1' width='2.5' height='2.5' fill='#38bdf8'/>
+                                <circle cx='-3.5' cy='2.5' r='1' fill='#64748b'/>
+                                <circle cx='1.5' cy='2.5' r='1' fill='#64748b'/>
+                                <animateMotion dur='7s' repeatCount='indefinite' rotate='auto' path='M60 80 Q 120 100 160 60 T 240 40'/>
+                            </g>
+                        </svg>`
                     },
                     'batch-2': {
                         id: 'KTG-0825-ATL',
@@ -940,7 +960,27 @@
                         suhuKargo: '17°C (Optimal)',
                         kategoriColor: 'text-blue-600 bg-blue-50 border-blue-100',
                         gradeColor: 'text-amber-700 bg-amber-50 border-amber-100',
-                        mapEmbed: `<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q=-6.2750699,107.1685806&hl=id&z=15&output=embed" allowfullscreen></iframe>`
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M90 90 Q 140 75 160 65 T 210 40' stroke='#e2e8f0' stroke-width='4' stroke-linecap='round'/>
+                            <path d='M90 90 Q 140 75 160 65 T 210 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M90 90 Q 140 75 160 65 T 210 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                            <circle cx='90' cy='90' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='90' cy='90' r='4' fill='#f59e0b'/>
+                            <text x='70' y='105' fill='#64748b' class='text-[8px] font-extrabold outfit'>PANGALENGAN</text>
+                            <circle cx='210' cy='40' r='4' fill='#ef4444' stroke='white' stroke-width='1.5'/>
+                            <circle cx='210' cy='40' r='2.5' fill='#ef4444'/>
+                            <text x='200' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>CIKARANG</text>
+                            <text x='15' y='105' fill='#94a3b8' class='text-[7px] font-mono tracking-wider font-bold'>PANGALENGAN → CIKARANG</text>
+                            <g>
+                                <path d='M-6 -2 H1 L3 0 V2 H-6 V-2 Z' fill='#0f172a'/>
+                                <rect x='-8' y='-1' width='2.5' height='2.5' fill='#38bdf8'/>
+                                <circle cx='-3.5' cy='2.5' r='1' fill='#64748b'/>
+                                <circle cx='1.5' cy='2.5' r='1' fill='#64748b'/>
+                                <animateMotion dur='7s' repeatCount='indefinite' rotate='auto' path='M90 90 Q 140 75 160 65 T 210 40'/>
+                            </g>
+                        </svg>`
                     },
                     'batch-3': {
                         id: 'KTG-0826-MRH',
@@ -961,7 +1001,27 @@
                         suhuKargo: '14°C (Kargo Pendingin)',
                         kategoriColor: 'text-rose-600 bg-rose-50 border-rose-100',
                         gradeColor: 'text-indigo-700 bg-indigo-50 border-indigo-100',
-                        mapEmbed: `<iframe class="w-full h-full border-0" src="https://maps.google.com/maps?q=-6.1581467,106.9061099&hl=id&z=15&output=embed" allowfullscreen></iframe>`
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M240 90 C 180 80 120 70 60 40' stroke='#e2e8f0' stroke-width='4' stroke-linecap='round'/>
+                            <path d='M240 90 C 180 80 120 70 60 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M240 90 C 180 80 120 70 60 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                            <circle cx='240' cy='90' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='240' cy='90' r='4' fill='#f59e0b'/>
+                            <text x='225' y='105' fill='#64748b' class='text-[8px] font-extrabold outfit'>BROMO</text>
+                            <circle cx='60' cy='40' r='4' fill='#ef4444' stroke='white' stroke-width='1.5'/>
+                            <circle cx='60' cy='40' r='2.5' fill='#ef4444'/>
+                            <text x='42' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>JAKARTA</text>
+                            <text x='15' y='105' fill='#94a3b8' class='text-[7px] font-mono tracking-wider font-bold'>BROMO → JAKARTA</text>
+                            <g>
+                                <path d='M-6 -2 H1 L3 0 V2 H-6 V-2 Z' fill='#0f172a'/>
+                                <rect x='-8' y='-1' width='2.5' height='2.5' fill='#38bdf8'/>
+                                <circle cx='-3.5' cy='2.5' r='1' fill='#64748b'/>
+                                <circle cx='1.5' cy='2.5' r='1' fill='#64748b'/>
+                                <animateMotion dur='7s' repeatCount='indefinite' rotate='auto' path='M240 90 C 180 80 120 70 60 40'/>
+                            </g>
+                        </svg>`
                     }
                 },
                 initScanner() {
