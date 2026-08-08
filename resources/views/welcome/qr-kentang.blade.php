@@ -358,227 +358,7 @@
     </section>
 
     <!-- Interactive Demo Section -->
-    <section id="demo-pindai" class="py-24 bg-white relative overflow-hidden" x-data="{
-        selectedBatch: 'batch-1',
-        isScanning: false,
-        scanCompleted: false,
-        showResult: false,
-        batches: {
-            'batch-1': {
-                id: 'KTG-0824-GRN',
-                varietas: 'Kentang Granola Super',
-                grade: 'Grade A (Premium)',
-                berat: '50 Kg',
-                petani: 'Pak Wawan - Kelompok Tani Dieng',
-                koperasi: 'Koperasi Dieng Makmur',
-                lokasi: 'Dataran Tinggi Dieng, Wonosobo',
-                ketinggian: '2.090 mdpl',
-                tanggalPanen: '05 Agustus 2026',
-                tanggalKirim: '06 Agustus 2026',
-                tujuan: 'Pasar Induk Kramat Jati, Jakarta',
-                jarak: '430 Km',
-                ruteInfo: 'Jalur Tol Trans Jawa (Cepat & Mulus)',
-                truckNo: 'B 9482 SXA',
-                waktuTempuh: '6 Jam 15 Menit',
-                suhuKargo: '16°C (Optimal)',
-                kategoriColor: 'text-amber-600 bg-amber-50 border-amber-100',
-                gradeColor: 'text-emerald-700 bg-emerald-50 border-emerald-100',
-                mapSvg: `<svg class=\'w-full h-full\' viewBox=\'0 0 300 120\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'>
-                    <path d=\'M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <path d=\'M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <circle cx=\'60\' cy=\'80\' r=\'6\' fill=\'#f59e0b\' stroke=\'white\' stroke-width=\'2\' class=\'animate-pulse\'/>
-                    <circle cx=\'60\' cy=\'80\' r=\'4\' fill=\'#f59e0b\'/>
-                    <text x=\'52\' y=\'95\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Dieng</text>
-                    <circle cx=\'240\' cy=\'40\' r=\'4\' fill=\'#10b981\'/>
-                    <text x=\'225\' y=\'32\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Jakarta</text>
-                    <path d=\'M60 80 Q 120 100 160 60 T 240 40\' stroke=\'#6366f1\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-dasharray=\'6 4\' class=\'animate-route\'/>
-                    <path d=\'M60 80 Q 120 100 160 60 T 240 40\' stroke=\'#10b981\' stroke-width=\'1.5\' stroke-linecap=\'round\'/>
-                </svg>`
-            },
-            'batch-2': {
-                id: 'KTG-0825-ATL',
-                varietas: 'Kentang Atlantic Industri',
-                grade: 'Grade B (Standar Olahan)',
-                berat: '45 Kg',
-                petani: 'Pak Sugeng - Tani Pangalengan',
-                koperasi: 'Koperasi Tani Pangalengan',
-                lokasi: 'Pangalengan, Bandung',
-                ketinggian: '1.420 mdpl',
-                tanggalPanen: '06 Agustus 2026',
-                tanggalKirim: '07 Agustus 2026',
-                tujuan: 'Kawasan Industri Cikarang, Bekasi',
-                jarak: '180 Km',
-                ruteInfo: 'Jalur Tol Cipularang (Bebas Hambatan)',
-                truckNo: 'D 8203 YC',
-                waktuTempuh: '3 Jam 45 Menit',
-                suhuKargo: '17°C (Optimal)',
-                kategoriColor: 'text-blue-600 bg-blue-50 border-blue-100',
-                gradeColor: 'text-amber-700 bg-amber-50 border-amber-100',
-                mapSvg: `<svg class=\'w-full h-full\' viewBox=\'0 0 300 120\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'>
-                    <path d=\'M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <path d=\'M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <circle cx=\'90\' cy=\'90\' r=\'6\' fill=\'#f59e0b\' stroke=\'white\' stroke-width=\'2\' class=\'animate-pulse\'/>
-                    <circle cx=\'90\' cy=\'90\' r=\'4\' fill=\'#f59e0b\'/>
-                    <text x=\'70\' y=\'105\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Pangalengan</text>
-                    <circle cx=\'210\' cy=\'40\' r=\'4\' fill=\'#10b981\'/>
-                    <text x=\'200\' y=\'32\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Cikarang</text>
-                    <path d=\'M90 90 Q 140 75 160 65 T 210 40\' stroke=\'#6366f1\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-dasharray=\'6 4\' class=\'animate-route\'/>
-                    <path d=\'M90 90 Q 140 75 160 65 T 210 40\' stroke=\'#10b981\' stroke-width=\'1.5\' stroke-linecap=\'round\'/>
-                </svg>`
-            },
-            'batch-3': {
-                id: 'KTG-0826-MRH',
-                varietas: 'Kentang Merah Premium',
-                grade: 'Grade A+ (Organik Super)',
-                berat: '40 Kg',
-                petani: 'Ibu Ratna - Agro Lestari Bromo',
-                koperasi: 'Koperasi Bromo Sejahtera',
-                lokasi: 'Tengger, Probolinggo',
-                ketinggian: '2.320 mdpl',
-                tanggalPanen: '04 Agustus 2026',
-                tanggalKirim: '05 Agustus 2026',
-                tujuan: 'Supermarket Organik, Kelapa Gading',
-                jarak: '810 Km',
-                ruteInfo: 'Jalur Tol Trans Jawa (Ekspres Logistik)',
-                truckNo: 'N 7492 UY',
-                waktuTempuh: '11 Jam 30 Menit',
-                suhuKargo: '14°C (Kargo Pendingin)',
-                kategoriColor: 'text-rose-600 bg-rose-50 border-rose-100',
-                gradeColor: 'text-indigo-700 bg-indigo-50 border-indigo-100',
-                mapSvg: `<svg class=\'w-full h-full\' viewBox=\'0 0 300 120\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'>
-                    <path d=\'M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <path d=\'M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110\' stroke=\'#f1f5f9\' stroke-width=\'1\'/>
-                    <circle cx=\'240\' cy=\'90\' r=\'6\' fill=\'#f59e0b\' stroke=\'white\' stroke-width=\'2\' class=\'animate-pulse\'/>
-                    <circle cx=\'240\' cy=\'90\' r=\'4\' fill=\'#f59e0b\'/>
-                    <text x=\'225\' y=\'105\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Bromo</text>
-                    <circle cx=\'60\' cy=\'40\' r=\'4\' fill=\'#10b981\'/>
-                    <text x=\'42\' y=\'32\' fill=\'#64748b\' class=\'text-[8px] font-extrabold outfit\'>Kelapa Gading</text>
-                    <path d=\'M240 90 C 180 80 120 70 60 40\' stroke=\'#6366f1\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-dasharray=\'6 4\' class=\'animate-route\'/>
-                    <path d=\'M240 90 C 180 80 120 70 60 40\' stroke=\'#10b981\' stroke-width=\'1.5\' stroke-linecap=\'round\'/>
-                </svg>`
-            }
-        },
-        isRealCameraActive: false,
-        facingMode: 'environment',
-        errorMessage: '',
-        html5QrCodeInstance: null,
-        initScanner() {
-            if (!this.html5QrCodeInstance) {
-                this.html5QrCodeInstance = new Html5Qrcode("interactive-camera");
-            }
-        },
-        async startRealCamera() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                this.errorMessage = 'Akses kamera ditolak oleh browser Anda. Pastikan Anda menggunakan koneksi aman (HTTPS atau localhost) dan memberikan izin akses kamera.';
-                return;
-            }
-            this.initScanner();
-            this.isRealCameraActive = true;
-            this.errorMessage = '';
-            
-            const config = { fps: 15, qrbox: { width: 180, height: 180 } };
-            try {
-                await this.html5QrCodeInstance.start(
-                    { facingMode: this.facingMode },
-                    config,
-                    (decodedText) => {
-                        this.handleScanSuccess(decodedText);
-                    },
-                    (err) => {
-                        // Silent error
-                    }
-                );
-            } catch (err) {
-                this.errorMessage = 'Akses kamera gagal: ' + err.message + '. Pastikan izin kamera telah diberikan di pengaturan browser Anda.';
-                this.isRealCameraActive = false;
-            }
-        },
-        async stopRealCamera() {
-            if (this.html5QrCodeInstance && this.isRealCameraActive) {
-                try {
-                    await this.html5QrCodeInstance.stop();
-                } catch (e) {
-                    console.error(e);
-                }
-                this.isRealCameraActive = false;
-            }
-        },
-        async flipCamera() {
-            if (!this.isRealCameraActive) return;
-            this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
-            await this.stopRealCamera();
-            await this.startRealCamera();
-        },
-        async handleImageUpload(event) {
-            this.initScanner();
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            this.errorMessage = '';
-            try {
-                const decodedText = await this.html5QrCodeInstance.scanFile(file, true);
-                this.handleScanSuccess(decodedText);
-            } catch (err) {
-                this.errorMessage = 'Tidak dapat membaca QR. Pastikan gambar QR code jelas.';
-            }
-        },
-        handleScanSuccess(decodedText) {
-            this.playBeep();
-            this.stopRealCamera();
-            
-            let token = decodedText;
-            if (decodedText.includes('/lacak/')) {
-                const parts = decodedText.split('/lacak/');
-                token = parts[parts.length - 1];
-            }
-            
-            if (token === 'KTG-0824-GRN') {
-                this.selectedBatch = 'batch-1';
-                this.scanCompleted = true;
-                this.showResult = true;
-                return;
-            } else if (token === 'KTG-0825-ATL') {
-                this.selectedBatch = 'batch-2';
-                this.scanCompleted = true;
-                this.showResult = true;
-                return;
-            } else if (token === 'KTG-0826-MRH') {
-                this.selectedBatch = 'batch-3';
-                this.scanCompleted = true;
-                this.showResult = true;
-                return;
-            }
-            
-            fetch('/api/lacak/' + token)
-                .then(res => res.json())
-                .then(response => {
-                    if (response.success) {
-                        this.batches['scanned'] = response.data;
-                        this.selectedBatch = 'scanned';
-                        this.scanCompleted = true;
-                        this.showResult = true;
-                    } else {
-                        this.errorMessage = 'QR valid, tetapi data transaksi tidak ditemukan.';
-                    }
-                })
-                .catch(err => {
-                    this.errorMessage = 'Terjadi kesalahan saat memuat data pelacakan.';
-                });
-        },
-        playBeep() {
-            try {
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = context.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, context.currentTime);
-                osc.connect(context.destination);
-                osc.start();
-                osc.stop(context.currentTime + 0.15);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }">
+    <section id="demo-pindai" class="py-24 bg-white relative overflow-hidden" x-data="qrScanner()">
         <!-- Decorative blobs -->
         <div class="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
         <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
@@ -1106,6 +886,231 @@
                     }
                 }
             }
+        }
+
+        function qrScanner() {
+            return {
+                selectedBatch: 'batch-1',
+                isScanning: false,
+                scanCompleted: false,
+                showResult: false,
+                searchToken: '',
+                isRealCameraActive: false,
+                facingMode: 'environment',
+                errorMessage: '',
+                html5QrCodeInstance: null,
+                batches: {
+                    'batch-1': {
+                        id: 'KTG-0824-GRN',
+                        varietas: 'Kentang Granola Super',
+                        grade: 'Grade A (Premium)',
+                        berat: '50 Kg',
+                        petani: 'Pak Wawan - Kelompok Tani Dieng',
+                        koperasi: 'Koperasi Dieng Makmur',
+                        lokasi: 'Dataran Tinggi Dieng, Wonosobo',
+                        ketinggian: '2.090 mdpl',
+                        tanggalPanen: '05 Agustus 2026',
+                        tanggalKirim: '06 Agustus 2026',
+                        tujuan: 'Pasar Induk Kramat Jati, Jakarta',
+                        jarak: '430 Km',
+                        ruteInfo: 'Jalur Tol Trans Jawa (Cepat & Mulus)',
+                        truckNo: 'B 9482 SXA',
+                        waktuTempuh: '6 Jam 15 Menit',
+                        suhuKargo: '16°C (Optimal)',
+                        kategoriColor: 'text-amber-600 bg-amber-50 border-amber-100',
+                        gradeColor: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <circle cx='60' cy='80' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='60' cy='80' r='4' fill='#f59e0b'/>
+                            <text x='52' y='95' fill='#64748b' class='text-[8px] font-extrabold outfit'>Dieng</text>
+                            <circle cx='240' cy='40' r='4' fill='#10b981'/>
+                            <text x='225' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>Jakarta</text>
+                            <path d='M60 80 Q 120 100 160 60 T 240 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M60 80 Q 120 100 160 60 T 240 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                        </svg>`
+                    },
+                    'batch-2': {
+                        id: 'KTG-0825-ATL',
+                        varietas: 'Kentang Atlantic Industri',
+                        grade: 'Grade B (Standar Olahan)',
+                        berat: '45 Kg',
+                        petani: 'Pak Sugeng - Tani Pangalengan',
+                        koperasi: 'Koperasi Tani Pangalengan',
+                        lokasi: 'Pangalengan, Bandung',
+                        ketinggian: '1.420 mdpl',
+                        tanggalPanen: '06 Agustus 2026',
+                        tanggalKirim: '07 Agustus 2026',
+                        tujuan: 'Kawasan Industri Cikarang, Bekasi',
+                        jarak: '180 Km',
+                        ruteInfo: 'Jalur Tol Cipularang (Bebas Hambatan)',
+                        truckNo: 'D 8203 YC',
+                        waktuTempuh: '3 Jam 45 Menit',
+                        suhuKargo: '17°C (Optimal)',
+                        kategoriColor: 'text-blue-600 bg-blue-50 border-blue-100',
+                        gradeColor: 'text-amber-700 bg-amber-50 border-amber-100',
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <circle cx='90' cy='90' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='90' cy='90' r='4' fill='#f59e0b'/>
+                            <text x='70' y='105' fill='#64748b' class='text-[8px] font-extrabold outfit'>Pangalengan</text>
+                            <circle cx='210' cy='40' r='4' fill='#10b981'/>
+                            <text x='200' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>Cikarang</text>
+                            <path d='M90 90 Q 140 75 160 65 T 210 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M90 90 Q 140 75 160 65 T 210 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                        </svg>`
+                    },
+                    'batch-3': {
+                        id: 'KTG-0826-MRH',
+                        varietas: 'Kentang Merah Premium',
+                        grade: 'Grade A+ (Organik Super)',
+                        berat: '40 Kg',
+                        petani: 'Ibu Ratna - Agro Lestari Bromo',
+                        koperasi: 'Koperasi Bromo Sejahtera',
+                        lokasi: 'Tengger, Probolinggo',
+                        ketinggian: '2.320 mdpl',
+                        tanggalPanen: '04 Agustus 2026',
+                        tanggalKirim: '05 Agustus 2026',
+                        tujuan: 'Supermarket Organik, Kelapa Gading',
+                        jarak: '810 Km',
+                        ruteInfo: 'Jalur Tol Trans Jawa (Ekspres Logistik)',
+                        truckNo: 'N 7492 UY',
+                        waktuTempuh: '11 Jam 30 Menit',
+                        suhuKargo: '14°C (Kargo Pendingin)',
+                        kategoriColor: 'text-rose-600 bg-rose-50 border-rose-100',
+                        gradeColor: 'text-indigo-700 bg-indigo-50 border-indigo-100',
+                        mapSvg: `<svg class='w-full h-full' viewBox='0 0 300 120' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M10 20 H290 M10 40 H290 M10 60 H290 M10 80 H290 M10 100 H290' stroke='#f1f5f9' stroke-width='1'/>
+                            <path d='M50 10 V110 M100 10 V110 M150 10 V110 M200 10 V110 M250 10 V110' stroke='#f1f5f9' stroke-width='1'/>
+                            <circle cx='240' cy='90' r='6' fill='#f59e0b' stroke='white' stroke-width='2' class='animate-pulse'/>
+                            <circle cx='240' cy='90' r='4' fill='#f59e0b'/>
+                            <text x='225' y='105' fill='#64748b' class='text-[8px] font-extrabold outfit'>Bromo</text>
+                            <circle cx='60' cy='40' r='4' fill='#10b981'/>
+                            <text x='42' y='32' fill='#64748b' class='text-[8px] font-extrabold outfit'>Kelapa Gading</text>
+                            <path d='M240 90 C 180 80 120 70 60 40' stroke='#6366f1' stroke-width='3' stroke-linecap='round' stroke-dasharray='6 4' class='animate-route'/>
+                            <path d='M240 90 C 180 80 120 70 60 40' stroke='#10b981' stroke-width='1.5' stroke-linecap='round'/>
+                        </svg>`
+                    }
+                },
+                initScanner() {
+                    if (!this.html5QrCodeInstance) {
+                        this.html5QrCodeInstance = new Html5Qrcode("interactive-camera");
+                    }
+                },
+                async startRealCamera() {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        this.errorMessage = 'Akses kamera ditolak oleh browser Anda. Pastikan Anda menggunakan koneksi aman (HTTPS atau localhost) dan memberikan izin akses kamera.';
+                        return;
+                    }
+                    this.initScanner();
+                    this.isRealCameraActive = true;
+                    this.errorMessage = '';
+                    
+                    const config = { fps: 15, qrbox: { width: 180, height: 180 } };
+                    try {
+                        await this.html5QrCodeInstance.start(
+                            { facingMode: this.facingMode },
+                            config,
+                            (decodedText) => {
+                                this.handleScanSuccess(decodedText);
+                            },
+                            (err) => {
+                                // Silent error
+                            }
+                        );
+                    } catch (err) {
+                        this.errorMessage = 'Akses kamera gagal: ' + err.message + '. Pastikan izin kamera telah diberikan di pengaturan browser Anda.';
+                        this.isRealCameraActive = false;
+                    }
+                },
+                async stopRealCamera() {
+                    if (this.html5QrCodeInstance && this.isRealCameraActive) {
+                        try {
+                            await this.html5QrCodeInstance.stop();
+                        } catch (e) {
+                            console.error(e);
+                        }
+                        this.isRealCameraActive = false;
+                    }
+                },
+                async flipCamera() {
+                    if (!this.isRealCameraActive) return;
+                    this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
+                    await this.stopRealCamera();
+                    await this.startRealCamera();
+                },
+                async handleImageUpload(event) {
+                    this.initScanner();
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    this.errorMessage = '';
+                    try {
+                        const decodedText = await this.html5QrCodeInstance.scanFile(file, true);
+                        this.handleScanSuccess(decodedText);
+                    } catch (err) {
+                        this.errorMessage = 'Tidak dapat membaca QR. Pastikan gambar QR code jelas.';
+                    }
+                },
+                handleScanSuccess(decodedText) {
+                    this.playBeep();
+                    this.stopRealCamera();
+                    
+                    let token = decodedText;
+                    if (decodedText.includes('/lacak/')) {
+                        const parts = decodedText.split('/lacak/');
+                        token = parts[parts.length - 1];
+                    }
+                    
+                    if (token === 'KTG-0824-GRN') {
+                        this.selectedBatch = 'batch-1';
+                        this.scanCompleted = true;
+                        this.showResult = true;
+                        return;
+                    } else if (token === 'KTG-0825-ATL') {
+                        this.selectedBatch = 'batch-2';
+                        this.scanCompleted = true;
+                        this.showResult = true;
+                        return;
+                    } else if (token === 'KTG-0826-MRH') {
+                        this.selectedBatch = 'batch-3';
+                        this.scanCompleted = true;
+                        this.showResult = true;
+                        return;
+                    }
+                    
+                    fetch('/api/lacak/' + token)
+                        .then(res => res.json())
+                        .then(response => {
+                            if (response.success) {
+                                this.batches['scanned'] = response.data;
+                                this.selectedBatch = 'scanned';
+                                this.scanCompleted = true;
+                                this.showResult = true;
+                            } else {
+                                this.errorMessage = 'QR valid, tetapi data transaksi tidak ditemukan.';
+                            }
+                        })
+                        .catch(err => {
+                            this.errorMessage = 'Terjadi kesalahan saat memuat data pelacakan.';
+                        });
+                },
+                playBeep() {
+                    try {
+                        const context = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = context.createOscillator();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(880, context.currentTime);
+                        osc.connect(context.destination);
+                        osc.start();
+                        osc.stop(context.currentTime + 0.15);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            };
         }
     </script>
 </body>
