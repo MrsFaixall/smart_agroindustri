@@ -76,6 +76,7 @@ Route::get('/penjualan-buah/{id}/print-qr', function ($id) {
     return view('koperasi.penjualan-buah.print-qr', compact('transaksi'));
 })->name('penjualan-buah.print-qr');
 Route::get('/lacak/{token}', [PublicTrackingController::class, 'track'])->name('public.track');
+Route::get('/api/lacak/{token}', [PublicTrackingController::class, 'apiTrack'])->name('public.track.api');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');

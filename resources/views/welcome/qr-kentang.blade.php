@@ -24,6 +24,7 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -457,15 +458,121 @@
                 </svg>`
             }
         },
-        startScan() {
-            this.isScanning = true;
-            this.showResult = false;
-            this.scanCompleted = false;
-            setTimeout(() => {
-                this.isScanning = false;
+        isRealCameraActive: false,
+        facingMode: 'environment',
+        errorMessage: '',
+        html5QrCodeInstance: null,
+        initScanner() {
+            if (!this.html5QrCodeInstance) {
+                this.html5QrCodeInstance = new Html5Qrcode("interactive-camera");
+            }
+        },
+        async startRealCamera() {
+            this.initScanner();
+            this.isRealCameraActive = true;
+            this.errorMessage = '';
+            
+            const config = { fps: 15, qrbox: { width: 180, height: 180 } };
+            try {
+                await this.html5QrCodeInstance.start(
+                    { facingMode: this.facingMode },
+                    config,
+                    (decodedText) => {
+                        this.handleScanSuccess(decodedText);
+                    },
+                    (err) => {
+                        // Silent error
+                    }
+                );
+            } catch (err) {
+                this.errorMessage = 'Akses kamera gagal: ' + err.message;
+                this.isRealCameraActive = false;
+            }
+        },
+        async stopRealCamera() {
+            if (this.html5QrCodeInstance && this.isRealCameraActive) {
+                try {
+                    await this.html5QrCodeInstance.stop();
+                } catch (e) {
+                    console.error(e);
+                }
+                this.isRealCameraActive = false;
+            }
+        },
+        async flipCamera() {
+            if (!this.isRealCameraActive) return;
+            this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
+            await this.stopRealCamera();
+            await this.startRealCamera();
+        },
+        async handleImageUpload(event) {
+            this.initScanner();
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            this.errorMessage = '';
+            try {
+                const decodedText = await this.html5QrCodeInstance.scanFile(file, true);
+                this.handleScanSuccess(decodedText);
+            } catch (err) {
+                this.errorMessage = 'Tidak dapat membaca QR. Pastikan gambar QR code jelas.';
+            }
+        },
+        handleScanSuccess(decodedText) {
+            this.playBeep();
+            this.stopRealCamera();
+            
+            let token = decodedText;
+            if (decodedText.includes('/lacak/')) {
+                const parts = decodedText.split('/lacak/');
+                token = parts[parts.length - 1];
+            }
+            
+            if (token === 'KTG-0824-GRN') {
+                this.selectedBatch = 'batch-1';
                 this.scanCompleted = true;
                 this.showResult = true;
-            }, 1800);
+                return;
+            } else if (token === 'KTG-0825-ATL') {
+                this.selectedBatch = 'batch-2';
+                this.scanCompleted = true;
+                this.showResult = true;
+                return;
+            } else if (token === 'KTG-0826-MRH') {
+                this.selectedBatch = 'batch-3';
+                this.scanCompleted = true;
+                this.showResult = true;
+                return;
+            }
+            
+            fetch('/api/lacak/' + token)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        this.batches['scanned'] = response.data;
+                        this.selectedBatch = 'scanned';
+                        this.scanCompleted = true;
+                        this.showResult = true;
+                    } else {
+                        this.errorMessage = 'QR valid, tetapi data transaksi tidak ditemukan.';
+                    }
+                })
+                .catch(err => {
+                    this.errorMessage = 'Terjadi kesalahan saat memuat data pelacakan.';
+                });
+        },
+        playBeep() {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = context.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, context.currentTime);
+                osc.connect(context.destination);
+                osc.start();
+                osc.stop(context.currentTime + 0.15);
+            } catch (e) {
+                console.error(e);
+            }
         }
     }">
         <!-- Decorative blobs -->
@@ -482,110 +589,144 @@
             </div>
 
             <div class="grid lg:grid-cols-12 gap-12 items-stretch">
-                <!-- Left: Scanner Simulator & Batch Selection (5 Cols) -->
-                <div class="lg:col-span-5 flex flex-col justify-between space-y-8 bg-slate-50 border border-slate-100 rounded-3xl p-6 sm:p-8">
-                    <div class="space-y-6">
-                        <h3 class="text-xl font-bold outfit text-slate-900 text-center sm:text-left">1. Pilih Batch Kentang</h3>
-                        
-                        <!-- Batch Options -->
-                        <div class="space-y-3">
-                            <button @click="selectedBatch = 'batch-1'; scanCompleted = false; showResult = false;" 
-                                    class="w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 bg-white"
-                                    :class="selectedBatch === 'batch-1' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200 hover:border-slate-300'">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-lg flex-shrink-0">🥔</div>
-                                    <div>
-                                        <div class="text-sm font-bold text-slate-800">Batch #KTG-0824-GRN</div>
-                                        <div class="text-xs text-slate-400">Varietas Granola • Kop. Dieng</div>
-                                    </div>
-                                </div>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold text-emerald-700 bg-emerald-50 flex-shrink-0">Grade A</span>
-                            </button>
-
-                            <button @click="selectedBatch = 'batch-2'; scanCompleted = false; showResult = false;" 
-                                    class="w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 bg-white"
-                                    :class="selectedBatch === 'batch-2' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200 hover:border-slate-300'">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg flex-shrink-0">🥔</div>
-                                    <div>
-                                        <div class="text-sm font-bold text-slate-800">Batch #KTG-0825-ATL</div>
-                                        <div class="text-xs text-slate-400">Varietas Atlantic • Kop. Pangalengan</div>
-                                    </div>
-                                </div>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold text-amber-700 bg-amber-50 flex-shrink-0">Grade B</span>
-                            </button>
-
-                            <button @click="selectedBatch = 'batch-3'; scanCompleted = false; showResult = false;" 
-                                    class="w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 bg-white"
-                                    :class="selectedBatch === 'batch-3' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200 hover:border-slate-300'">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-lg flex-shrink-0">🥔</div>
-                                    <div>
-                                        <div class="text-sm font-bold text-slate-800">Batch #KTG-0826-MRH</div>
-                                        <div class="text-xs text-slate-400">Varietas Kentang Merah • Kop. Bromo</div>
-                                    </div>
-                                </div>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold text-indigo-700 bg-indigo-50 flex-shrink-0">Grade A+</span>
-                            </button>
-                        </div>
+                <!-- Left: Smartphone QR Scanner Widget (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col items-center justify-start space-y-6 bg-slate-50 border border-slate-100 rounded-3xl p-6 sm:p-8">
+                    <div class="w-full text-center sm:text-left">
+                        <h3 class="text-xl font-bold outfit text-slate-900">Pemindai QR Cerdas</h3>
+                        <p class="text-xs text-slate-500 mt-1">Arahkan kamera ke QR Code tag karung kentang, unggah gambar, atau pilih salah satu batch simulasi di bawah.</p>
                     </div>
 
-                    <!-- Scan Trigger Button and Camera Mockup -->
-                    <div class="space-y-4 pt-4 border-t border-slate-200/60">
-                        <h3 class="text-xl font-bold outfit text-slate-900 text-center sm:text-left">2. Jalankan Pemindaian</h3>
+                    <!-- Smartphone Frame -->
+                    <div class="relative w-full max-w-[280px] sm:max-w-[290px] bg-slate-900 p-3.5 rounded-[42px] shadow-2xl border-4 border-slate-700 shadow-indigo-500/10">
+                        <!-- Ear Speaker & Notch -->
+                        <div class="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-slate-900 rounded-b-2xl z-40 flex items-center justify-center gap-1.5 border-x border-b border-slate-800">
+                            <div class="w-1.5 h-1.5 rounded-full bg-slate-800"></div>
+                            <div class="w-10 h-0.5 bg-slate-800 rounded-full"></div>
+                        </div>
                         
-                        <!-- Camera Scan Viewport -->
-                        <div class="relative bg-slate-950 rounded-2xl aspect-[4/3] overflow-hidden flex flex-col items-center justify-center border border-slate-800 shadow-inner">
+                        <!-- Smartphone Screen -->
+                        <div class="relative rounded-[32px] overflow-hidden aspect-[9/16] bg-slate-950 flex flex-col justify-between border border-slate-800">
                             
-                            <!-- Scanner laser line when scanning -->
-                            <div x-show="isScanning" class="absolute left-0 right-0 h-1 bg-emerald-500 shadow-[0_0_15px_#10b981] scanner-line z-20"></div>
-                            
-                            <!-- Scanning target guidelines -->
-                            <div class="absolute inset-8 border border-white/10 rounded-xl flex items-center justify-center z-10">
-                                <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-emerald-500"></div>
-                                <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-emerald-500"></div>
-                                <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-emerald-500"></div>
-                                <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-emerald-500"></div>
+                            <!-- Scanner Screen Area -->
+                            <div class="relative flex-1 bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
                                 
-                                <!-- QR Mockup image inside scanner -->
-                                <svg class="w-20 h-20 text-white/20 transition-colors duration-300" :class="isScanning ? 'text-emerald-400/70' : ''" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm14-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm13-2h3v2h-3v-2zm3 3h3v3h-3v-3zm-3 3h3v-3h-3v3zm-3-3h3v3h-3v-3zm3-3h-3v3h3v-3zm-6-2v3h-3v2h5v-5h-2zm4 4v3h2v-3h-2zm-2 2h2v2h-2v-2z"/>
-                                </svg>
-                            </div>
+                                <!-- Scanning Laser Line Animation -->
+                                <div x-show="isRealCameraActive || isScanning" class="absolute left-0 right-0 h-1 bg-emerald-500 shadow-[0_0_15px_#10b981] scanner-line z-30 pointer-events-none"></div>
+                                
+                                <!-- Real Device Camera Viewport -->
+                                <div id="interactive-camera" x-show="isRealCameraActive" class="absolute inset-0 w-full h-full object-cover z-10 bg-slate-900"></div>
+                                
+                                <!-- Simulated Scanner Animation Viewport -->
+                                <div x-show="isScanning" class="absolute inset-0 z-10 bg-slate-950 flex items-center justify-center">
+                                    <div class="absolute inset-6 border border-emerald-500/30 rounded-xl flex items-center justify-center">
+                                        <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-emerald-500"></div>
+                                        <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-emerald-500"></div>
+                                        <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-emerald-500"></div>
+                                        <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-emerald-500"></div>
+                                        <svg class="w-12 h-12 text-emerald-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm14-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm13-2h3v2h-3v-2zm3 3h3v3h-3v-3zm-3 3h3v-3h-3v3zm-3-3h3v3h-3v-3zm3-3h-3v3h3v-3zm-6-2v3h-3v2h5v-5h-2zm4 4v3h2v-3h-2zm-2 2h2v2h-2v-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute bottom-6 left-0 right-0 text-center z-20">
+                                        <span class="text-[9px] font-mono tracking-widest text-emerald-400 animate-pulse uppercase">Memindai Batch...</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Standby Screen (Inactive state) -->
+                                <div x-show="!isRealCameraActive && !isScanning && !scanCompleted" class="p-6 text-center space-y-4 z-20 text-white select-none">
+                                    <div class="w-14 h-14 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center text-2xl mx-auto shadow-inner animate-pulse">
+                                        📷
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold outfit">Kamera Standby</h4>
+                                        <p class="text-[9px] text-slate-400 mt-1 max-w-[180px] mx-auto">Aktifkan kamera ponsel atau pilih salah satu opsi pemicu di bawah.</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Scan Completed Success Overlay -->
+                                <div x-show="scanCompleted" class="absolute inset-0 bg-emerald-950/95 backdrop-blur-md flex flex-col items-center justify-center z-40 space-y-2 text-center p-4">
+                                    <span class="text-3xl animate-bounce">🎉</span>
+                                    <h4 class="text-white text-[10px] font-bold uppercase tracking-widest font-mono">Pindai Berhasil!</h4>
+                                    <p class="text-[8px] text-emerald-300 font-mono break-all max-w-[160px]" x-text="'ID: ' + batches[selectedBatch].id"></p>
+                                    <button @click="scanCompleted = false; showResult = false;" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[9px] font-bold shadow transition-all mt-2">Ulangi</button>
+                                </div>
 
-                            <!-- States overlays -->
-                            <template x-if="isScanning">
-                                <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px] flex items-center justify-center z-30">
-                                    <span class="text-sm font-bold font-mono tracking-widest text-emerald-400 animate-pulse">PINDAI QR KODE...</span>
+                                <!-- Error Alert Overlay -->
+                                <div x-show="errorMessage !== ''" class="absolute bottom-16 left-3 right-3 bg-rose-950/90 border border-rose-900 text-rose-200 text-[8px] p-2 rounded-xl z-30 text-center backdrop-blur-sm">
+                                    <p x-text="errorMessage"></p>
                                 </div>
-                            </template>
+                            </div>
                             
-                            <template x-if="scanCompleted">
-                                <div class="absolute inset-0 bg-emerald-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-30 space-y-2 text-white animate-fade-in">
-                                    <span class="text-3xl">✅</span>
-                                    <span class="text-sm font-bold outfit">Pindai Berhasil!</span>
-                                    <span class="text-[10px] text-emerald-300 font-mono" x-text="batches[selectedBatch].id"></span>
+                            <!-- Phone Screen Bottom Control Panel -->
+                            <div class="bg-slate-900/95 border-t border-slate-800/80 p-3 z-20 flex flex-col gap-2">
+                                <div class="flex gap-2">
+                                    <!-- Toggle Live Camera Button -->
+                                    <button @click="isRealCameraActive ? stopRealCamera() : startRealCamera()" 
+                                            class="flex-1 py-2 px-3 rounded-xl font-bold text-[9px] text-white transition flex items-center justify-center gap-1.5 shadow"
+                                            :class="isRealCameraActive ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'">
+                                        <span x-show="!isRealCameraActive">🟢 Mulai Kamera</span>
+                                        <span x-show="isRealCameraActive">🔴 Stop Kamera</span>
+                                    </button>
+                                    
+                                    <!-- Flip Camera (Toggle front/back facing mode) -->
+                                    <button @click="flipCamera()" 
+                                            :disabled="!isRealCameraActive"
+                                            class="p-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition flex items-center justify-center flex-shrink-0"
+                                            title="Putar Arah Kamera">
+                                        🔄
+                                    </button>
                                 </div>
+                                
+                                <!-- Fallback upload file -->
+                                <label class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-xl text-[8px] text-center cursor-pointer transition flex items-center justify-center gap-1">
+                                    📁 Unggah Gambar QR
+                                    <input type="file" accept="image/*" @change="handleImageUpload($event)" class="hidden">
+                                </label>
+                            </div>
                         </div>
                         
-                        <button @click="startScan()" 
-                                :disabled="isScanning"
-                                class="w-full mt-4 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm tracking-wide uppercase transition duration-300 flex items-center justify-center gap-2 shadow-xl hover:shadow-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span x-show="!isScanning">🚀 Simulasikan Pindai QR</span>
-                            <span x-show="isScanning">⏳ Memindai...</span>
-                        </button>
+                        <!-- Phone bottom home indicator -->
+                        <div class="w-16 h-1 bg-slate-700 rounded-full mx-auto mt-2"></div>
                     </div>
 
-                    <!-- Real QR Tracking input (No Login) -->
-                    <div class="space-y-4 pt-6 border-t border-slate-200/60" x-data="{ searchToken: '' }">
-                        <h3 class="text-lg font-bold outfit text-slate-900 text-center sm:text-left">3. Lacak Token QR Riil</h3>
-                        <p class="text-xs text-slate-500">Mempunyai token QR karung kentang asli dari Koperasi? Masukkan token 36 digit Anda di bawah untuk melacak rantai pasok secara langsung.</p>
+                    <!-- Batch & Token triggers (Unification) -->
+                    <div class="w-full pt-4 border-t border-slate-200/60 space-y-4">
+                        <div class="text-center sm:text-left">
+                            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Pemicu Simulasi Batch</h4>
+                            <p class="text-[10px] text-slate-400">Pilih salah satu batch kentang untuk disimulasikan pindaiannya pada ponsel di atas.</p>
+                        </div>
                         
-                        <form @submit.prevent="if (searchToken.trim() === '') { alert('Mohon masukkan token QR Anda!'); return; } window.open('/lacak/' + searchToken.trim(), '_blank')" class="relative flex rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm focus-within:border-emerald-500 transition">
-                            <input type="text" x-model="searchToken" placeholder="Masukkan token UUID..." class="flex-1 pl-4 pr-2 py-2 text-xs font-mono font-bold outline-none text-slate-700 placeholder-slate-400">
-                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md transition flex items-center gap-1.5">
-                                <span>🔍</span> Lacak
+                        <!-- Simulated triggers list -->
+                        <div class="grid grid-cols-3 gap-2">
+                            <button @click="selectedBatch = 'batch-1'; isRealCameraActive = false; scanCompleted = false; showResult = false; isScanning = true; setTimeout(() => { isScanning = false; scanCompleted = true; showResult = true; playBeep(); }, 1500);" 
+                                    class="p-2 rounded-xl border text-center transition-all bg-white hover:border-emerald-500"
+                                    :class="selectedBatch === 'batch-1' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200'">
+                                <span class="text-base block mb-0.5">🥔</span>
+                                <span class="text-[9px] font-bold text-slate-700 block">Granola</span>
+                                <span class="text-[8px] text-slate-400 font-mono">Grade A</span>
                             </button>
+
+                            <button @click="selectedBatch = 'batch-2'; isRealCameraActive = false; scanCompleted = false; showResult = false; isScanning = true; setTimeout(() => { isScanning = false; scanCompleted = true; showResult = true; playBeep(); }, 1500);" 
+                                    class="p-2 rounded-xl border text-center transition-all bg-white hover:border-emerald-500"
+                                    :class="selectedBatch === 'batch-2' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200'">
+                                <span class="text-base block mb-0.5">🥔</span>
+                                <span class="text-[9px] font-bold text-slate-700 block">Atlantic</span>
+                                <span class="text-[8px] text-slate-400 font-mono">Grade B</span>
+                            </button>
+
+                            <button @click="selectedBatch = 'batch-3'; isRealCameraActive = false; scanCompleted = false; showResult = false; isScanning = true; setTimeout(() => { isScanning = false; scanCompleted = true; showResult = true; playBeep(); }, 1500);" 
+                                    class="p-2 rounded-xl border text-center transition-all bg-white hover:border-emerald-500"
+                                    :class="selectedBatch === 'batch-3' ? 'border-emerald-500 ring-2 ring-emerald-50' : 'border-slate-200'">
+                                <span class="text-base block mb-0.5">🥔</span>
+                                <span class="text-[9px] font-bold text-slate-700 block">Merah</span>
+                                <span class="text-[8px] text-slate-400 font-mono">Grade A+</span>
+                            </button>
+                        </div>
+
+                        <!-- Manual Token Input Form -->
+                        <form @submit.prevent="if (searchToken.trim() === '') { alert('Mohon masukkan token QR Anda!'); return; } handleScanSuccess(searchToken.trim())" class="relative flex items-center rounded-2xl border border-slate-200 bg-white p-1 focus-within:border-emerald-500 transition-all">
+                            <input type="text" x-model="searchToken" placeholder="Masukkan token UUID..." class="flex-1 pl-3 text-[10px] font-mono font-bold outline-none text-slate-700 placeholder-slate-400 bg-transparent">
+                            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-xl text-[9px] transition">🔍 Cari</button>
                         </form>
                     </div>
                 </div>
