@@ -680,7 +680,7 @@
                                 <!-- Fallback upload file -->
                                 <label class="w-full py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold rounded-xl text-[8px] text-center cursor-pointer transition flex items-center justify-center gap-1">
                                     📁 Unggah Gambar QR
-                                    <input type="file" accept="image/*" @change="handleImageUpload($event)" class="hidden">
+                                    <input type="file" @change="handleImageUpload($event)" class="hidden">
                                 </label>
                             </div>
                         </div>
