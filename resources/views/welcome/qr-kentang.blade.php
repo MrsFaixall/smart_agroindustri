@@ -468,6 +468,10 @@
             }
         },
         async startRealCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                this.errorMessage = 'Akses kamera ditolak oleh browser Anda. Pastikan Anda menggunakan koneksi aman (HTTPS atau localhost) dan memberikan izin akses kamera.';
+                return;
+            }
             this.initScanner();
             this.isRealCameraActive = true;
             this.errorMessage = '';
@@ -485,7 +489,7 @@
                     }
                 );
             } catch (err) {
-                this.errorMessage = 'Akses kamera gagal: ' + err.message;
+                this.errorMessage = 'Akses kamera gagal: ' + err.message + '. Pastikan izin kamera telah diberikan di pengaturan browser Anda.';
                 this.isRealCameraActive = false;
             }
         },
@@ -614,7 +618,7 @@
                                 <div x-show="isRealCameraActive || isScanning" class="absolute left-0 right-0 h-1 bg-emerald-500 shadow-[0_0_15px_#10b981] scanner-line z-30 pointer-events-none"></div>
                                 
                                 <!-- Real Device Camera Viewport -->
-                                <div id="interactive-camera" x-show="isRealCameraActive" class="absolute inset-0 w-full h-full object-cover z-10 bg-slate-900"></div>
+                                <div id="interactive-camera" class="absolute inset-0 w-full h-full object-cover bg-slate-900 transition-opacity duration-300" :class="isRealCameraActive ? 'opacity-100 z-10' : 'opacity-0 -z-10'"></div>
                                 
                                 <!-- Simulated Scanner Animation Viewport -->
                                 <div x-show="isScanning" class="absolute inset-0 z-10 bg-slate-950 flex items-center justify-center">
